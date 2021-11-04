@@ -31,16 +31,7 @@ docker run --rm emb_docker:v0.0.1
 #>         --version or -v         Output all versions related to QGIS Process
 #>         --json          Output results as JSON objects
 #>         --verbose       Output verbose logs
-#> 
-#> Available commands:
-#>         plugins         list available and active plugins
-#>         plugins enable  enables an installed plugin. The plugin name must be specified, e.g. "plugins enable cartography_tools"
-#>         plugins disable disables an installed plugin. The plugin name must be specified, e.g. "plugins disable cartography_tools"
-#>         list            list all available processing algorithms
-#>         help            show help for an algorithm. The algorithm id or a path to a model file must be specified.
-#>         run             runs an algorithm. The algorithm id or a path to a model file and parameter values must be specified. Parameter values are specified after -- with PARAMETER=VALUE syntax. Ordered list values for a parameter can be created by specifying the parameter multiple times, e.g. --LAYERS=layer1.shp --LAYERS=layer2.shp
-#>                         If required, the ellipsoid to use for distance and area calculations can be specified via the "--ELLIPSOID=name" argument.
-#>                         If required, an existing QGIS project to use during the algorithm execution can be specified via the "--PROJECT_PATH=path" argument.
+# [...]
 ```
 
 ## Beispiele
