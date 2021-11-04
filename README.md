@@ -11,11 +11,12 @@ cd geoflow
 
 ## Docker
 
-Im Dockerfile sind die einzelnen Schritte nicht in einem großen Block, damit die ge-cached werden können.
+- Im Dockerfile sind die einzelnen Schritte nicht in einem großen Block, damit die ge-cached werden können.
 Was eine sinnvolle Aufteilung/Zusammenführung wäre weiß ich nicht. Es funktioniert (vorerst), das reicht
 erstmal. Wie das mit Cache-Invalidation in Verbindung mit dem Git-Repo aussieht weiß ich nicht.
-
-`docker build` läuft nicht ohne Warnungen durch, das ist aber eine Sache für die Enmap-Box-Entwickler.
+- `docker build` läuft nicht ohne Warnungen durch, das ist aber eine Sache für die Enmap-Box-Entwickler.
+- In den Beispielen mappe ich auf den Ordner `/home/data`, vielleicht ist es besser, den bereits beim Erstellen des
+Containers zu erstellen. Ich weiß es aber nicht.
 
 ```bash
 # -f Dockerfile braucht es eigentlich nicht
