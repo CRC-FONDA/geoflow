@@ -76,7 +76,7 @@ umgestaltet werden könnte/sollte. Ein paar Ansatzpunkte (ohne Ahnung von Docker
   zu beachten gibt, kann auf [GitHub Repo von qgis](https://github.com/qgis/QGIS/blob/master/INSTALL.md)
   nachgelesen werden. In deren Dockerfile auf Anregung (?) welche
   Argumente/Build-Targets da übergeben werden sollten.
-  - Alpine Linux (Container-Gr. ca. 180 Mb?) verwenden, wenn möglich. Keine Ahnung.
+  - Alpine Linux (Container-Gr. ca. 180 Mb?) verwenden, wenn möglich.
 - Das betrifft vielleicht auch eher die Enmap-Box als uns direkt: Einen ähnlichen Ansatz wie David,
 der sich ein *baseimage* gebastelt hat um die ganzen Abhängigkeiten nicht immer neu installieren
 und kompilieren zu müssen.
