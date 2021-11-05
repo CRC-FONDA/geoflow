@@ -2,10 +2,8 @@
 
 ## Auf die Plätze, fertig, los!
 
-Mit den nötigen Berechtigungen:
-
 ```bash
-git clone https://scm.cms.hu-berlin.de/katerndf/geoflow.git
+git clone https://github.com/CRC-FONDA/geoflow.git
 cd geoflow
 ```
 
