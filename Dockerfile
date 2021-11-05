@@ -6,7 +6,6 @@ FROM qgis/qgis:${QGIS_VERSION}
 LABEL version="0.0.1"
 LABEL description="EnMAP-Box in Docker"
 
-# Checkout funktioniert nicht, weil da mein "requirements_docker.txt" noch nicht exitierte
 ARG ENMAP_VERSION='v3.9'
 #ARG ENMAP_BRANCH='master'
 ARG XRD='/tmp/runtime-root'
