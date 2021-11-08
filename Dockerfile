@@ -14,29 +14,27 @@ ENV DEBIANFRONTEND=noninteractive
 ENV QT_QPA_PLATFORM=offscreen
 ENV XDG_RUNTIME_DIR=$XRD
 
-RUN git clone https://bitbucket.org/hu-geomatics/enmap-box.git
+WORKDIR tmp/build
 
-COPY external/custom-requirements.txt /enmap-box/
+COPY external/custom-requirements.txt .
 
-RUN # h5py is build against serial interface of HDF5-1.10.4. For parallel processing or newer versions see \
+RUN mkdir $XRD && \
+    mkdir -p ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins && \
+    # h5py is build against serial interface of HDF5-1.10.4. For parallel processing or newer versions see \
     # https://docs.h5py.org/en/latest/faq.html#building-from-git \
     # https://www.hdfgroup.org/downloads/hdf5/source-code/ \
     # and to an extent https://stackoverflow.com/questions/34119670/hdf5-library-and-header-mismatch-error
     HDF5_LIBDIR=/usr/lib/x86_64-linux-gnu/hdf5/serial HDF5_INCLUDEDIR=/usr/include/hdf5/serial \
-      pip install --no-binary=h5py h5py>=3.5.0
+      pip3 install --no-cache-dir --no-binary=h5py h5py>=3.5.0 && \
+    python3 -m pip install --no-cache-dir -r custom-requirements.txt
 
-RUN mkdir $XRD && \
-    mkdir -p ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins
-
-RUN cd enmap-box && \
+RUN git clone https://bitbucket.org/hu-geomatics/enmap-box.git && \
+    cd enmap-box && \
     git checkout $ENMAP_VERSION && \
-    python3 -m pip install -r custom-requirements.txt && \
     python3 scripts/setup_repository.py && \
     python3 scripts/create_plugin.py && \
-    cp -r deploy/enmapboxplugin ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins
-
-RUN qgis_process plugins enable enmapboxplugin
-
-RUN rm -rf /enmap-box
+    cp -r deploy/enmapboxplugin ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins && \
+    qgis_process plugins enable enmapboxplugin && \
+    rm -rf /tmp/build
 
 CMD ["qgis_process"]
