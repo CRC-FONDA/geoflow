@@ -14,7 +14,7 @@ ENV DEBIANFRONTEND=noninteractive
 ENV QT_QPA_PLATFORM=offscreen
 ENV XDG_RUNTIME_DIR=$XRD
 
-WORKDIR tmp/build
+WORKDIR /tmp/build
 
 COPY external/custom-requirements.txt .
 

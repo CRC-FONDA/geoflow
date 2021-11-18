@@ -1,2 +1,5 @@
 .idea
 external/data
+work/
+.nextflow/
+.nextflow.*
