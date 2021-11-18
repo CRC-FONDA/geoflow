@@ -21,7 +21,6 @@ Containers zu erstellen. Ich weiß es aber nicht.
 docker build -t emb_docker:v0.0.1 -f Dockerfile .
 
 docker run --rm emb_docker:v0.0.1
-
 #> QGIS Processing Executor - 3.23.0-Master 'Master' (3.23.0-Master)
 #> Usage: qgis_process [--help] [--version] [--json] [--verbose] [command] [algorithm id or path to model file] [parameters]
 #>
@@ -31,6 +30,14 @@ docker run --rm emb_docker:v0.0.1
 #>         --json          Output results as JSON objects
 #>         --verbose       Output verbose logs
 # [...]
+```
+
+### Von Dockerhub
+
+Das Image ist jetzt auch auf [Dockerhub](https://hub.docker.com/r/floriankaterndahl/geoflow). Komprimiert immer noch 2.5 Gb
+
+```bash
+docker pull floriankaterndahl/geoflow:0.0.1
 ```
 
 ## Beispiele
