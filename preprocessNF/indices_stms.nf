@@ -1,3 +1,5 @@
+nextflow.enable.dsl = 2
+
 process calc_ndvi {
     input:
     tuple path(reflectance), path(qai)
