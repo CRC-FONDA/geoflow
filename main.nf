@@ -13,6 +13,7 @@ def single_tile = input -> {
 def single_tileP = input -> {
     Boolean tile_x = (input[1][0] =~ /(?<=X00)${params.tx}(?=_Y)/)
     Boolean tile_y = (input[1][0] =~ /(?<=Y00)${params.ty}/)
+    // due to the bracket notation, this can (currently) only filter for the first letter
     Boolean sensor = (input[1][0] =~ /(?<=LEVEL2_)[${params.s0}].*?(?=_)/)
 
     return tile_x && tile_y && sensor
