@@ -18,6 +18,7 @@ WORKDIR /tmp/build
 
 COPY external/custom-requirements.txt .
 
+# TODO: This is not the way you would want to do this, right?
 COPY scripts-python/* /usr/bin/*
 
 RUN mkdir $XRD && \
