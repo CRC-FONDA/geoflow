@@ -1,4 +1,4 @@
-# Teile des Dockerfiles entstammen dem Dockerfile der Enmap-Box
+# Parts of this Dockerfile were taken from EnMap's Docker configuration file
 ARG QGIS_VERSION=latest
 
 FROM qgis/qgis:${QGIS_VERSION}
@@ -17,6 +17,10 @@ ENV XDG_RUNTIME_DIR=$XRD
 WORKDIR /tmp/build
 
 COPY external/custom-requirements.txt .
+
+COPY scripts-python/* /usr/bin/scripts-python
+
+RUN chmod +x /usr/bin/scripts-python 
 
 RUN mkdir $XRD && \
     mkdir -p ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins && \
