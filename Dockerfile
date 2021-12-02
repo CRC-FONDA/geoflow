@@ -18,8 +18,11 @@ WORKDIR /tmp/build
 
 COPY external/custom-requirements.txt .
 
-# TODO: This is not the way you would want to do this, right?
-COPY scripts-python/* /usr/bin/*
+ADD scripts-python/* /root/scripts/
+
+RUN chmod +x /root/scripts/*
+
+ENV PATH "$PATH:/root/scripts"
 
 RUN mkdir $XRD && \
     mkdir -p ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins && \
