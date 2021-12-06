@@ -3,3 +3,5 @@
 .gitignore
 README.md
 external/data
+work/
+.nextflow*
