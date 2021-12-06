@@ -44,11 +44,13 @@ def create_multi_stack_vrt(multi_raster_path: List[str], description: List[str])
     :param description:
     :return:
     """
-
     vrt_out: str = re.sub(
         r"(?<=(?:LND04|LND05|LND07|LND08|SEN2A|SEN2B|sen2a|sen2b|S1AIA|S1BIA|S1AID|S1BID|LNDLG|SEN2L|SEN2H|R-G-B|VVVHP)_).*?(?=.tif|.vrt)",
         "STACK",
-        multi_raster_path)
+	# doesn't matter which file I choose, basename is always the same
+        multi_raster_path[0])
+
+    vrt_out: str = re.sub(r"(?<=STACK.).*$", "vrt", vrt_out)
 
     if multi_vrt := gdal.BuildVRT(vrt_out, multi_raster_path, separate=True):
         for band_index in range(1, len(multi_raster_path) + 1):
