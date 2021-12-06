@@ -14,5 +14,7 @@ workflow build_vrt_stack {
 	data
     main:
 	build_vrt_stack_process(data)
+    emit:
+	build_vrt_stack_process.out
 }
 
