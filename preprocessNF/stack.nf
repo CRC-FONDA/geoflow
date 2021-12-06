@@ -29,7 +29,7 @@ process stack {
     """
 }
 
-process build_vrt_stack_procsess {
+process build_vrt_stack_process {
     label 'debug'
 
     cpus params.n_cpus_indices
