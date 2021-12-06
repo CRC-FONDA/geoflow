@@ -18,12 +18,6 @@ WORKDIR /tmp/build
 
 COPY external/custom-requirements.txt .
 
-ADD scripts-python/* /root/scripts/
-
-RUN chmod +x /root/scripts/*
-
-ENV PATH "$PATH:/root/scripts"
-
 RUN mkdir $XRD && \
     mkdir -p ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins && \
     # h5py is build against serial interface of HDF5-1.10.4. For parallel processing or newer versions see \
@@ -42,5 +36,9 @@ RUN git clone https://bitbucket.org/hu-geomatics/enmap-box.git && \
     cp -r deploy/enmapboxplugin ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins && \
     qgis_process plugins enable enmapboxplugin && \
     rm -rf /tmp/build
+
+ADD scripts-python/* /root/scripts/
+RUN chmod +x /root/scripts/*
+ENV PATH "$PATH:/root/scripts"
 
 CMD ["qgis_process"]
