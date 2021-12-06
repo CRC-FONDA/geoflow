@@ -38,7 +38,14 @@ def generate_band_description_list(path: List[str]) -> List[str]:
     return return_list
 
 
-def create_multi_stack_vrt(multi_raster_path: List[str], description: List[str]) -> None:
+def resolve_fpaths(paths: List[str]) -> List[str]:
+    return_list = []
+    for path in paths:
+        return_list.append(str(Path(path).absolute()))
+
+    return return_list
+
+def create_multi_stack_vrt(args_dict: Dict[str, List[str]], multi_raster_path: List[str], description: List[str]) -> None:
     """
     Create multi-band VRT-stack from list of single-band files.
     if it does not already exist.
@@ -52,10 +59,12 @@ def create_multi_stack_vrt(multi_raster_path: List[str], description: List[str])
 	# doesn't matter which file I choose, basename is always the same
         multi_raster_path[0])
 
-    vrt_out: str = re.sub(r"(?<=STACK.).*$", "vrt", vrt_out)
+    vrt_out = re.sub(r"(?<=STACK.).*$", "vrt", vrt_out)
 
     # insert subdirectory to force relative path
-    vrt_out: str = args.get("temp-subdir").pop() + "/" + vrt_out
+    vrt_out= args_dict.get("temp-subdir").pop() + "/" + vrt_out
+
+    multi_raster_path = resolve_fpaths(multi_raster_path)
 
     if multi_vrt := gdal.BuildVRT(vrt_out, multi_raster_path, separate=True):
         for band_index in range(1, len(multi_raster_path) + 1):
@@ -72,7 +81,7 @@ def main():
 
     band_descriptors: List[str] = generate_band_description_list(args.get("paths"))
 
-    create_multi_stack_vrt(args.get("paths"), band_descriptors)
+    create_multi_stack_vrt(args, args.get("paths"), band_descriptors)
 
     src_raster = None
 
