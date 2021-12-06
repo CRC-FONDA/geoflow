@@ -18,7 +18,7 @@ process ndvi {
     tuple val(TID), val(identifier), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(identifier), path(reflectance), path(qai), path("${identifier}_NDVI.tif"), emit: ndvi_out
+    tuple val(TID), val(identifier), path("${identifier}_NDVI.tif"), emit: ndvi_out
 
     // TODO: Scaling, trunctuating, and re-writing output file should be done in python script -> holds everything together more closely. 
     script:
@@ -43,7 +43,7 @@ process evi {
     tuple val(TID), val(identifier), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(identifier), path(reflectance), path(qai), path("${identifier}_EVI.tif"), emit: evi_out
+    tuple val(TID), val(identifier), path("${identifier}_EVI.tif"), emit: evi_out
 
     script:
     """
@@ -67,7 +67,7 @@ process nbr {
     tuple val(TID), val(identifier), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(identifier), path(reflectance), path(qai), path("${identifier}_NBR.tif"), emit: nbr_out
+    tuple val(TID), val(identifier), path("${identifier}_NBR.tif"), emit: nbr_out
 
     script:
     """
@@ -91,14 +91,14 @@ process ndti {
     tuple val(TID), val(identifier), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(identifier), path(reflectance), path(qai), path("${identifier}_NDTI.tif"), emit: ndti_out
+    tuple val(TID), val(identifier), path("${identifier}_NDTI.tif"), emit: ndti_out
 
     script:
     """
     qgis_process run enmapbox:RasterMath -- \
     code="(R1@9 - R1@10) / (R1@9 + R1@10)" \
     R1=$reflectance \
-    outputRaster=${identifier}_NDTI.tif
+    outputRaster=${identifier}_NDTI-temp.tif
 
     adjust_indices.py ${identifier}_NDTI-temp.tif ${identifier}_NDTI.tif
     """
@@ -115,7 +115,7 @@ process arvi {
     tuple val(TID), val(identifier), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(identifier), path(reflectance), path(qai), path("${identifier}_ARVI.tif"), emit: arvi_out
+    tuple val(TID), val(identifier), path("${identifier}_ARVI.tif"), emit: arvi_out
 
     script:
     """
@@ -139,7 +139,7 @@ process savi {
     tuple val(TID), val(identifier), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(identifier), path(reflectance), path(qai), path("${identifier}_SAVI.tif"), emit: savi_out
+    tuple val(TID), val(identifier), path("${identifier}_SAVI.tif"), emit: savi_out
 
     script:
     """
@@ -163,7 +163,7 @@ process sarvi {
     tuple val(TID), val(identifier), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(identifier), path(reflectance), path(qai), path("${identifier}_SARVI.tif"), emit: sarvi_out
+    tuple val(TID), val(identifier), path("${identifier}_SARVI.tif"), emit: sarvi_out
 
     script:
     """
