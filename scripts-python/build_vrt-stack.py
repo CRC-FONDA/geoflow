@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import Dict, Optional, List
 
 parser = argparse.ArgumentParser()
+parser.add_argument("temp-subdir", nargs=1,
+		    help="subdirectory used to force absolute file paths")
 parser.add_argument("paths", action='extend', nargs='+',
                     help="Files to stack")
 
@@ -51,6 +53,9 @@ def create_multi_stack_vrt(multi_raster_path: List[str], description: List[str])
         multi_raster_path[0])
 
     vrt_out: str = re.sub(r"(?<=STACK.).*$", "vrt", vrt_out)
+
+    # insert subdirectory to force relative path
+    vrt_out: str = args.get("temp-subdir").pop() + "/" + vrt_out
 
     if multi_vrt := gdal.BuildVRT(vrt_out, multi_raster_path, separate=True):
         for band_index in range(1, len(multi_raster_path) + 1):
