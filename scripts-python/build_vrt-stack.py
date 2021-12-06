@@ -2,7 +2,6 @@
 
 from osgeo import gdal
 import re
-# import numpy as np
 import argparse
 from pathlib import Path
 from typing import Dict, Optional, List
