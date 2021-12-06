@@ -53,6 +53,10 @@ src_dst_values_scaled = np.int_(np.trunc(src_dst_values * 10_000))
 
 # fetch band, set color interpretation (https://gis.stackexchange.com/a/414699) and write Band
 output_band = dst_ds.GetRasterBand(1)
+
+# Index name only exists in file name
+# TODO while this does works, it looks ugly af
+output_band.SetDescription(argv[1].split("/")[-1].split("_")[-1].split(".")[0])
 output_band.SetColorInterpretation(gdal.GCI_GrayIndex)
 output_band.WriteArray(src_dst_values_scaled)
 
