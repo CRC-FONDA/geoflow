@@ -6,11 +6,10 @@ import argparse
 from pathlib import Path
 from typing import Dict, Optional, List, AnyStr
 
-parser = argparse.ArgumentParser()
-parser.add_argument("output_dir_temp", nargs=1, type=str,
-                    help="Path to output directory where intermediate and final VRTs will be stored.\
-                     To guarantee absolute file paths in the VRT, a sub-folder containing the final output file will \
-                     be created.")
+parser = argparse.ArgumentParser(
+    description="This script generates as many single band virtual raster files as there are \
+                    bands in the input file. The '.vrt' files will be generated in the same directory as the input \
+                    file. This is because of the way Nextflow (at least to me) seems to function.")
 parser.add_argument("multi_band", nargs=1, type=str,
                     help="File Path to Multi-band reflectance raster (i.e. FORCE Level2-ARD")
 
@@ -41,7 +40,7 @@ def read_raster(path: str) -> gdal.Dataset:
     raise OSError(f"Failed to open dataset {path}")
 
 
-def create_single_band_vrt(out_dir: str, multi_raster: gdal.Dataset, multi_raster_path: str) -> None:
+def create_single_band_vrt(multi_raster: gdal.Dataset, multi_raster_path: str) -> None:
     """
     Create CRT-Datasets of each band in multi_raster as a side effect and return Dictionary with file paths and band
     descriptions of written files.
@@ -50,14 +49,12 @@ def create_single_band_vrt(out_dir: str, multi_raster: gdal.Dataset, multi_raste
     :param multi_raster_path: file path to raster file with > 1 bands
     :return: Dictionary containing both paths (to newly created VRT-files) and content of description field
     """
-    out_dir = Path(out_dir + "/" + get_tid(multi_raster_path) + "/" + get_identifier(multi_raster_path))
-    out_dir.mkdir(exist_ok=True)
 
     n_bands: int = multi_raster.RasterCount
     file_name: str = str(Path(multi_raster_path).name)
 
     for i in range(1, n_bands + 1):
-        vrt_out: str = str(out_dir) + f"/{extract_basename(file_name, '.tif', '')}_{str(i).rjust(2, '0')}.vrt"
+        vrt_out: str = f"./{extract_basename(file_name, '.tif', '')}_{str(i).rjust(2, '0')}.vrt"
         if single_vrt := gdal.BuildVRT(vrt_out, multi_raster, bandList=[i]):
             band_name = multi_raster.GetRasterBand(i).GetDescription()
 
@@ -76,8 +73,7 @@ def main():
 
     src_raster: Optional[gdal.Dataset] = read_raster(args.get("multi_band")[0])
 
-    create_single_band_vrt(args.get("output_dir_temp")[0], src_raster,
-                           args.get("multi_band")[0])
+    create_single_band_vrt(src_raster, args.get("multi_band")[0])
 
     src_raster = None
 
