@@ -54,7 +54,7 @@ def create_single_band_vrt(multi_raster: gdal.Dataset, multi_raster_path: str) -
     file_name: str = str(Path(multi_raster_path).name)
 
     for i in range(1, n_bands + 1):
-        vrt_out: str = f"./{extract_basename(file_name, '.tif', '')}_{str(i).rjust(2, '0')}.vrt"
+        vrt_out: str = f"./{extract_basename(file_name, '.tif', '')}-{str(i).rjust(2, '0')}.vrt"
         if single_vrt := gdal.BuildVRT(vrt_out, multi_raster, bandList=[i]):
             band_name = multi_raster.GetRasterBand(i).GetDescription()
 
