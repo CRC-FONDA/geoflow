@@ -34,6 +34,8 @@ process build_vrt_stack_process {
 
     cpus params.n_cpus_indices
 
+    publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_STACK.vrt', overwrite: true
+
     input:
 	tuple val(TID), val(identifier), path(bands)
 
@@ -42,7 +44,9 @@ process build_vrt_stack_process {
 
     script:
     """
-    build_vrt-stack.py ${bands}
+    mkdir tmp
+    build_vrt-stack.py tmp ${bands}
+    mv ./tmp/* .
     """
 }
 
