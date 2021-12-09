@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser(
                     bands in the input file. The '.vrt' files will be generated in the same directory as the input \
                     file. This is because of the way Nextflow (at least to me) seems to function.")
 parser.add_argument("multi_band", nargs=1, type=str,
-                    help="File Path to Multi-band reflectance raster (i.e. FORCE Level2-ARD")
+                    help="File Path to Multi-band reflectance raster (i.e. FORCE Level2-ARD)")
 
 
 def get_tid(path: AnyStr) -> Optional[str]:
