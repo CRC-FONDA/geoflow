@@ -1,13 +1,9 @@
 nextflow.enable.dsl = 2
 
-// TODO: Do these paths need to be absolute or can I continue working with "relative" ones?
-
 process stack {
     label 'debug'
 
     cpus params.n_cpus_indices
-
-    // TODO: Don't hardcode shit like this
 
     publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_stacked.vrt', overwrite: true
 

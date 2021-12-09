@@ -3,8 +3,6 @@ nextflow.enable.dsl = 2
 // TODOOO: These prcocesses currently only work with Sentinel-2. However, they should be compatible with all inputs. Or different processes/sub-workflows for different sensors
 // 	one solution could be to split paths/channels prior to calling individual processes
 
-// TODO: Scaling done correctly?
-
 // courtesy to David Frantz for an overview of indices (https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/param.html)
 
 process ndvi {
