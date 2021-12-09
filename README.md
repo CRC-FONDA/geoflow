@@ -1,6 +1,15 @@
-# Neuer B5 Workflow
+# New B5 Workflow
 
-## Auf die Plätze, fertig, los!
+As per our proposal submitted to LPS22, the goals set are:
+(1) to map annual land cover between 2000 and 2020 across Germany using integrated Landsat and 
+Sentinel-2 times series and the harmonized European-wide Land Use and Coverage Area frame Survey (LUCAS) (d’Andrimont et al. 2020)
+(2) to develop Nextflow workflows that leverage a broad range of existing, already widely used open source tools and programs and
+(3) to evaluate the execution performance of Nextflow workflows.
+
+This Readme serves a reference as to what has been accomplished, but also as a place to gather ideas/thoughts
+that occurred throughout the work on this project. 
+
+## Ready, Set, Go!
 
 ```bash
 git clone https://github.com/CRC-FONDA/geoflow.git
@@ -9,18 +18,20 @@ cd geoflow
 
 ## Docker
 
-- Im Dockerfile sind die einzelnen Schritte nicht in einem großen Block, damit die ge-cached werden können.
-Was eine sinnvolle Aufteilung/Zusammenführung wäre weiß ich nicht. Es funktioniert (vorerst), das reicht
-erstmal. Wie das mit Cache-Invalidation in Verbindung mit dem Git-Repo aussieht weiß ich nicht.
-- `docker build` läuft nicht ohne Warnungen durch, das ist aber eine Sache für die Enmap-Box-Entwickler.
-- In den Beispielen mappe ich auf den Ordner `/home/data`, vielleicht ist es besser, den bereits beim Erstellen des
-Containers zu erstellen. Ich weiß es aber nicht.
+We are making use of Docker containers to keep all dependencies (apart from Nextflow) together. And run the
+workflow containerized.
+
+### General
+
+- `docker build` does not complete without warnings. However, as far as I know, these are things 
+regarding the (recommended) way of installing dependencies such as the [EnMap-Box](https://bitbucket.org/hu-geomatics/enmap-box/src/develop/)
+and thus, cannot be fixed on our side. 
+- The container is based on the official QGIS container with the EnMap-Box added
 
 ```bash
-# -f Dockerfile braucht es eigentlich nicht
-docker build -t emb_docker:v0.0.1 -f Dockerfile .
+docker build -t geoflow:latest -f Dockerfile .
 
-docker run --rm emb_docker:v0.0.1
+docker run --rm geoflow:latest
 #> QGIS Processing Executor - 3.23.0-Master 'Master' (3.23.0-Master)
 #> Usage: qgis_process [--help] [--version] [--json] [--verbose] [command] [algorithm id or path to model file] [parameters]
 #>
@@ -32,57 +43,42 @@ docker run --rm emb_docker:v0.0.1
 # [...]
 ```
 
-### Von Dockerhub
+### Dockerhub and GitHub Actions
 
-Das Image ist jetzt auch auf [Dockerhub](https://hub.docker.com/r/floriankaterndahl/geoflow). Komprimiert immer noch 2.5 Gb
-
-```bash
-docker pull floriankaterndahl/geoflow:0.0.1
-```
-
-## Beispiele
-
-Da die verwendeten Daten prinzipiell egal sind, werden diese auch nicht "mitgeliefert".
-
-NDVI für Sentinel-2 A/B berechnen:
+- I copied together a GitHub workflow which builds the container and pushes it to Dockerhub. If there's
+no error, then the build and push should be relatively fast because it uses the GitHub build cache
+- The image can be pulled via:
 
 ```bash
-docker run \
-  --rm \
-  -v /mnt/h/git-repos/geoflow/external/data:/home/data \
-  emb_docker:v0.0.1 \
-  qgis_process run enmapbox:RasterMath -- \
-  code="(R1@8 - R1@3) / (R1@8 + R1@3)" \
-  R1=/home/data/20180216_LEVEL2_SEN2B_BOA.tif \
-  outputRaster=/home/data/NDVI.tif \
-  monolithic=True
+docker pull floriankaterndahl/geoflow:latest
 ```
 
-EVI für Landsat-8 berechnen:
+## Running the Workflow
+
+- Currently, the workflow expects two additional arguments: (1) the data source and (2) a directory
+where the calculated indices should be stored (in addition to the working directory created by
+Nextflow).
+- To *"simplify"* the execution call and rather often occurring fetch for an updated docker image, run
+the `run_nf.sh` script. Calling the script without any additional parameters, will simply execute
+the workflow as defined in the script. Calling it with any number of arguments (no matter what
+they actually are) additionally fetches the latest version of the docker image before running the
+workflow.
 
 ```bash
-docker run \
-  --rm \
-  -v /mnt/h/git-repos/geoflow/external/data:/home/data \
-  emb_docker:v0.0.1 \
-  qgis_process run enmapbox:RasterMath -- \
-  code="2.5 * ((R1@4 - R1@3) / (R1@4 + 6 * R1@3 - 7.5 * R1@1 + 1))" \
-  R1=/home/data/20180909_LEVEL2_LND08_BOA.tif \
-  outputRaster=/home/data/EVI.tif \
-  monolithic=True
+bash ./run_nf.sh
+# or
+bash ./run_nf.sh update
 ```
 
-## Ein wenig Zukunftsmusik
+## Further Notes
 
-Gut möglich, dass das Dockerimage noch optimiert werden oder an manchen Stellen
-umgestaltet werden könnte/sollte. Ein paar Ansatzpunkte (ohne Ahnung von Docker zu haben):
-- "Docker User" um die Kiste nicht als `root` laufen lassen
-- Speicherplatz/Image-Größe optimieren (aktuell: ~9 Gb)
-  - Nicht auf `qgis/qgis:XXX` aufbauen, sondern selber kompilieren. Wie das geht und was es
-  zu beachten gibt, kann auf [GitHub Repo von qgis](https://github.com/qgis/QGIS/blob/master/INSTALL.md)
-  nachgelesen werden. In deren Dockerfile auf Anregung (?) welche
-  Argumente/Build-Targets da übergeben werden sollten.
-  - Alpine Linux (Container-Gr. ca. 180 Mb?) verwenden, wenn möglich.
-- Das betrifft vielleicht auch eher die Enmap-Box als uns direkt: Einen ähnlichen Ansatz wie David,
-der sich ein *baseimage* gebastelt hat um die ganzen Abhängigkeiten nicht immer neu installieren
-und kompilieren zu müssen.
+It's likely, that the docker image can be further optimised. A couple of ideas include:
+
+- Create a "docker user" to not run the image as `root`, although I don't really see the point in doing
+so for our use case
+- optimize image size (~ 2,5 Gb on Dockerhub)
+  - don't use the qgis base image, but compile QGIS ourselves. There's a guide on how to do this in
+  the [QGIS GitHub repo](https://github.com/qgis/QGIS/blob/master/INSTALL.md)
+  - use Alpine Linux as our Distro?
+    - I fiddled around with that idea and there was at least one important dependency that was not readily
+    available - I can't remember which one though
