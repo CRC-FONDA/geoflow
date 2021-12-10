@@ -5,6 +5,16 @@ nextflow.enable.dsl = 2
 
 // courtesy to David Frantz for an overview of indices (https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/param.html)
 
+String platform_ndvi(String platform_f) {
+    String code_snippet = "(R1@NIR - R1@RED) / (R1@NIR + R1@RED)"
+    if (platform_f =~ /LND04|LND05|LND07|LND08|LNDLG/) {
+        return code_snippet.replaceAll(/NIR/, "4").replaceAll(/RED/, "3")
+    } else if (platform_f =~ /SEN2A|SEN2B|SEN2L/) {
+        return code_snippet.replaceAll(/NIR/, "8").replaceAll(/RED/, "3")
+    }
+    return ""
+}
+
 process ndvi {
     label 'debug'
 
@@ -13,16 +23,16 @@ process ndvi {
     publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_NDVI.tif', overwrite: true
 
     input:
-    tuple val(TID), val(identifier), path(reflectance), path(qai)
+    tuple val(TID), val(identifier), val(platform), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(identifier), path("${identifier}_NDVI.tif"), emit: ndvi_out
+    tuple val(TID), val(identifier), val(platform), path("${identifier}_NDVI.tif"), emit: ndvi_out
 
-    // TODO: Scaling, trunctuating, and re-writing output file should be done in python script -> holds everything together more closely. 
     script:
+    // code="(R1@8 - R1@3) / (R1@8 + R1@3)" \
     """
     qgis_process run enmapbox:RasterMath -- \
-    code="(R1@8 - R1@3) / (R1@8 + R1@3)" \
+    ${platform_ndvi($platform)}
     R1=$reflectance \
     outputRaster=${identifier}_NDVI-temp.tif
 
