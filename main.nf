@@ -26,7 +26,7 @@ def get_scene_id = input -> {
 }
 
 def get_platform = input -> {
-    input.split('_')[-2]
+    input.split('_')[-1]
 }
 
 // Extract Tile Id, and create a list containing:
