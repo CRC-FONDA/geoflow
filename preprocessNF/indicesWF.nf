@@ -19,9 +19,9 @@ workflow calc_indices {
         ndvi.out.ndvi_out
         evi.out.evi_out
         nbr.out.nbr_out
-	    ndti.out.ndti_out
+        ndti.out.ndti_out
         arvi.out.arvi_out
         savi.out.savi_out
-	    sarvi.out.sarvi_out
+        sarvi.out.sarvi_out
 }
 
