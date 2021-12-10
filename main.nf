@@ -25,17 +25,20 @@ def get_scene_id = input -> {
 	return last_chunk_list.join('_')
 }
 
-// TODO: better, more descriptive name!
+def get_platform = input -> {
+    input.split('_')[-2]
+}
+
+// Extract Tile Id, and create a list containing:
+//  [tile id, scene identifier, FORCE platform abbreviation, path to BOA, path to QAI]
 def sorta_flat = input -> {
-	[get_tile(input[1][0]), input[0], input[1][0], input[1][1]]
+	[get_tile(input[1][0]), input[0], get_platform(input[0]), input[1][0], input[1][1]]
 }
 
-def extract_tile_and_identifier = input -> {
-	[get_tile(input), get_scene_id(input), input]
-}
-
+// Extract Tile Id, and create a list containing:
+//  [tile id, scene identifier, FORCE platform abbreviation, [path to BOA, path to QAI]]
 def add_tile_id = input -> {
-	[get_tile(input[1][0]), input[0], input[1]]
+	[get_tile(input[1][0]), input[0], get_platform(input[0]), input[1]]
 }
 
 workflow {
@@ -61,10 +64,11 @@ workflow {
 
 
     // set group size might not be desirable here because it is affected by indices computed -> set via environment variable??
+    // Can I use maps in channels?
     Channel
         .empty()
         .mix(calc_indices.out, explode_base_files.out)
-        .groupTuple(by:[0, 1]) // TODO: set size?
+        .groupTuple(by: [0, 1]) // TODO: set size?
         .map( { [it[0], it[1], it[2].flatten()] } )
         .set( { ch_grouped_bands } )
 
