@@ -8,8 +8,8 @@ import argparse
 parser = argparse.ArgumentParser(
     description="This script converts floating point raster to integer ones following the convention set by FORCE (scaling by "
                 "10.000 and truncating.")
-parser.add_argument("source_dst", nargs=1, type=str, required=True, help="File path to input dataset.")
-parser.add_argument("destination_dst", nargs=1, type=str, required=True, help="File path to output dataset.")
+parser.add_argument("source_dst", nargs=1, type=str, help="File path to input dataset.")
+parser.add_argument("destination_dst", nargs=1, type=str, help="File path to output dataset.")
 
 args: Dict[str, List[str]] = vars(parser.parse_args())
 
@@ -31,7 +31,7 @@ driver: gdal.Driver = gdal.GetDriverByName(file_format)
 dst_ds = driver.Create(args.get("destination_dst")[0], xsize=raster_dataset.RasterXSize,
                        ysize=raster_dataset.RasterYSize, bands=1, eType=gdal.GDT_Int16,
                        options=["COMPRESS=LZW", "PREDICTOR=2",
-                                f"BLOCKXSIZE={raster_dataset.RasterXSize}", f"BLOCKYSIZE={raster_dataset.RasterYSize / 10}"])
+                                f"BLOCKXSIZE={raster_dataset.RasterXSize}", f"BLOCKYSIZE={int(raster_dataset.RasterYSize / 10)}"])
 
 if not dst_ds:
     raise FileNotFoundError("Failed to open destination_dst")
