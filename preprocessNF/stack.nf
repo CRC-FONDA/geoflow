@@ -8,10 +8,10 @@ process stack {
     publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_stacked.vrt', overwrite: true
 
     input:
-	tuple val(TID), val(ID), path(BOA), path(QAI), path(INDICES)
+	tuple val(TID), val(ID), val(platform), path(BOA), path(QAI), path(INDICES)
 
     output:
-	tuple val(TID), val(ID), path(BOA), path(QAI), path(INDICES), path("${ID}_stacked.vrt")
+	tuple val(TID), val(ID), val(platform), path(BOA), path(QAI), path(INDICES), path("${ID}_stacked.vrt")
     
     script:
     """
@@ -33,10 +33,10 @@ process build_vrt_stack_process {
     publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_STACK.vrt', overwrite: true
 
     input:
-	tuple val(TID), val(identifier), path(bands)
+	tuple val(TID), val(identifier), val(platform), path(bands)
 
     output:
-	tuple val(TID), val(identifier), path("${identifier}_STACK.vrt")
+	tuple val(TID), val(identifier), val(platform), path("${identifier}_STACK.vrt")
 
     script:
     """
