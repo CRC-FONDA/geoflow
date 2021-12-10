@@ -7,9 +7,9 @@ include { explode_base_files } from './preprocessNF/explodeWF.nf'
 def single_tileP = input -> {
 	Boolean tile_x = (input[1][0] =~ /(?<=X00)${params.tx}(?=_Y)/)
 	Boolean tile_y = (input[1][0] =~ /(?<=Y00)${params.ty}/)
-	Boolean sensor = (input[1][0] =~ /(?<=LEVEL2_)${params.s0}.*?(?=_)/)
+	//Boolean sensor = (input[1][0] =~ /(?<=LEVEL2_)${params.s0}.*?(?=_)/)
 
-	return tile_x && tile_y && sensor
+	return tile_x && tile_y
 }
 
 // expects FORCE nomenclature
