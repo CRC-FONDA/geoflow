@@ -61,8 +61,9 @@ src_dst_values_scaled = np.int_(np.trunc(src_dst_values * 10_000))
 output_band = dst_ds.GetRasterBand(1)
 
 # Index name only exists in file name
-# TODO while this does work, it looks ugly af
-output_band.SetDescription(args.get("source_dst")[0].split("/")[-1].split("_")[-1].split(".")[0])
+# /data/Dagobah/fonda/shk/geoflow/work/66/c79afe3af3d2bd54c4a5705068a2ca/20190813_LEVEL2_SEN2B_NDTI-temp.tif
+band_name: str = args.get("source_dst")[0].split('_')[-1].replace("-temp.tif", "")
+output_band.SetDescription(band_name)
 output_band.SetColorInterpretation(gdal.GCI_GrayIndex)
 output_band.WriteArray(src_dst_values_scaled)
 
