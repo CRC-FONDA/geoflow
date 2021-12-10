@@ -31,7 +31,7 @@ driver: gdal.Driver = gdal.GetDriverByName(file_format)
 dst_ds = driver.Create(args.get("destination_dst")[0], xsize=raster_dataset.RasterXSize,
                        ysize=raster_dataset.RasterYSize, bands=1, eType=gdal.GDT_Int16,
                        options=["COMPRESS=LZW", "PREDICTOR=2",
-                                "BLOCKXSIZE=128", "BLOCKYSIZE=128"])
+                                f"BLOCKXSIZE={raster_dataset.RasterXSize}", f"BLOCKYSIZE={raster_dataset.RasterYSize / 10}"])
 
 if not dst_ds:
     raise FileNotFoundError("Failed to open destination_dst")
