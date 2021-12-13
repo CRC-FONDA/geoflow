@@ -24,16 +24,24 @@ Map <String, String> LND_bands = [
         "SWIR2": "6"
 ]
 
-String platform_ndvi(String platform_f, Map <String, String> S_bands, Map <String, String> L_bands) {
-    String code_snippet = "(R1@NIR - R1@RED) / (R1@NIR + R1@RED)"
+Map <String, String> Indices = [
+        "NDVI": "(R1@NIR - R1@RED) / (R1@NIR + R1@RED)",
+        "EVI": "2.5 * ((R1@NIR - R1@RED) / (R1@NIR + 6 * R1@RED - 7.5 * R1@BLUE + 1))",
+        "NBR": "(R1@NIR - R1@SWIR2) / (R1@NIR + R1@SWIR2)",
+        "NDTI": "(R1@SWIR1 - R1@SWIR2) / (R1@SWIR1 + R1@SWIR2)",
+        "ARVI": "(R1@NIR - (R1@RED - (R1@BLUE - R1@RED))) / (R1@NIR + (R1@RED - (R1@BLUE - R1@RED)))",
+        "SAVI": "(R1@NIR - R1@RED) / (R1@NIR + R1@RED + 0.5) * (1 + 0.5)",
+        "SARVI": "(R1@NIR - (R1@RED - (R1@BLUE - R1@RED))) / (R1@NIR + (R1@RED - (R1@BLUE - R1@RED)) + 0.5) * (1 + 0.5)",
+]
+
+String platform_spectral_index(String platform_f, String code_snippet, Map <String, String> S_bands, Map <String, String> L_bands) {
+    //String code_snippet = "(R1@NIR - R1@RED) / (R1@NIR + R1@RED)"
     if (platform_f =~ /LND04|LND05|LND07|LND08|LNDLG/) {
         for (band in L_bands)
             code_snippet = code_snippet.replaceAll(band.key, band.value)
-        //return code_snippet.replaceAll(/NIR/, "4").replaceAll(/RED/, "3")
     } else if (platform_f =~ /SEN2A|SEN2B|SEN2L/) {
         for (band in S_bands)
             code_snippet = code_snippet.replaceAll(band.key, band.value)
-        //return code_snippet.replaceAll(/NIR/, "8").replaceAll(/RED/, "3")
     }
     return code_snippet
 }
@@ -52,7 +60,7 @@ process ndvi {
     tuple val(TID), val(identifier), val(platform), path("${identifier}_NDVI.tif"), emit: ndvi_out
 
     script:
-    String code_str = platform_ndvi(platform, SEN2_bands, LND_bands)
+    String code_str = platform_spectral_index(platform, Indices["NDVI"], SEN2_bands, LND_bands)
 
     """
     qgis_process run enmapbox:RasterMath -- \
@@ -64,12 +72,14 @@ process ndvi {
     """
 }
 
-String platform_evi(String platform_f) {
+String platform_evi(String platform_f, Map <String, String> S_bands, Map <String, String> L_bands) {
     String code_snippet = "2.5 * ((R1@NIR - R1@RED) / (R1@NIR + 6 * R1@RED - 7.5 * R1@BLUE + 1))"
     if (platform_f =~ /LND04|LND05|LND07|LND08|LNDLG/) {
-        return code_snippet.replaceAll(/NIR/, "4").replaceAll(/RED/, "3").replaceAll(/BLUE/, "1")
+        for (band in L_bands)
+            code_snippet = code_snippet.replaceAll(band.key, band.value)
     } else if (platform_f =~ /SEN2A|SEN2B|SEN2L/) {
-        return code_snippet.replaceAll(/NIR/, "8").replaceAll(/RED/, "3").replaceAll(/BLUE/, "1")
+        for (band in S_bands)
+            code_snippet = code_snippet.replaceAll(band.key, band.value)
     }
     return ""
 }
@@ -88,7 +98,7 @@ process evi {
     tuple val(TID), val(identifier), val(platform), path("${identifier}_EVI.tif"), emit: evi_out
 
     script:
-    String code_str = platform_evi(platform)
+    String code_str = platform_spectral_index(platform, Indices["EVI"], SEN2_bands, LND_bands)
 
     """
     qgis_process run enmapbox:RasterMath -- \
@@ -100,12 +110,14 @@ process evi {
     """
 }
 
-String platform_nbr(String platform_f) {
+String platform_nbr(String platform_f, Map <String, String> S_bands, Map <String, String> L_bands) {
     String code_snippet = "(R1@NIR - R1@SWIR2) / (R1@NIR + R1@SWIR2)"
     if (platform_f =~ /LND04|LND05|LND07|LND08|LNDLG/) {
-        return code_snippet.replaceAll(/NIR/, "4").replaceAll(/SWIR2/, "6")
+        for (band in L_bands)
+            code_snippet = code_snippet.replaceAll(band.key, band.value)
     } else if (platform_f =~ /SEN2A|SEN2B|SEN2L/) {
-        return code_snippet.replaceAll(/NIR/, "8").replaceAll(/SWIR2/, "10")
+        for (band in S_bands)
+            code_snippet = code_snippet.replaceAll(band.key, band.value)
     }
     return ""
 }
@@ -124,7 +136,7 @@ process nbr {
     tuple val(TID), val(identifier), val(platform), path("${identifier}_NBR.tif"), emit: nbr_out
 
     script:
-    String code_str = platform_nbr(platform)
+    String code_str = platform_spectral_index(platform, Indices["NBR"], SEN2_bands, LND_bands)
 
     """
     qgis_process run enmapbox:RasterMath -- \
@@ -136,12 +148,14 @@ process nbr {
     """
 }
 
-String platform_ndti(String platform_f) {
+String platform_ndti(String platform_f, Map <String, String> S_bands, Map <String, String> L_bands) {
     String code_snippet = "(R1@SWIR1 - R1@SWIR2) / (R1@SWIR1 + R1@SWIR2)"
     if (platform_f =~ /LND04|LND05|LND07|LND08|LNDLG/) {
-        return code_snippet.replaceAll(/SWIR1/, "5").replaceAll(/SWIR2/, "6")
+        for (band in L_bands)
+            code_snippet = code_snippet.replaceAll(band.key, band.value)
     } else if (platform_f =~ /SEN2A|SEN2B|SEN2L/) {
-        return code_snippet.replaceAll(/SWIR1/, "9").replaceAll(/SWIR2/, "10")
+        for (band in S_bands)
+            code_snippet = code_snippet.replaceAll(band.key, band.value)
     }
     return ""
 }
@@ -160,7 +174,7 @@ process ndti {
     tuple val(TID), val(identifier), val(platform), path("${identifier}_NDTI.tif"), emit: ndti_out
 
     script:
-    String code_str = platform_ndti(platform)
+    String code_str = platform_spectral_index(platform, Indices["NDTI"], SEN2_bands, LND_bands)
 
     """
     qgis_process run enmapbox:RasterMath -- \
@@ -172,12 +186,14 @@ process ndti {
     """
 }
 
-String platform_arvi(String platform_f) {
+String platform_arvi(String platform_f, Map <String, String> S_bands, Map <String, String> L_bands) {
     String code_snippet = "(R1@NIR - (R1@RED - (R1@BLUE - R1@RED))) / (R1@NIR + (R1@RED - (R1@BLUE - R1@RED)))"
     if (platform_f =~ /LND04|LND05|LND07|LND08|LNDLG/) {
-        return code_snippet.replaceAll(/NIR/, "4").replaceAll(/RED/, "3").replaceAll(/BLUE/, "1")
+        for (band in L_bands)
+            code_snippet = code_snippet.replaceAll(band.key, band.value)
     } else if (platform_f =~ /SEN2A|SEN2B|SEN2L/) {
-        return code_snippet.replaceAll(/NIR/, "8").replaceAll(/RED/, "3").replaceAll(/BLUE/, "1")
+        for (band in S_bands)
+            code_snippet = code_snippet.replaceAll(band.key, band.value)
     }
     return ""
 }
@@ -196,7 +212,7 @@ process arvi {
     tuple val(TID), val(identifier), val(platform), path("${identifier}_ARVI.tif"), emit: arvi_out
 
     script:
-    String code_str = platform_arvi(platform)
+    String code_str = platform_spectral_index(platform, Indices["ARVI"], SEN2_bands, LND_bands)
 
     """
     qgis_process run enmapbox:RasterMath -- \
@@ -208,12 +224,14 @@ process arvi {
     """
 }
 
-String platform_savi(String platform_f) {
+String platform_savi(String platform_f, Map <String, String> S_bands, Map <String, String> L_bands) {
     String code_snippet = "(R1@NIR - R1@RED) / (R1@NIR + R1@RED + 0.5) * (1 + 0.5)"
     if (platform_f =~ /LND04|LND05|LND07|LND08|LNDLG/) {
-        return code_snippet.replaceAll(/NIR/, "4").replaceAll(/RED/, "3")
+        for (band in L_bands)
+            code_snippet = code_snippet.replaceAll(band.key, band.value)
     } else if (platform_f =~ /SEN2A|SEN2B|SEN2L/) {
-        return code_snippet.replaceAll(/NIR/, "8").replaceAll(/RED/, "3")
+        for (band in S_bands)
+            code_snippet = code_snippet.replaceAll(band.key, band.value)
     }
     return ""
 }
@@ -232,7 +250,7 @@ process savi {
     tuple val(TID), val(identifier), val(platform), path("${identifier}_SAVI.tif"), emit: savi_out
 
     script:
-    String code_str = platform_savi(platform)
+    String code_str = platform_spectral_index(platform, Indices["SAVI"], SEN2_bands, LND_bands)
 
     """
     qgis_process run enmapbox:RasterMath -- \
@@ -244,12 +262,14 @@ process savi {
     """
 }
 
-String platform_sarvi(String platform_f) {
+String platform_sarvi(String platform_f, Map <String, String> S_bands, Map <String, String> L_bands) {
     String code_snippet = "(R1@NIR - (R1@RED - (R1@BLUE - R1@RED))) / (R1@NIR + (R1@RED - (R1@BLUE - R1@RED)) + 0.5) * (1 + 0.5)"
     if (platform_f =~ /LND04|LND05|LND07|LND08|LNDLG/) {
-        return code_snippet.replaceAll(/NIR/, "4").replaceAll(/RED/, "3").replaceAll(/BLUE/, "1")
+        for (band in L_bands)
+            code_snippet = code_snippet.replaceAll(band.key, band.value)
     } else if (platform_f =~ /SEN2A|SEN2B|SEN2L/) {
-        return code_snippet.replaceAll(/NIR/, "8").replaceAll(/RED/, "3").replaceAll(/BLUE/, "1")
+        for (band in S_bands)
+            code_snippet = code_snippet.replaceAll(band.key, band.value)
     }
     return ""
 }
@@ -268,7 +288,7 @@ process sarvi {
     tuple val(TID), val(identifier), val(platform), path("${identifier}_SARVI.tif"), emit: sarvi_out
 
     script:
-    String code_str = platform_sarvi(platform)
+    String code_str = platform_spectral_index(platform, Indices["SARVI"], SEN2_bands, LND_bands)
 
     """
     qgis_process run enmapbox:RasterMath -- \
@@ -279,7 +299,3 @@ process sarvi {
     adjust_indices.py ${identifier}_SARVI-temp.tif ${identifier}_SARVI.tif
     """
 }
-
-
-
-
