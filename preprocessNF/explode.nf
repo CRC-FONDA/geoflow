@@ -7,10 +7,10 @@ process explode_pr {
     cpus params.n_cpus_indices
 
     input:
-    tuple val(TID), val(identifier), path(reflectance), path(qai)
+    tuple val(TID), val(identifier), val(platform), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(identifier), path("*.vrt")
+    tuple val(TID), val(identifier), val(platform), path("*.vrt")
 
     script:
     """

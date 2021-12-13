@@ -2,18 +2,24 @@
 
 import numpy as np
 from osgeo import gdal
-from typing import Optional
-from sys import argv
+from typing import Optional, List, Dict
+import argparse
+import re
 
-if len(argv) != 3:
-    raise AssertionError(f"Program called with wrong number of arguments. Expected 2, got {len(argv) - 1}")
+parser = argparse.ArgumentParser(
+    description="This script converts floating point raster to integer ones following the convention set by FORCE (scaling by "
+                "10.000 and truncating.")
+parser.add_argument("source_dst", nargs=1, type=str, help="File path to input dataset.")
+parser.add_argument("destination_dst", nargs=1, type=str, help="File path to output dataset.")
+
+args: Dict[str, List[str]] = vars(parser.parse_args())
 
 raster_dataset: Optional[gdal.Dataset] = gdal.Open(
-    argv[1],
+    args.get("source_dst")[0],
     gdal.GA_ReadOnly)
 
 if not raster_dataset:
-    raise FileNotFoundError("Failed to open input-dataset")
+    raise FileNotFoundError("Failed to open source_dst")
 
 if raster_dataset.RasterCount != 1:
     raster_dataset = None
@@ -23,12 +29,13 @@ file_format: str = "GTiff"
 
 driver: gdal.Driver = gdal.GetDriverByName(file_format)
 
-dst_ds = driver.Create(argv[2], xsize=raster_dataset.RasterXSize,
+dst_ds = driver.Create(args.get("destination_dst")[0], xsize=raster_dataset.RasterXSize,
                        ysize=raster_dataset.RasterYSize, bands=1, eType=gdal.GDT_Int16,
-                       options=["COMPRESS=LZW", "PREDICTOR=2"])
+                       options=["COMPRESS=LZW", "PREDICTOR=2",
+                                f"BLOCKXSIZE={raster_dataset.RasterXSize}", f"BLOCKYSIZE={int(raster_dataset.RasterYSize / 10)}"])
 
 if not dst_ds:
-    raise FileNotFoundError("Failed to open output-dataset")
+    raise FileNotFoundError("Failed to open destination_dst")
 
 # copy GeoTransform and SpatialRef to new dataset
 dst_ds.SetGeoTransform(raster_dataset.GetGeoTransform())
@@ -55,8 +62,9 @@ src_dst_values_scaled = np.int_(np.trunc(src_dst_values * 10_000))
 output_band = dst_ds.GetRasterBand(1)
 
 # Index name only exists in file name
-# TODO while this does works, it looks ugly af
-output_band.SetDescription(argv[1].split("/")[-1].split("_")[-1].split(".")[0])
+# assumes that name is at least 3 characters long
+band_name: str = re.search(r"(?<=_)[A-Za-z]{3,}(?=-temp.tif)", args.get("source_dst")[0]).group()
+output_band.SetDescription(band_name)
 output_band.SetColorInterpretation(gdal.GCI_GrayIndex)
 output_band.WriteArray(src_dst_values_scaled)
 

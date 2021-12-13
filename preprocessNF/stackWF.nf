@@ -4,17 +4,17 @@ include { stack; build_vrt_stack_process } from './stack.nf'
 
 workflow stack_bands {
     take:
-	grouped_things
+        grouped_things
     main:
-	stack(grouped_things)
+        stack(grouped_things)
 }
 
 workflow build_vrt_stack {
     take:
-	data
+        data
     main:
-	build_vrt_stack_process(data)
+        build_vrt_stack_process(data)
     emit:
-	build_vrt_stack_process.out
+        build_vrt_stack_process.out
 }
 

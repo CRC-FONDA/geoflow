@@ -6,9 +6,12 @@ import argparse
 from pathlib import Path
 from typing import Dict, Optional, List
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(
+    description="This script accepts a list of file paths to datasets that can be read by GDAL and creates a multi band VRT file in the directory "
+                "'temp-subdir', which is used to force absolute file paths inside the VRT output. There are (certainly) other approaches that will guarantee "
+                "absolute file paths, but they are not as handy as using 'gdal.BuildVRT'.")
 parser.add_argument("temp-subdir", nargs=1,
-		    help="subdirectory used to force absolute file paths")
+                    help="subdirectory used to force absolute file paths")
 parser.add_argument("paths", action='extend', nargs='+',
                     help="Files to stack")
 
@@ -45,6 +48,7 @@ def resolve_fpaths(paths: List[str]) -> List[str]:
 
     return return_list
 
+
 def create_multi_stack_vrt(args_dict: Dict[str, List[str]], multi_raster_path: List[str], description: List[str]) -> None:
     """
     Create multi-band VRT-stack from list of single-band files.
@@ -56,13 +60,13 @@ def create_multi_stack_vrt(args_dict: Dict[str, List[str]], multi_raster_path: L
     vrt_out: str = re.sub(
         r"(?<=(?:LND04|LND05|LND07|LND08|SEN2A|SEN2B|sen2a|sen2b|S1AIA|S1BIA|S1AID|S1BID|LNDLG|SEN2L|SEN2H|R-G-B|VVVHP)_).*?(?=.tif|.vrt)",
         "STACK",
-	# doesn't matter which file I choose, basename is always the same
+        # doesn't matter which file I choose, basename is always the same
         multi_raster_path[0])
 
     vrt_out = re.sub(r"(?<=STACK.).*$", "vrt", vrt_out)
 
     # insert subdirectory to force relative path
-    vrt_out= args_dict.get("temp-subdir").pop() + "/" + vrt_out
+    vrt_out = args_dict.get("temp-subdir").pop() + "/" + vrt_out
 
     multi_raster_path = resolve_fpaths(multi_raster_path)
 
