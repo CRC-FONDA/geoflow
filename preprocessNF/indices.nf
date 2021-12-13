@@ -35,7 +35,6 @@ Map <String, String> Indices = [
 ]
 
 String platform_spectral_index(String platform_f, String code_snippet, Map <String, String> S_bands, Map <String, String> L_bands) {
-    //String code_snippet = "(R1@NIR - R1@RED) / (R1@NIR + R1@RED)"
     if (platform_f =~ /LND04|LND05|LND07|LND08|LNDLG/) {
         for (band in L_bands)
             code_snippet = code_snippet.replaceAll(band.key, band.value)
@@ -72,18 +71,6 @@ process ndvi {
     """
 }
 
-String platform_evi(String platform_f, Map <String, String> S_bands, Map <String, String> L_bands) {
-    String code_snippet = "2.5 * ((R1@NIR - R1@RED) / (R1@NIR + 6 * R1@RED - 7.5 * R1@BLUE + 1))"
-    if (platform_f =~ /LND04|LND05|LND07|LND08|LNDLG/) {
-        for (band in L_bands)
-            code_snippet = code_snippet.replaceAll(band.key, band.value)
-    } else if (platform_f =~ /SEN2A|SEN2B|SEN2L/) {
-        for (band in S_bands)
-            code_snippet = code_snippet.replaceAll(band.key, band.value)
-    }
-    return ""
-}
-
 process evi {
     label 'debug'
 
@@ -108,18 +95,6 @@ process evi {
 
     adjust_indices.py ${identifier}_EVI-temp.tif ${identifier}_EVI.tif
     """
-}
-
-String platform_nbr(String platform_f, Map <String, String> S_bands, Map <String, String> L_bands) {
-    String code_snippet = "(R1@NIR - R1@SWIR2) / (R1@NIR + R1@SWIR2)"
-    if (platform_f =~ /LND04|LND05|LND07|LND08|LNDLG/) {
-        for (band in L_bands)
-            code_snippet = code_snippet.replaceAll(band.key, band.value)
-    } else if (platform_f =~ /SEN2A|SEN2B|SEN2L/) {
-        for (band in S_bands)
-            code_snippet = code_snippet.replaceAll(band.key, band.value)
-    }
-    return ""
 }
 
 process nbr {
@@ -148,18 +123,6 @@ process nbr {
     """
 }
 
-String platform_ndti(String platform_f, Map <String, String> S_bands, Map <String, String> L_bands) {
-    String code_snippet = "(R1@SWIR1 - R1@SWIR2) / (R1@SWIR1 + R1@SWIR2)"
-    if (platform_f =~ /LND04|LND05|LND07|LND08|LNDLG/) {
-        for (band in L_bands)
-            code_snippet = code_snippet.replaceAll(band.key, band.value)
-    } else if (platform_f =~ /SEN2A|SEN2B|SEN2L/) {
-        for (band in S_bands)
-            code_snippet = code_snippet.replaceAll(band.key, band.value)
-    }
-    return ""
-}
-
 process ndti {
     label 'debug'
 
@@ -184,18 +147,6 @@ process ndti {
 
     adjust_indices.py ${identifier}_NDTI-temp.tif ${identifier}_NDTI.tif
     """
-}
-
-String platform_arvi(String platform_f, Map <String, String> S_bands, Map <String, String> L_bands) {
-    String code_snippet = "(R1@NIR - (R1@RED - (R1@BLUE - R1@RED))) / (R1@NIR + (R1@RED - (R1@BLUE - R1@RED)))"
-    if (platform_f =~ /LND04|LND05|LND07|LND08|LNDLG/) {
-        for (band in L_bands)
-            code_snippet = code_snippet.replaceAll(band.key, band.value)
-    } else if (platform_f =~ /SEN2A|SEN2B|SEN2L/) {
-        for (band in S_bands)
-            code_snippet = code_snippet.replaceAll(band.key, band.value)
-    }
-    return ""
 }
 
 process arvi {
@@ -224,18 +175,6 @@ process arvi {
     """
 }
 
-String platform_savi(String platform_f, Map <String, String> S_bands, Map <String, String> L_bands) {
-    String code_snippet = "(R1@NIR - R1@RED) / (R1@NIR + R1@RED + 0.5) * (1 + 0.5)"
-    if (platform_f =~ /LND04|LND05|LND07|LND08|LNDLG/) {
-        for (band in L_bands)
-            code_snippet = code_snippet.replaceAll(band.key, band.value)
-    } else if (platform_f =~ /SEN2A|SEN2B|SEN2L/) {
-        for (band in S_bands)
-            code_snippet = code_snippet.replaceAll(band.key, band.value)
-    }
-    return ""
-}
-
 process savi {
     label 'debug'
 
@@ -260,18 +199,6 @@ process savi {
 
     adjust_indices.py ${identifier}_SAVI-temp.tif ${identifier}_SAVI.tif
     """
-}
-
-String platform_sarvi(String platform_f, Map <String, String> S_bands, Map <String, String> L_bands) {
-    String code_snippet = "(R1@NIR - (R1@RED - (R1@BLUE - R1@RED))) / (R1@NIR + (R1@RED - (R1@BLUE - R1@RED)) + 0.5) * (1 + 0.5)"
-    if (platform_f =~ /LND04|LND05|LND07|LND08|LNDLG/) {
-        for (band in L_bands)
-            code_snippet = code_snippet.replaceAll(band.key, band.value)
-    } else if (platform_f =~ /SEN2A|SEN2B|SEN2L/) {
-        for (band in S_bands)
-            code_snippet = code_snippet.replaceAll(band.key, band.value)
-    }
-    return ""
 }
 
 process sarvi {
