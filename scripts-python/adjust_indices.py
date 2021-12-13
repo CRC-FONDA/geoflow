@@ -4,6 +4,7 @@ import numpy as np
 from osgeo import gdal
 from typing import Optional, List, Dict
 import argparse
+import re
 
 parser = argparse.ArgumentParser(
     description="This script converts floating point raster to integer ones following the convention set by FORCE (scaling by "
@@ -61,8 +62,8 @@ src_dst_values_scaled = np.int_(np.trunc(src_dst_values * 10_000))
 output_band = dst_ds.GetRasterBand(1)
 
 # Index name only exists in file name
-# /data/Dagobah/fonda/shk/geoflow/work/66/c79afe3af3d2bd54c4a5705068a2ca/20190813_LEVEL2_SEN2B_NDTI-temp.tif
-band_name: str = args.get("source_dst")[0].split('_')[-1].replace("-temp.tif", "")
+# assumes that name is at least 3 characters long
+band_name: str = re.search(r"(?<=_)[A-Za-z]{3,}(?=-temp.tif)", args.get("source_dst")[0]).group()
 output_band.SetDescription(band_name)
 output_band.SetColorInterpretation(gdal.GCI_GrayIndex)
 output_band.WriteArray(src_dst_values_scaled)

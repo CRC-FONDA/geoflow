@@ -3,7 +3,7 @@ ARG QGIS_VERSION=latest
 
 FROM qgis/qgis:${QGIS_VERSION}
 
-LABEL version="0.0.1"
+LABEL version="latest"
 LABEL description="EnMAP-Box in Docker"
 
 ARG ENMAP_VERSION='v3.9'
@@ -18,7 +18,7 @@ WORKDIR /tmp/build
 
 COPY external/custom-requirements.txt .
 
-RUN mkdir $XRD && \
+RUN mkdir -m=0700 $XRD && \
     mkdir -p ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins && \
     # h5py is build against serial interface of HDF5-1.10.4. For parallel processing or newer versions see \
     # https://docs.h5py.org/en/latest/faq.html#building-from-git \
