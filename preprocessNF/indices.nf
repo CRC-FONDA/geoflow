@@ -1,18 +1,41 @@
 nextflow.enable.dsl = 2
 
-// TODOOO: These prcocesses currently only work with Sentinel-2. However, they should be compatible with all inputs. Or different processes/sub-workflows for different sensors
-// 	one solution could be to split paths/channels prior to calling individual processes
-
 // courtesy to David Frantz for an overview of indices (https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/param.html)
 
-String platform_ndvi(String platform_f) {
+Map <String, String> SEN2_bands = [
+        "BLUE": "1",
+        "GREEN": "2",
+        "RED": "3",
+        "RE1": "4",
+        "RE2": "5",
+        "RE3": "6",
+        "BNIR": "7",
+        "NIR": "8",
+        "SWIR1": "9",
+        "SWIR2": "10"
+]
+
+Map <String, String> LND_bands = [
+        "BLUE": "1",
+        "GREEN": "2",
+        "RED": "3",
+        "NIR": "4",
+        "SWIR1": "5",
+        "SWIR2": "6"
+]
+
+String platform_ndvi(String platform_f, Map <String, String> S_bands, Map <String, String> L_bands) {
     String code_snippet = "(R1@NIR - R1@RED) / (R1@NIR + R1@RED)"
     if (platform_f =~ /LND04|LND05|LND07|LND08|LNDLG/) {
-        return code_snippet.replaceAll(/NIR/, "4").replaceAll(/RED/, "3")
+        for (band in L_bands)
+            code_snippet = code_snippet.replaceAll(band.key, band.value)
+        //return code_snippet.replaceAll(/NIR/, "4").replaceAll(/RED/, "3")
     } else if (platform_f =~ /SEN2A|SEN2B|SEN2L/) {
-        return code_snippet.replaceAll(/NIR/, "8").replaceAll(/RED/, "3")
+        for (band in S_bands)
+            code_snippet = code_snippet.replaceAll(band.key, band.value)
+        //return code_snippet.replaceAll(/NIR/, "8").replaceAll(/RED/, "3")
     }
-    return ""
+    return code_snippet
 }
 
 process ndvi {
@@ -29,7 +52,7 @@ process ndvi {
     tuple val(TID), val(identifier), val(platform), path("${identifier}_NDVI.tif"), emit: ndvi_out
 
     script:
-    String code_str = platform_ndvi(platform)
+    String code_str = platform_ndvi(platform, SEN2_bands, LND_bands)
 
     """
     qgis_process run enmapbox:RasterMath -- \
