@@ -63,8 +63,9 @@ workflow {
     explode_base_files(ch_dataP)
 
 
-    // set group size might not be desirable here because it is affected by indices computed -> set via environment variable??
-    // Can I use maps in channels?
+    // The group size should be set, so that a "package"/"bundle" can be released as soon as everything needed is processed and not
+    // we don't have to wait until everything is processed. In theory, there is a function for doing so (grouKey, see https://github.com/nextflow-io/nextflow/issues/796#issuecomment-407108667),
+    // but this doesn't work here. Fabian might come up with a solution. Until then, this issue is postponed.
     Channel
         .empty()
         .mix(calc_indices.out, explode_base_files.out)
