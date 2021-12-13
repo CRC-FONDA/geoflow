@@ -3,35 +3,35 @@ nextflow.enable.dsl = 2
 // courtesy to David Frantz for an overview of indices (https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/param.html)
 
 Map <String, String> SEN2_bands = [
-        "BLUE": "1",
-        "GREEN": "2",
-        "RED": "3",
-        "RE1": "4",
-        "RE2": "5",
-        "RE3": "6",
-        "BNIR": "7",
-        "NIR": "8",
-        "SWIR1": "9",
-        "SWIR2": "10"
+        "BLUE":     "1",
+        "GREEN":    "2",
+        "RED":      "3",
+        "RE1":      "4",
+        "RE2":      "5",
+        "RE3":      "6",
+        "BNIR":     "7",
+        "NIR":      "8",
+        "SWIR1":    "9",
+        "SWIR2":    "10"
 ]
 
 Map <String, String> LND_bands = [
-        "BLUE": "1",
-        "GREEN": "2",
-        "RED": "3",
-        "NIR": "4",
-        "SWIR1": "5",
-        "SWIR2": "6"
+        "BLUE":     "1",
+        "GREEN":    "2",
+        "RED":      "3",
+        "NIR":      "4",
+        "SWIR1":    "5",
+        "SWIR2":    "6"
 ]
 
 Map <String, String> Indices = [
-        "NDVI": "(R1@NIR - R1@RED) / (R1@NIR + R1@RED)",
-        "EVI": "2.5 * ((R1@NIR - R1@RED) / (R1@NIR + 6 * R1@RED - 7.5 * R1@BLUE + 1))",
-        "NBR": "(R1@NIR - R1@SWIR2) / (R1@NIR + R1@SWIR2)",
-        "NDTI": "(R1@SWIR1 - R1@SWIR2) / (R1@SWIR1 + R1@SWIR2)",
-        "ARVI": "(R1@NIR - (R1@RED - (R1@BLUE - R1@RED))) / (R1@NIR + (R1@RED - (R1@BLUE - R1@RED)))",
-        "SAVI": "(R1@NIR - R1@RED) / (R1@NIR + R1@RED + 0.5) * (1 + 0.5)",
-        "SARVI": "(R1@NIR - (R1@RED - (R1@BLUE - R1@RED))) / (R1@NIR + (R1@RED - (R1@BLUE - R1@RED)) + 0.5) * (1 + 0.5)",
+        "NDVI":     "(R1@NIR - R1@RED) / (R1@NIR + R1@RED)",
+        "EVI":      "2.5 * ((R1@NIR - R1@RED) / (R1@NIR + 6 * R1@RED - 7.5 * R1@BLUE + 1))",
+        "NBR":      "(R1@NIR - R1@SWIR2) / (R1@NIR + R1@SWIR2)",
+        "NDTI":     "(R1@SWIR1 - R1@SWIR2) / (R1@SWIR1 + R1@SWIR2)",
+        "ARVI":     "(R1@NIR - (R1@RED - (R1@BLUE - R1@RED))) / (R1@NIR + (R1@RED - (R1@BLUE - R1@RED)))",
+        "SAVI":     "(R1@NIR - R1@RED) / (R1@NIR + R1@RED + 0.5) * (1 + 0.5)",
+        "SARVI":    "(R1@NIR - (R1@RED - (R1@BLUE - R1@RED))) / (R1@NIR + (R1@RED - (R1@BLUE - R1@RED)) + 0.5) * (1 + 0.5)",
 ]
 
 String platform_spectral_index(String platform_f, String code_snippet, Map <String, String> S_bands, Map <String, String> L_bands) {
