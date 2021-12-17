@@ -10,7 +10,8 @@ process explode_pr {
     tuple val(TID), val(identifier), val(platform), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(identifier), val(platform), path("*.vrt")
+    // export reflectance as well
+    tuple val(TID), val(identifier), val(platform),  path(reflectance), path("*.vrt")
 
     script:
     """

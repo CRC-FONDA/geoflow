@@ -56,7 +56,7 @@ process ndvi {
     tuple val(TID), val(identifier), val(platform), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(identifier), val(platform), path("${identifier}_NDVI.tif"), emit: ndvi_out
+    tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_NDVI.tif"), emit: ndvi_out
 
     script:
     String code_str = platform_spectral_index(platform, Indices["NDVI"], SEN2_bands, LND_bands)
@@ -82,7 +82,7 @@ process evi {
     tuple val(TID), val(identifier), val(platform), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(identifier), val(platform), path("${identifier}_EVI.tif"), emit: evi_out
+    tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_EVI.tif"), emit: evi_out
 
     script:
     String code_str = platform_spectral_index(platform, Indices["EVI"], SEN2_bands, LND_bands)
@@ -108,7 +108,7 @@ process nbr {
     tuple val(TID), val(identifier), val(platform), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(identifier), val(platform), path("${identifier}_NBR.tif"), emit: nbr_out
+    tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_NBR.tif"), emit: nbr_out
 
     script:
     String code_str = platform_spectral_index(platform, Indices["NBR"], SEN2_bands, LND_bands)
@@ -134,7 +134,7 @@ process ndti {
     tuple val(TID), val(identifier), val(platform), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(identifier), val(platform), path("${identifier}_NDTI.tif"), emit: ndti_out
+    tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_NDTI.tif"), emit: ndti_out
 
     script:
     String code_str = platform_spectral_index(platform, Indices["NDTI"], SEN2_bands, LND_bands)
@@ -160,7 +160,7 @@ process arvi {
     tuple val(TID), val(identifier), val(platform), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(identifier), val(platform), path("${identifier}_ARVI.tif"), emit: arvi_out
+    tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_ARVI.tif"), emit: arvi_out
 
     script:
     String code_str = platform_spectral_index(platform, Indices["ARVI"], SEN2_bands, LND_bands)
@@ -186,7 +186,7 @@ process savi {
     tuple val(TID), val(identifier), val(platform), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(identifier), val(platform), path("${identifier}_SAVI.tif"), emit: savi_out
+    tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_SAVI.tif"), emit: savi_out
 
     script:
     String code_str = platform_spectral_index(platform, Indices["SAVI"], SEN2_bands, LND_bands)
@@ -212,7 +212,7 @@ process sarvi {
     tuple val(TID), val(identifier), val(platform), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(identifier), val(platform), path("${identifier}_SARVI.tif"), emit: sarvi_out
+    tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_SARVI.tif"), emit: sarvi_out
 
     script:
     String code_str = platform_spectral_index(platform, Indices["SARVI"], SEN2_bands, LND_bands)
