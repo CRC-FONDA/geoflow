@@ -43,6 +43,7 @@ process build_vrt_stack_process {
     mkdir vrt
     mv ${bands} vrt
     build_vrt-stack.py vrt ${identifier}_STACK.vrt
+    mv vrt/* .
     """
 }
 
