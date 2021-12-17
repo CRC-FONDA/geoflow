@@ -14,7 +14,7 @@ def single_tileP = input -> {
 
 // expects FORCE nomenclature
 def get_tile = input -> {
-        input.toString().split('/')[-2]
+    input.toString().split('/')[-2]
 }
 
 // expects FORCE nomenclature
@@ -36,9 +36,9 @@ def sorta_flat = input -> {
 }
 
 // Extract Tile Id, and create a list containing:
-//  [tile id, scene identifier, FORCE platform abbreviation, [path to BOA, path to QAI]]
+//  [tile id, scene identifier, FORCE platform abbreviation, path to BOA, path to QAI]
 def add_tile_id = input -> {
-	[get_tile(input[1][0]), input[0], get_platform(input[0]), input[1]]
+	[get_tile(input[1][0]), input[0], get_platform(input[0]), input[1][0], input[1][1]]
 }
 
 workflow {
@@ -56,11 +56,10 @@ workflow {
         .fromFilePairs(params.input_dirP)
         .take(20)
         .filter( { single_tileP(it) } )
-        .map( { add_tile_id(it) } )
-        .flatten()
-        .set( { base_files } )
+        .map( { sorta_flat(it) } )
+        .set( { ch_base_files } )
 
-    explode_base_files(ch_dataP)
+    explode_base_files(ch_base_files)
 
 
     // set group size might not be desirable here because it is affected by indices computed -> set via environment variable??
@@ -69,7 +68,8 @@ workflow {
         .empty()
         .mix(calc_indices.out, explode_base_files.out)
         .groupTuple(by: [0, 1]) // TODO: set size?
-        .map( { [it[0], it[1], it[2], it[3].flatten()] } )
+        // [Tile ID, Scene ID, Sensor type, BOA, [exploded bands and indices]]
+        .map( { [it[0], it[1], it[2][0], it[3][0], it[4].flatten() } )
         .set( { ch_grouped_bands } )
 
     build_vrt_stack(ch_grouped_bands)
