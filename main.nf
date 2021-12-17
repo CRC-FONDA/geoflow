@@ -69,8 +69,8 @@ workflow {
         .empty()
         .mix(calc_indices.out, explode_base_files.out)
         .groupTuple(by: [0, 1]) // TODO: set size?
-        // [Tile ID, Scene ID, Sensor type, BOA, [exploded bands and indices]]
-        .map( { [it[0], it[1], it[2][0], it[3][0], it[4].flatten()] } )
+        // [Tile ID, Scene ID, Sensor type, [BOA, exploded bands and indices]]
+        .map( { [it[0], it[1], it[2][0], [it[3][0], it[4].flatten()].flatten()] } )
         .set( { ch_grouped_bands } )
 
     build_vrt_stack(ch_grouped_bands)
