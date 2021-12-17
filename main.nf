@@ -41,6 +41,15 @@ def add_tile_id = input -> {
 	[get_tile(input[1][0]), input[0], get_platform(input[0]), input[1][0], input[1][1]]
 }
 
+def get_year_month = input -> {
+	// split scene ID
+	String year_month = input[1].split('_')[0]
+	String year = year_month[0..3]
+	String month = year_month[4..5]
+
+	return [input[0], input[1], input[2], year, month, input[3], input[4]]
+}
+
 workflow {
     Channel
         .fromFilePairs(params.input_dirP)
@@ -75,6 +84,10 @@ workflow {
 
     build_vrt_stack(ch_grouped_bands)
 
-    build_vrt_stack.out.view()
+    build_vrt_stack
+    .out
+    // [Tile ID, Scene ID, Sensor type, Year, Month, [BOA, exploded bands and indices], ordered band stack]
+    .map( { get_year_month(it) } )
+    .view()
 }
 
