@@ -33,16 +33,16 @@ process build_vrt_stack_process {
     publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_STACK.vrt', overwrite: true
 
     input:
-	tuple val(TID), val(identifier), val(platform), path(reflectance), path(bands)
+	tuple val(TID), val(identifier), val(platform), path(bands)
 
     output:
-	tuple val(TID), val(identifier), val(platform), path(reflectance), path(bands), path("${identifier}_STACK.vrt")
+	tuple val(TID), val(identifier), val(platform), path("${identifier}_STACK.vrt")
 
     script:
     """
-    mkdir vrt
-    mv ${reflectance} ${bands} vrt
-    build_vrt-stack.py vrt ${identifier}_STACK.vrt
+    mkdir tmp
+    build_vrt-stack.py tmp ${bands}
+    mv ./tmp/* .
     """
 }
 
