@@ -30,7 +30,8 @@ RUN mkdir -m=0700 $XRD && \
 
 RUN git clone https://bitbucket.org/hu-geomatics/enmap-box.git && \
     cd enmap-box && \
-    git checkout $ENMAP_VERSION && \
+    # until 3.10 gets released, I can't do a version checkout beacuse I want/need further STMs, which are already implemented
+    # git checkout $ENMAP_VERSION && \
     python3 scripts/setup_repository.py && \
     python3 scripts/create_plugin.py && \
     cp -r deploy/enmapboxplugin ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins && \
