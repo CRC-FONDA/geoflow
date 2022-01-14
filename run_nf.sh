@@ -1,10 +1,25 @@
 #! /bin/sh
 
-# pull latest container image and run nextflow workflow
-# only needed during "development" phase
-
 if [ "$#" -gt 0 ]; then
-    docker pull floriankaterndahl/geoflow:latest
+	while getopts 'dg' opt; do
+		case "$opt" in
+		d)
+			echo "Pulling latest docker image from dockerhub:"
+			echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+			echo ""
+			docker pull floriankaterndahl/geoflow:latest
+			;;
+		g)
+			echo "Pulling changes from GitHub"
+			echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+			echo ""
+			git pull
+			;;
+		*)
+			echo "Invalid argument provided"
+			exit 1
+		esac;
+	done
 fi
 
 nextflow run -resume main.nf --input_dirP='/data/Dagobah/dc/deu/ard/X0061_Y0048/*{BOA,QAI}.tif' --output_dir_indices=/data/Dagobah/fonda/shk/test_out
