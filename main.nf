@@ -54,7 +54,7 @@ def get_year_month_etc = input -> {
 
 def get_abstract_sensor = input -> {
 	return [input[0], input[1], input[2][0], input[2], input[3], input[4], input[5], input[6], input[7]]
-
+}
 
 workflow {
     Channel
@@ -115,7 +115,7 @@ workflow {
 
     // TODO Workaround until enmapbox is capable of producing multi band rasters as output
     calc_stms_landsat(ch_group_stacked_raster.landsat)
-    calc_stms_sentinel(ch_group_stacked_raster.sentinel)
+//    calc_stms_sentinel(ch_group_stacked_raster.sentinel)
 
 }
 
