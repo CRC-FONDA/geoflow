@@ -8,7 +8,7 @@ LABEL description="EnMAP-Box in Docker"
 
 ARG ENMAP_VERSION='v3.9'
 #ARG ENMAP_BRANCH='master'
-ARG XRD='/tmp/runtime-root'
+ARG XRD='/var/tmp/runtime-root'
 
 ENV DEBIANFRONTEND=noninteractive
 ENV QT_QPA_PLATFORM=offscreen
