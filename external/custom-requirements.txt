@@ -39,4 +39,4 @@ setuptools>=45.2.0
 urllib3>=1.25.8
 
 # my own stuff
-bitstring>=3.1.9
+# bitstring>=3.1.9
