@@ -3,3 +3,4 @@ external/data
 work/
 .nextflow/
 .nextflow.*
+test*/
