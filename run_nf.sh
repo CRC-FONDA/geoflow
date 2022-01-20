@@ -1,7 +1,7 @@
 #! /bin/sh
 
 if [ "$#" -gt 0 ]; then
-	while getopts 'dg' opt; do
+	while getopts 'dgr' opt; do
 		case "$opt" in
 		d)
 			echo "Pulling latest docker image from dockerhub:"
