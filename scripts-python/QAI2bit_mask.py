@@ -22,18 +22,9 @@ parser.add_argument("-qb", "--qai_bits", action="extend", nargs="+", type=str, r
 						 "it will be ignored and thus, either one of all possible values with respect for the flag are considered valid data. "
 						 "WARNING: Currently, there is no input validation for conflicting flags and it's only possible to filter for exact matches "
 						 "(e.g. it is not possible to filter pixels, which are at least mediocre illuminated)")
-# TODO
-#  I don't think I actually need this flag. If it's Landsat, the field simply acts as if the WVP was measured.
-parser.add_argument("-S2", "--Sentinel2", action="store_true", dest="s2", help="Is the supplied QAI file a Sentinel-2 image? If not specified, "
-																			   "it is assumed to be "
-																			   "a Landsat image.")
 
 args: Dict[str, str] = {key: (value[0] if isinstance(value, List) and key != "qai_bits" else value) for key, value in vars(parser.parse_args()).items()}
 
-
-# TODO
-#  - Bit 14 is only valid for Sentinel-2 => requires an extra CLI argument to distinguish or regex (latter would probably be faster)
-#    --> I don't need to check if Bit 14 was set when using Landsat, I just dont use it.
 
 def generate_masking_bits(flag_selection: List[str]) -> Dict[str, np.int16]:
 	# @formatter:off
