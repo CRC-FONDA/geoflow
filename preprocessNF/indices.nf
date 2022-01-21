@@ -53,7 +53,7 @@ process ndvi {
     publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_NDVI.tif', overwrite: true
 
     input:
-    tuple val(TID), val(identifier), val(platform), path(reflectance), path(qai)
+    tuple val(TID), val(identifier), val(platform), path(reflectance)
 
     output:
     tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_NDVI.tif"), emit: ndvi_out
@@ -79,7 +79,7 @@ process evi {
     publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_EVI.tif', overwrite: true
 
     input:
-    tuple val(TID), val(identifier), val(platform), path(reflectance), path(qai)
+    tuple val(TID), val(identifier), val(platform), path(reflectance)
 
     output:
     tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_EVI.tif"), emit: evi_out
@@ -105,7 +105,7 @@ process nbr {
     publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_NBR.tif', overwrite: true
 
     input:
-    tuple val(TID), val(identifier), val(platform), path(reflectance), path(qai)
+    tuple val(TID), val(identifier), val(platform), path(reflectance)
 
     output:
     tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_NBR.tif"), emit: nbr_out
@@ -131,7 +131,7 @@ process ndti {
     publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_NDTI.tif', overwrite: true
 
     input:
-    tuple val(TID), val(identifier), val(platform), path(reflectance), path(qai)
+    tuple val(TID), val(identifier), val(platform), path(reflectance)
 
     output:
     tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_NDTI.tif"), emit: ndti_out
@@ -157,7 +157,7 @@ process arvi {
     publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_ARVI.tif', overwrite: true
 
     input:
-    tuple val(TID), val(identifier), val(platform), path(reflectance), path(qai)
+    tuple val(TID), val(identifier), val(platform), path(reflectance)
 
     output:
     tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_ARVI.tif"), emit: arvi_out
@@ -183,7 +183,7 @@ process savi {
     publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_SAVI.tif', overwrite: true
 
     input:
-    tuple val(TID), val(identifier), val(platform), path(reflectance), path(qai)
+    tuple val(TID), val(identifier), val(platform), path(reflectance)
 
     output:
     tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_SAVI.tif"), emit: savi_out
@@ -209,7 +209,7 @@ process sarvi {
     publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_SARVI.tif', overwrite: true
 
     input:
-    tuple val(TID), val(identifier), val(platform), path(reflectance), path(qai)
+    tuple val(TID), val(identifier), val(platform), path(reflectance)
 
     output:
     tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_SARVI.tif"), emit: sarvi_out
