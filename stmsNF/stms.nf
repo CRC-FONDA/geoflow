@@ -1,27 +1,7 @@
 nextflow.enable.dsl = 2
 
-process stms_pr {
-	label 'debug'
-
-	input:
-	tuple val(TID), val(identifier), val(sensor_type), val(year), val(month), val(quarter), path(base_files), path(stack)
-
-	output:
-	tuple val(TID), val(identifier), val(sensor_type), val(year), val(month), val(quarter), path(base_files), path("${identifier}_mean.tif")
-
-	script:
-	"""
-	mkdir vrt
-	mv ${base_files} vrt
-	qgis_process run enmapbox:AggregateRasterBands ${stack} 2 ${identifier}_mean.tif
-	mv vrt/* .
-	"""
-
-}
-
 process stm_BLUE_pr {
 	label 'debug'
-	echo true
 
 	input:
 	tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path(base_files)
@@ -31,23 +11,20 @@ process stm_BLUE_pr {
 
 	script:
 	// TODO Scaling and Truncate stm stack!
-	// last mv call not needed?!
-	//  for stm in 0 1 2 3 4 5 6 7 8 9 10 11 12; do
-        //        qgis_process run enmapbox:AggregateRasterBands -- raster=BLUE_stack.vrt function=\$stm outraster=${TID}_${sensor_abbr}_BLUE_STMS-\$stm.tif;
-        // done
-	// qgis_process run gdal:merge -- INPUT=*BLUE_STMS-*.tif PCT=-1 SEPARATE=1 OUTPUT=${TID}_${sensor_abbr}_BLUE_STMS.tif
+	// TODO Don't forget to re-insert STM Nr. 9 and 10!
+	// last mv call not needed?! -> depends on the output of the process. Not decided yet
 	"""
 	mkdir vrt
 	mv ${base_files} vrt
 	ls -1 vrt/* | grep BOA-01 > BLUE_files.txt
 	gdalbuildvrt -q -separate -input_file_list BLUE_files.txt BLUE_stack.vrt
 
-	for stm in 0 1 2 3 4 5 6 7 8 9 10 11 12; do
-        	echo Calculating STM function Nr \$stm
-		qgis_process run enmapbox:AggregateRasterBands -- raster=BLUE_stack.vrt function=\$stm outraster=${TID}_${sensor_abbr}_BLUE_STMS-\$stm.tif;
-        done
+	for stm in 0 1 2 3 4 5 6 7 8 11 12; do
+		qgis_process run enmapbox:AggregateRasterBands -- raster=BLUE_stack.vrt function=\$stm outraster=${TID}_${sensor_abbr}_BLUE_STMS-\$stm-temp.tif;
+		adjust_indices.py -STM -src ${TID}_${sensor_abbr}_BLUE_STMS-\$stm-temp.tif -of ${TID}_${sensor_abbr}_BLUE_STMS-\$stm.tif;
+    done
 
-	gdal_merge.py -o ${TID}_${sensor_abbr}_BLUE_STMS.tif *BLUE_STMS-*.tif
+	gdal_merge.py -separate -o ${TID}_${sensor_abbr}_BLUE_STMS.tif *BLUE_STMS-*.tif
 
 	mv vrt/* .
 	"""
