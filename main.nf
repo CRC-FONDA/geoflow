@@ -94,7 +94,7 @@ workflow {
     /*
     *   conceptually, new chunk as per proposed flow chart
     */
-
+    // TODO indicate (via filename??) what the grouping variable is/was -> this also needs to be communicated via NF channels
     build_vrt_stack
     .out
     .map( { get_year_month_etc(it) } )
