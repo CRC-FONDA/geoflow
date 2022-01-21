@@ -1,5 +1,6 @@
 nextflow.enable.dsl = 2
 
+include { mask_BOA } from './preprocessNF/maskWF.nf'
 include { calc_indices } from './preprocessNF/indicesWF.nf'
 include { build_vrt_stack } from './preprocessNF/stackWF.nf'
 include { explode_base_files } from './preprocessNF/explodeWF.nf'
@@ -18,6 +19,10 @@ def get_tile = input -> {
     input.toString().split('/')[-2]
 }
 
+def get_platform = input -> {
+    input.split('_')[-1]
+}
+
 // expects FORCE nomenclature
 def get_scene_id = input -> {
 	last_chunk = input.toString().split('/')[-1]
@@ -26,13 +31,9 @@ def get_scene_id = input -> {
 	return last_chunk_list.join('_')
 }
 
-def get_platform = input -> {
-    input.split('_')[-1]
-}
-
 // Extract Tile Id, and create a list containing:
 //  [tile id, scene identifier, FORCE platform abbreviation, path to BOA, path to QAI]
-def sorta_flat = input -> {
+def spread_input = input -> {
 	[get_tile(input[1][0]), input[0], get_platform(input[0]), input[1][0], input[1][1]]
 }
 
@@ -42,6 +43,7 @@ def add_tile_id = input -> {
 	[get_tile(input[1][0]), input[0], get_platform(input[0]), input[1][0], input[1][1]]
 }
 
+// [Tile ID, Scene ID, Sensor type, Year, Month, Quarter, [BOA, exploded bands and indices], ordered band stack vrt]
 def get_year_month_etc = input -> {
 	String year_month = input[1].split('_')[0] // split scene ID
 	String year = year_month[0..3]
@@ -52,30 +54,30 @@ def get_year_month_etc = input -> {
 	return [input[0], input[1], input[2], year, month as String, quarter as String, input[3], input[4]]
 }
 
-def get_abstract_sensor = input -> {
+// [Tile ID, Scene ID, short Sensor, Sensor type, Year, Month, Quarter, [BOA, exploded bands and indices], ordered band stack vrt]
+def get_short_sensor = input -> {
 	return [input[0], input[1], input[2][0], input[2], input[3], input[4], input[5], input[6], input[7]]
 }
 
 workflow {
+    // TODO: remove subset
     Channel
         .fromFilePairs(params.input_dirP)
         .take(70)
         .filter( { single_tileP(it) } )
-        .map( { sorta_flat(it) } )
+        .map( { spread_input(it) } )
         .set( { ch_dataP } )
 
-    // TODO: remove subset
-    calc_indices(ch_dataP)
+    mask_BOA(ch_dataP)
 
-    Channel
-        .fromFilePairs(params.input_dirP)
-        .take(70)
-        .filter( { single_tileP(it) } )
-        .map( { sorta_flat(it) } )
-        .set( { ch_base_files } )
+    mask_BOA
+        .out
+        .tap( { ch_base_files } )
+        .set( { ch_for_indices } )
+
+    calc_indices(ch_for_indices)
 
     explode_base_files(ch_base_files)
-
 
     // The group size should be set, so that a "package"/"bundle" can be released as soon as everything needed is processed and not
     // we don't have to wait until everything is processed. In theory, there is a function for doing so (grouKey, see https://github.com/nextflow-io/nextflow/issues/796#issuecomment-407108667),
@@ -98,10 +100,8 @@ workflow {
 
     build_vrt_stack
     .out
-    // [Tile ID, Scene ID, Sensor type, Year, Month, Quarter, [BOA, exploded bands and indices], ordered band stack vrt]
     .map( { get_year_month_etc(it) } )
-    // [Tile ID, Scene ID, abstract Sensor, Sensor type, Year, Month, Quarter, [BOA, exploded bands and indices], ordered band stack vrt]
-    .map( { get_abstract_sensor(it) } )
+    .map( { get_short_sensor(it) } )
     .tap( { ch_stacked_raster } ) // likely needed later on because stms discard sensor/scene specific stack
     .map( { it[0..<-1] } ) // drop vrt stack for next step (calculating stms); I couldn't figure out if it's possible to pass an array to a NF process marked as path -> I don't think so TODO
     .groupTuple(by: [0, 2, 5]) // group by TID, Landsat/Sentinel and month
@@ -113,7 +113,6 @@ workflow {
     	} )
     .set( { ch_group_stacked_raster } )
 
-    // TODO Workaround until enmapbox is capable of producing multi band rasters as output
     calc_stms_landsat(ch_group_stacked_raster.landsat)
 //    calc_stms_sentinel(ch_group_stacked_raster.sentinel)
 
