@@ -2,72 +2,93 @@
 
 import numpy as np
 from osgeo import gdal
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Union
 import argparse
 import re
 
 parser = argparse.ArgumentParser(
-    description="This script converts floating point raster to integer ones following the convention set by FORCE (scaling by "
-                "10.000 and truncating.")
-parser.add_argument("source_dst", nargs=1, type=str, help="File path to input dataset.")
-parser.add_argument("destination_dst", nargs=1, type=str, help="File path to output dataset.")
+	description="This script converts floating point raster to integer ones following the convention set by FORCE (scaling by "
+				"10.000 and truncating.")
+parser.add_argument("-src", "--source_dst", nargs=1, type=str, required=True, help="File path to input dataset.")
+parser.add_argument("-of", "--output_dst", nargs=1, type=str, required=True, help="File path to output dataset.")
+parser.add_argument("-STM", action="store_true", type=bool, dest="is_stm", help="Flag indicating if raster is spectral index or spectral temporal metric. "
+																				"Needed due to different naming conventions.")
 
-args: Dict[str, List[str]] = vars(parser.parse_args())
+args: Dict[str, Union[str, bool]] = {key: (value[0] if isinstance(value, List) else value) for key, value in vars(parser.parse_args()).items()}
 
-raster_dataset: Optional[gdal.Dataset] = gdal.Open(
-    args.get("source_dst")[0],
-    gdal.GA_ReadOnly)
 
-if not raster_dataset:
-    raise FileNotFoundError("Failed to open source_dst")
+def read_raster(path: str) -> gdal.Dataset:
+	if raster := gdal.Open(path, gdal.GA_ReadOnly):
+		return raster
+	raise OSError(f"Failed to open dataset {path}")
 
-if raster_dataset.RasterCount != 1:
-    raster_dataset = None
-    raise AssertionError("Number of bands in raster file is not equal to 1")
 
-file_format: str = "GTiff"
+def write_raster(path: str, data: np.ndarray, of: str, band_description: str, gdt: int, geo_trans: List[int], projection: str,
+				 no_data_value: int = -9999, gci: int = gdal.GCI_GrayIndex) -> None:
+	cols, rows = data.shape
+	driver: gdal.Driver = gdal.GetDriverByName(of)
+	dst: gdal.Dataset = driver.Create(path, xsize=cols, ysize=rows, bands=1, eType=gdt,
+									  # TODO Block[X/Y]Size correctly set? Looks wrong
+									  options=["COMPRESS=LZW", "PREDICTOR=2", f"BLOCKXSIZE={cols}", f"BLOCKYSIZE={int(rows / 10)}"])
+	if not dst:
+		raise FileNotFoundError("Failed to open output dataset.")
 
-driver: gdal.Driver = gdal.GetDriverByName(file_format)
+	dst.SetGeoTransform(geo_trans)
+	dst.SetProjection(projection)
+	dst_band: gdal.Band = dst.GetRasterBand(1)
+	dst_band.SetNoDataValue(no_data_value)
+	dst_band.SetColorInterpretation(gci)
+	dst_band.SetDescription(band_description)
+	dst_band.WriteArray(data, 0, 0)
 
-dst_ds = driver.Create(args.get("destination_dst")[0], xsize=raster_dataset.RasterXSize,
-                       ysize=raster_dataset.RasterYSize, bands=1, eType=gdal.GDT_Int16,
-                       options=["COMPRESS=LZW", "PREDICTOR=2",
-                                f"BLOCKXSIZE={raster_dataset.RasterXSize}", f"BLOCKYSIZE={int(raster_dataset.RasterYSize / 10)}"])
+	dst = None
 
-if not dst_ds:
-    raise FileNotFoundError("Failed to open destination_dst")
 
-# copy GeoTransform and SpatialRef to new dataset
-dst_ds.SetGeoTransform(raster_dataset.GetGeoTransform())
-dst_ds.SetProjection(raster_dataset.GetSpatialRef().ExportToWkt())
+def scale_array(data: np.ndarray, old_no_data: Optional[float], new_no_data: int = -9999) -> np.ndarray:
+	scaled_array: np.ndarray = np.int_(np.trunc(data * 10_000))
+	if old_no_data:
+		scaled_old_na: int = int(old_no_data * 10_000)
+		scaled_array = np.where(scaled_array == scaled_old_na, new_no_data, scaled_array)
+	return scaled_array
 
-# set NoDataValue
-dst_ds.GetRasterBand(1).SetNoDataValue(-9999)
 
-src_dst_values = raster_dataset.GetRasterBand(1).ReadAsArray(0, 0, raster_dataset.RasterXSize,
-                                                             raster_dataset.RasterYSize)
+def generate_band_description(name: str, type_flag: bool) -> str:
+	band_description: str = ""
+	if type_flag:
+		stm_mapping: List[str] = [
+			"MEAN",
+			"STD",
+			"MIN",
+			"P5",
+			"P25",
+			"MEDIAN",
+			"P75",
+			"P95",
+			"MAX",
+			"SUM",
+			"PRODUCT",
+			"RANGE",
+			"IQR"
+		]
+		stm_index: int = int(re.search(r"(?<=STMS-)[0-9]{1,2}(?=.tif)", name).group())
+		band_description = stm_mapping[stm_index]
+	else:
+		band_description = re.search(r"(?<=_)[A-Za-z]{3,}(?=-temp.tif)", name).group()
 
-# check if any values are already marked as NA and if yes, set them to new NoDataValue
-src_no_data: Optional[float] = raster_dataset.GetRasterBand(1).GetNoDataValue()
-if src_no_data:
-    for row in src_dst_values:
-        for cell in row:
-            if cell == src_no_data:
-                cell = -9999
+	return band_description
 
-# scale, truncate and convert values according to FORCE format (FORCE truncates as well by casting float to short)
-src_dst_values_scaled = np.int_(np.trunc(src_dst_values * 10_000))
 
-# fetch band, set color interpretation (https://gis.stackexchange.com/a/414699) and write Band
-output_band = dst_ds.GetRasterBand(1)
+def main() -> None:
+	in_raster = read_raster(args.get("source_dst"))
+	in_array: np.ndarray = in_raster.GetRasterBand(1).ReadAsArray(0, 0, in_raster.RasterXSize, in_raster.RasterYSize)
 
-# Index name only exists in file name
-# assumes that name is at least 3 characters long
-band_name: str = re.search(r"(?<=_)[A-Za-z]{3,}(?=-temp.tif)", args.get("source_dst")[0]).group()
-output_band.SetDescription(band_name)
-output_band.SetColorInterpretation(gdal.GCI_GrayIndex)
-output_band.WriteArray(src_dst_values_scaled)
+	out_array: np.ndarray = scale_array(in_array, in_raster.GetRasterBand(1).GetNoDataValue())
+	out_description: str = generate_band_description(args.get("source_dst"), args.get("is_stm"))
+	write_raster(args.get("destination_dst"), out_array, "GTiff", out_description, gdal.GDT_Int16, in_raster.GetGeoTransform(),
+				 in_raster.GetSpatialRef().ExportToWKT())
 
-# close datasets
-raster_dataset = None
-dst_ds = None
+	in_raster = None
+
+
+if __name__ == "__main__":
+	main()
