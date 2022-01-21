@@ -1,9 +1,6 @@
 nextflow.enable.dsl = 2
 
-include { mask_BOA } from './preprocessNF/maskWF.nf'
-include { calc_indices } from './preprocessNF/indicesWF.nf'
-include { build_vrt_stack } from './preprocessNF/stackWF.nf'
-include { explode_base_files } from './preprocessNF/explodeWF.nf'
+include { mask_BOA; calc_indices; build_vrt_stack; explode_base_files } from './preprocessNF/preprocessing_workflows.nf'
 include { calc_stms_landsat; calc_stms_sentinel } from './stmsNF/stmsWF.nf'
 
 def single_tileP = input -> {
