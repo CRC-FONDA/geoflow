@@ -7,33 +7,33 @@ workflow calc_stms_landsat {
 		data
 	 main:
                 stm_BLUE_pr(data)
-//                stm_GREEN_pr(data)
-//                stm_RED_pr(data)
-//                stm_NIR_pr(data)
-//                stm_SWIR1_pr(data)
-//                stm_SWIR2_pr(data)
-//                stm_NDVI_pr(data)
-//                stm_NBR_pr(data)
-//                stm_NDTI_pr(data)
-//                stm_SAVI_pr(data)
-//                stm_SARVI_pr(data)
-//                stm_EVI_pr(data)
-//                stm_ARVI_pr(data)
+                stm_GREEN_pr(data)
+                stm_RED_pr(data)
+                stm_NIR_pr(data)
+                stm_SWIR1_pr(data)
+                stm_SWIR2_pr(data)
+                stm_NDVI_pr(data)
+                stm_NBR_pr(data)
+                stm_NDTI_pr(data)
+                stm_SAVI_pr(data)
+                stm_SARVI_pr(data)
+                stm_EVI_pr(data)
+                stm_ARVI_pr(data)
 
         emit:
                 stm_BLUE_pr.out
-//                stm_GREEN_pr.out
-//                stm_RED_pr.out
-//                stm_NIR_pr.out
-//                stm_SWIR1_pr.out
-//                stm_SWIR2_pr.out
-//                stm_NDVI_pr.out
-//                stm_NBR_pr.out
-//                stm_NDTI_pr.out
-//                stm_SAVI_pr.out
-//                stm_SARVI_pr.out
-//                stm_EVI_pr.out
-//                stm_ARVI_pr.out
+                stm_GREEN_pr.out
+                stm_RED_pr.out
+                stm_NIR_pr.out
+                stm_SWIR1_pr.out
+                stm_SWIR2_pr.out
+                stm_NDVI_pr.out
+                stm_NBR_pr.out
+                stm_NDTI_pr.out
+                stm_SAVI_pr.out
+                stm_SARVI_pr.out
+                stm_EVI_pr.out
+                stm_ARVI_pr.out
 }
 
 workflow calc_stms_sentinel {
