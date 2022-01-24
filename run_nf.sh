@@ -19,7 +19,7 @@ if [ "$#" -gt 0 ]; then
 			nextflow run -resume main.nf --input_dirP='/data/Dagobah/dc/deu/ard/X0061_Y0048/*{BOA,QAI}.tif' --output_dir_indices=/data/Dagobah/fonda/shk/test_out
 			;;
 		v)
-			nextflow run main.nf --input_dirP='/data/Dagobah/dc/deu/ard/X0061_Y0048/*{BOA,QAI}.tif' --output_dir_indices=/data/Dagobah/fonda/shk/test_out -with-dag
+			nextflow run -resume main.nf --input_dirP='/data/Dagobah/dc/deu/ard/X0061_Y0048/*{BOA,QAI}.tif' --output_dir_indices=/data/Dagobah/fonda/shk/test_out -with-dag
 			;;
 		*)
 			echo "Invalid argument provided"
