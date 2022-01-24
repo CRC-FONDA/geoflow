@@ -11,11 +11,10 @@ parser = argparse.ArgumentParser(
 				"10.000 and truncating.")
 parser.add_argument("-src", "--source_dst", nargs=1, type=str, required=True, help="File path to input dataset.")
 parser.add_argument("-of", "--output_dst", nargs=1, type=str, required=True, help="File path to output dataset.")
-parser.add_argument("-STM", action="store_true", type=bool, dest="is_stm", help="Flag indicating if raster is spectral index or spectral temporal metric. "
+parser.add_argument("-STM", action="store_true", dest="is_stm", help="Flag indicating if raster is spectral index or spectral temporal metric. "
 																				"Needed due to different naming conventions.")
 
 args: Dict[str, Union[str, bool]] = {key: (value[0] if isinstance(value, List) else value) for key, value in vars(parser.parse_args()).items()}
-
 
 def read_raster(path: str) -> gdal.Dataset:
 	if raster := gdal.Open(path, gdal.GA_ReadOnly):
@@ -70,7 +69,7 @@ def generate_band_description(name: str, type_flag: bool) -> str:
 			"RANGE",
 			"IQR"
 		]
-		stm_index: int = int(re.search(r"(?<=STMS-)[0-9]{1,2}(?=.tif)", name).group())
+		stm_index: int = int(re.search(r"(?<=STMS-)[0-9]{1,2}(?=-temp.tif)", name).group())
 		band_description = stm_mapping[stm_index]
 	else:
 		band_description = re.search(r"(?<=_)[A-Za-z]{3,}(?=-temp.tif)", name).group()
@@ -84,8 +83,8 @@ def main() -> None:
 
 	out_array: np.ndarray = scale_array(in_array, in_raster.GetRasterBand(1).GetNoDataValue())
 	out_description: str = generate_band_description(args.get("source_dst"), args.get("is_stm"))
-	write_raster(args.get("destination_dst"), out_array, "GTiff", out_description, gdal.GDT_Int16, in_raster.GetGeoTransform(),
-				 in_raster.GetSpatialRef().ExportToWKT())
+	write_raster(args.get("output_dst"), out_array, "GTiff", out_description, gdal.GDT_Int16, in_raster.GetGeoTransform(),
+				 in_raster.GetSpatialRef().ExportToWkt())
 
 	in_raster = None
 
