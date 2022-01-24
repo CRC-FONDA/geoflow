@@ -107,7 +107,7 @@ process stm_RE1_pr {
 
 	for stm in 0 1 2 3 4 5 6 7 8 9 10 11 12; do
 	        qgis_process run enmapbox:AggregateRasterBands -- raster=RE1_stack.vrt function=\$stm outraster=${TID}_${sensor_abbr}_RE1_STMS-\$stm-temp.tif;
-		adjust_indices.py -STM -src {TID}_${sensor_abbr}_RE1_STMS-\$stm-temp.tif -of {TID}_${sensor_abbr}_RE1_STMS-\$stm.tif;
+		adjust_indices.py -STM -src ${TID}_${sensor_abbr}_RE1_STMS-\$stm-temp.tif -of ${TID}_${sensor_abbr}_RE1_STMS-\$stm.tif;
 	done
 
 	gdal_merge.py -separate -o ${TID}_${sensor_abbr}_RE1_STMS.tif *RE1_STMS-*.tif
@@ -136,7 +136,7 @@ process stm_RE2_pr {
 
 	for stm in 0 1 2 3 4 5 6 7 8 9 10 11 12; do
 	        qgis_process run enmapbox:AggregateRasterBands -- raster=RE2_stack.vrt function=\$stm outraster=${TID}_${sensor_abbr}_RE2_STMS-\$stm-temp.tif;
-		adjust_indices.py -STM -src {TID}_${sensor_abbr}_RE2_STMS-\$stm-temp.tif -of {TID}_${sensor_abbr}_RE2_STMS-\$stm.tif;
+		adjust_indices.py -STM -src ${TID}_${sensor_abbr}_RE2_STMS-\$stm-temp.tif -of ${TID}_${sensor_abbr}_RE2_STMS-\$stm.tif;
 	done
 
 	gdal_merge.py -separate -o ${TID}_${sensor_abbr}_RE2_STMS.tif *RE2_STMS-*.tif
