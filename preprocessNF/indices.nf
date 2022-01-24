@@ -67,7 +67,7 @@ process ndvi {
     R1=$reflectance \
     outputRaster=${identifier}_NDVI-temp.tif
 
-    adjust_indices.py -src ${identifier}_NDVI-temp -of ${identifier}_NDVI.tif
+    adjust_indices.py -src ${identifier}_NDVI-temp.tif -of ${identifier}_NDVI.tif
     """
 }
 
@@ -93,7 +93,7 @@ process evi {
     R1=$reflectance \
     outputRaster=${identifier}_EVI-temp.tif
 
-    adjust_indices.py -src ${identifier}_EVI-temp -of ${identifier}_EVI.tif
+    adjust_indices.py -src ${identifier}_EVI-temp.tif -of ${identifier}_EVI.tif
     """
 }
 
@@ -119,7 +119,7 @@ process nbr {
     R1=$reflectance \
     outputRaster=${identifier}_NBR-temp.tif
 
-    adjust_indices.py -src ${identifier}_NBR-temp -of ${identifier}_NBR.tif
+    adjust_indices.py -src ${identifier}_NBR-temp.tif -of ${identifier}_NBR.tif
     """
 }
 
@@ -145,7 +145,7 @@ process ndti {
     R1=$reflectance \
     outputRaster=${identifier}_NDTI-temp.tif
 
-    adjust_indices.py -src ${identifier}_NDTI-temp -of ${identifier}_NDTI.tif
+    adjust_indices.py -src ${identifier}_NDTI-temp.tif -of ${identifier}_NDTI.tif
     """
 }
 
@@ -171,7 +171,7 @@ process arvi {
     R1=$reflectance \
     outputRaster=${identifier}_ARVI-temp.tif
 
-    adjust_indices.py -src ${identifier}_ARVI-temp -of ${identifier}_ARVI.tif
+    adjust_indices.py -src ${identifier}_ARVI-temp.tif -of ${identifier}_ARVI.tif
     """
 }
 
@@ -197,7 +197,7 @@ process savi {
     R1=$reflectance \
     outputRaster=${identifier}_SAVI-temp.tif
 
-    adjust_indices.py -src ${identifier}_SAVI-temp -of ${identifier}_SAVI.tif
+    adjust_indices.py -src ${identifier}_SAVI-temp.tif -of ${identifier}_SAVI.tif
     """
 }
 
@@ -223,6 +223,6 @@ process sarvi {
     R1=$reflectance \
     outputRaster=${identifier}_SARVI-temp.tif
 
-    adjust_indices.py -src ${identifier}_SARVI-temp -of ${identifier}_SARVI.tif
+    adjust_indices.py -src ${identifier}_SARVI-temp.tif -of ${identifier}_SARVI.tif
     """
 }
