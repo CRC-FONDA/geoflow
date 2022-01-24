@@ -10,7 +10,6 @@ process stm_BLUE_pr {
 	tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path("${TID}_${sensor_abbr}_BLUE_STMS.tif")
 
 	script:
-	// TODO Scaling and Truncate stm stack!
 	// last mv call not needed?! -> depends on the output of the process. Not decided yet
 	"""
 	mkdir vrt
@@ -39,7 +38,6 @@ process stm_GREEN_pr {
         tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path("${TID}_${sensor_abbr}_GREEN_STMS.tif")
 
         script:
-        // TODO Scaling and Truncate stm stack!
         // last mv call not needed?!
         """
         mkdir vrt
@@ -68,7 +66,6 @@ process stm_RED_pr {
         tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path("${TID}_${sensor_abbr}_RED_STMS.tif")
 
         script:
-        // TODO Scaling and Truncate stm stack!
         // last mv call not needed?!
         """
         mkdir vrt
@@ -97,7 +94,6 @@ process stm_RE1_pr {
         tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path("${TID}_${sensor_abbr}_RE1_STMS.tif")
 
         script:
-        // TODO Scaling and Truncate stm stack!
         // last mv call not needed?!
         """
         mkdir vrt
@@ -126,7 +122,6 @@ process stm_RE2_pr {
         tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path("${TID}_${sensor_abbr}_RE2_STMS.tif")
 
         script:
-        // TODO Scaling and Truncate stm stack!
         // last mv call not needed?!
         """
         mkdir vrt
@@ -155,7 +150,6 @@ process stm_RE3_pr {
         tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path("${TID}_${sensor_abbr}_RE3_STMS.tif")
 
         script:
-        // TODO Scaling and Truncate stm stack!
         // last mv call not needed?!
         """
         mkdir vrt
@@ -184,7 +178,6 @@ process stm_BNIR_pr {
         tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path("${TID}_${sensor_abbr}_BNIR_STMS.tif")
 
         script:
-        // TODO Scaling and Truncate stm stack!
         // last mv call not needed?!
         """
         mkdir vrt
@@ -213,7 +206,6 @@ process stm_NIR_pr {
         tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path("${TID}_${sensor_abbr}_NIR_STMS.tif")
 
         script:
-        // TODO Scaling and Truncate stm stack!
         // last mv call not needed?!
 	String band_index = sensor_abbr == 'S' ? 'BOA-08' : 'BOA-04'
 
@@ -244,7 +236,6 @@ process stm_SWIR1_pr {
         tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path("${TID}_${sensor_abbr}_SWIR1_STMS.tif")
 
         script:
-        // TODO Scaling and Truncate stm stack!
         // last mv call not needed?!
 	String band_index = sensor_abbr == 'S' ? 'BOA-09' : 'BOA-05'
 
@@ -275,7 +266,6 @@ process stm_SWIR2_pr {
         tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path("${TID}_${sensor_abbr}_SWIR2_STMS.tif")
 
         script:
-        // TODO Scaling and Truncate stm stack!
         // last mv call not needed?!
 	String band_index = sensor_abbr == 'S' ? 'BOA-10' : 'BOA-06'
 
@@ -306,7 +296,6 @@ process stm_NDVI_pr {
         tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path("${TID}_${sensor_abbr}_NDVI_STMS.tif")
 
         script:
-        // TODO Scaling and Truncate stm stack!
         // last mv call not needed?!
         """
         mkdir vrt
@@ -335,7 +324,6 @@ process stm_NBR_pr {
         tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path("${TID}_${sensor_abbr}_NBR_STMS.tif")
 
         script:
-        // TODO Scaling and Truncate stm stack!
         // last mv call not needed?!
         """
         mkdir vrt
@@ -364,7 +352,6 @@ process stm_NDTI_pr {
         tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path("${TID}_${sensor_abbr}_NDTI_STMS.tif")
 
         script:
-        // TODO Scaling and Truncate stm stack!
         // last mv call not needed?!
         """
         mkdir vrt
@@ -393,7 +380,6 @@ process stm_SAVI_pr {
         tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path("${TID}_${sensor_abbr}_SAVI_STMS.tif")
 
         script:
-        // TODO Scaling and Truncate stm stack!
         // last mv call not needed?!
         """
         mkdir vrt
@@ -422,7 +408,6 @@ process stm_SARVI_pr {
         tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path("${TID}_${sensor_abbr}_SARVI_STMS.tif")
 
         script:
-        // TODO Scaling and Truncate stm stack!
         // last mv call not needed?!
         """
         mkdir vrt
@@ -451,7 +436,6 @@ process stm_EVI_pr {
         tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path("${TID}_${sensor_abbr}_EVI_STMS.tif")
 
         script:
-        // TODO Scaling and Truncate stm stack!
         // last mv call not needed?!
         """
         mkdir vrt
@@ -480,7 +464,6 @@ process stm_ARVI_pr {
         tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path("${TID}_${sensor_abbr}_ARVI_STMS.tif")
 
         script:
-        // TODO Scaling and Truncate stm stack!
         // last mv call not needed?!
         """
         mkdir vrt
