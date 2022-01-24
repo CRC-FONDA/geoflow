@@ -4,3 +4,5 @@ work/
 .nextflow/
 .nextflow.*
 test*/
+dag.dot*
+
