@@ -45,184 +45,20 @@ String platform_spectral_index(String platform_f, String code_snippet, Map <Stri
     return code_snippet
 }
 
-process ndvi {
-    label 'debug'
+process spectral_index_pr {
+	input:
+	tuple val(TID), val(identifier), val(platform), path(reflectance), val(index_choice)
 
-    cpus params.n_cpus_indices
+	output:
+	tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_${index_choice*.key[0]}.tif")
 
-    publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_NDVI.tif', overwrite: true
+	script:
+	"""
+	qgis_process run enmapbox:RasterMath -- \
+		code=\"${platform_spectral_index(platform, Indices[index_choice*.key[0]], SEN2_bands, LND_bands)}\" \
+		R1=$reflectance outputRaster=${identifier}_${index_choice*.key[0]}-temp.tif
 
-    input:
-    tuple val(TID), val(identifier), val(platform), path(reflectance)
-
-    output:
-    tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_NDVI.tif"), emit: ndvi_out
-
-    script:
-    String code_str = platform_spectral_index(platform, Indices["NDVI"], SEN2_bands, LND_bands)
-
-    """
-    qgis_process run enmapbox:RasterMath -- \
-    code=\"${code_str}\" \
-    R1=$reflectance \
-    outputRaster=${identifier}_NDVI-temp.tif
-
-    adjust_indices.py -src ${identifier}_NDVI-temp.tif -of ${identifier}_NDVI.tif
-    """
+	adjust_indices.py -src ${identifier}_${index_choice*.key[0]}-temp.tif -of ${identifier}_${index_choice*.key[0]}.tif
+	"""
 }
 
-process evi {
-    label 'debug'
-
-    cpus params.n_cpus_indices
-
-    publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_EVI.tif', overwrite: true
-
-    input:
-    tuple val(TID), val(identifier), val(platform), path(reflectance)
-
-    output:
-    tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_EVI.tif"), emit: evi_out
-
-    script:
-    String code_str = platform_spectral_index(platform, Indices["EVI"], SEN2_bands, LND_bands)
-
-    """
-    qgis_process run enmapbox:RasterMath -- \
-    code=\"${code_str}\" \
-    R1=$reflectance \
-    outputRaster=${identifier}_EVI-temp.tif
-
-    adjust_indices.py -src ${identifier}_EVI-temp.tif -of ${identifier}_EVI.tif
-    """
-}
-
-process nbr {
-    label 'debug'
-
-    cpus params.n_cpus_indices
-
-    publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_NBR.tif', overwrite: true
-
-    input:
-    tuple val(TID), val(identifier), val(platform), path(reflectance)
-
-    output:
-    tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_NBR.tif"), emit: nbr_out
-
-    script:
-    String code_str = platform_spectral_index(platform, Indices["NBR"], SEN2_bands, LND_bands)
-
-    """
-    qgis_process run enmapbox:RasterMath -- \
-    code=\"${code_str}\" \
-    R1=$reflectance \
-    outputRaster=${identifier}_NBR-temp.tif
-
-    adjust_indices.py -src ${identifier}_NBR-temp.tif -of ${identifier}_NBR.tif
-    """
-}
-
-process ndti {
-    label 'debug'
-
-    cpus params.n_cpus_indices
-
-    publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_NDTI.tif', overwrite: true
-
-    input:
-    tuple val(TID), val(identifier), val(platform), path(reflectance)
-
-    output:
-    tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_NDTI.tif"), emit: ndti_out
-
-    script:
-    String code_str = platform_spectral_index(platform, Indices["NDTI"], SEN2_bands, LND_bands)
-
-    """
-    qgis_process run enmapbox:RasterMath -- \
-    code=\"${code_str}\" \
-    R1=$reflectance \
-    outputRaster=${identifier}_NDTI-temp.tif
-
-    adjust_indices.py -src ${identifier}_NDTI-temp.tif -of ${identifier}_NDTI.tif
-    """
-}
-
-process arvi {
-    label 'debug'
-
-    cpus params.n_cpus_indices
-
-    publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_ARVI.tif', overwrite: true
-
-    input:
-    tuple val(TID), val(identifier), val(platform), path(reflectance)
-
-    output:
-    tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_ARVI.tif"), emit: arvi_out
-
-    script:
-    String code_str = platform_spectral_index(platform, Indices["ARVI"], SEN2_bands, LND_bands)
-
-    """
-    qgis_process run enmapbox:RasterMath -- \
-    code=\"${code_str}\" \
-    R1=$reflectance \
-    outputRaster=${identifier}_ARVI-temp.tif
-
-    adjust_indices.py -src ${identifier}_ARVI-temp.tif -of ${identifier}_ARVI.tif
-    """
-}
-
-process savi {
-    label 'debug'
-
-    cpus params.n_cpus_indices
-
-    publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_SAVI.tif', overwrite: true
-
-    input:
-    tuple val(TID), val(identifier), val(platform), path(reflectance)
-
-    output:
-    tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_SAVI.tif"), emit: savi_out
-
-    script:
-    String code_str = platform_spectral_index(platform, Indices["SAVI"], SEN2_bands, LND_bands)
-
-    """
-    qgis_process run enmapbox:RasterMath -- \
-    code=\"${code_str}\" \
-    R1=$reflectance \
-    outputRaster=${identifier}_SAVI-temp.tif
-
-    adjust_indices.py -src ${identifier}_SAVI-temp.tif -of ${identifier}_SAVI.tif
-    """
-}
-
-process sarvi {
-    label 'debug'
-
-    cpus params.n_cpus_indices
-
-    publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_SARVI.tif', overwrite: true
-
-    input:
-    tuple val(TID), val(identifier), val(platform), path(reflectance)
-
-    output:
-    tuple val(TID), val(identifier), val(platform), path(reflectance), path("${identifier}_SARVI.tif"), emit: sarvi_out
-
-    script:
-    String code_str = platform_spectral_index(platform, Indices["SARVI"], SEN2_bands, LND_bands)
-
-    """
-    qgis_process run enmapbox:RasterMath -- \
-    code=\"${code_str}\" \
-    R1=$reflectance \
-    outputRaster=${identifier}_SARVI-temp.tif
-
-    adjust_indices.py -src ${identifier}_SARVI-temp.tif -of ${identifier}_SARVI.tif
-    """
-}

@@ -1,7 +1,8 @@
 nextflow.enable.dsl = 2
 
-include { mask_BOA; calc_indices; build_vrt_stack; explode_base_files } from './preprocessNF/preprocessing_workflows.nf'
-include { calc_stms_landsat; calc_stms_sentinel } from './stmsNF/stmsWF.nf'
+include { mask_BOA; build_vrt_stack; explode_base_files } from './preprocessNF/preprocessing_workflows.nf'
+include { spectral_index_pr } from './preprocessNF/indices.nf'
+include { calc_stms_pr as stms_ls; calc_stms_pr as stms_sen } from './stmsNF/stms.nf'
 
 def single_tileP = input -> {
 	Boolean tile_x = (input[1][0] =~ /(?<=X00)${params.tx}(?=_Y)/)
@@ -57,10 +58,32 @@ def get_short_sensor = input -> {
 }
 
 workflow {
+    Channel
+	.of(params.spectral_indices_mapping)
+	.set( { spectral_indices } )
+
+    Channel
+	.of(params.calculate_stms)
+	.set( { stm_choices } )
+
+    Channel
+	.of(params.stm_band_mapping_sentinel)
+	.mix( spectral_indices )
+	.flatMap()
+	.combine( stm_choices )
+	.set( { stm_combination_sentinel } )
+
+    Channel
+	.of(params.stm_band_mapping_landsat)
+	.mix( spectral_indices )
+	.flatMap()
+	.combine( stm_choices )
+	.set( { stm_combination_landsat } )
+
     // TODO: remove subset
     Channel
         .fromFilePairs(params.input_dirP)
-        .take(70)
+        .take(15)
         .filter( { single_tileP(it) } )
         .map( { spread_input(it) } )
         .set( { ch_dataP } )
@@ -72,7 +95,13 @@ workflow {
         .tap( { ch_base_files } )
         .set( { ch_for_indices } )
 
-    calc_indices(ch_for_indices)
+    spectral_index_pr(
+	ch_for_indices
+		.combine(
+			spectral_indices
+			.flatMap()
+		)
+    )
 
     explode_base_files(ch_base_files)
 
@@ -81,7 +110,8 @@ workflow {
     // but this doesn't work here. Fabian might come up with a solution. Until then, this issue is postponed.
     Channel
         .empty()
-        .mix(calc_indices.out, explode_base_files.out)
+	.mix(spectral_index_pr.out, explode_base_files.out)
+      //  .mix(calc_indices.out, explode_base_files.out)
 	// regardless of sensor type, the group size is (as long as all indices can be calculated for all platforms) always N-indices + 1 because explode_base_files returns nested lists
 	// as soon as this is not the case anymore, the approach implemented by Fabian in his git pull request would be needed.
         .groupTuple(by: [0, 1], size: 8)
@@ -110,8 +140,16 @@ workflow {
     	} )
     .set( { ch_group_stacked_raster } )
 
-    calc_stms_landsat(ch_group_stacked_raster.landsat)
-//    calc_stms_sentinel(ch_group_stacked_raster.sentinel)
+    stms_ls(
+	ch_group_stacked_raster
+		.landsat
+		.combine(stm_combination_landsat)
+    )
 
+    stms_sen(
+	ch_group_stacked_raster
+		.sentinel
+		.combine(stm_combination_sentinel)
+    )
 }
 
