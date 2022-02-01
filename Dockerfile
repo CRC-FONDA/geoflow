@@ -13,7 +13,6 @@ ARG XRD='/var/tmp/runtime-root'
 ENV DEBIANFRONTEND=noninteractive
 ENV QT_QPA_PLATFORM=offscreen
 ENV XDG_RUNTIME_DIR=$XRD
-ENV MANUAL_ADJUST=/root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/enmapboxplugin/site-packages/hubdsm/algorithm/aggregatebands.py
 
 WORKDIR /tmp/build
 
@@ -33,17 +32,10 @@ RUN git clone https://bitbucket.org/hu-geomatics/enmap-box.git && \
     cd enmap-box && \
     # until 3.10 gets released, I can't do a version checkout beacuse I want/need further STMs, which are already implemented
     # git checkout $ENMAP_VERSION && \
-    # some changes broke one of the following two scripts
-    git checkout 7c655fa && \
     python3 scripts/setup_repository.py && \
     python3 scripts/create_plugin.py && \
     cp -r deploy/enmapboxplugin ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins && \
     qgis_process plugins enable enmapboxplugin && \
-    # the following four lines are merely a temporary fix (hopefully) until the enmapbox gets a fix for the wrong gdalDataType that caused crashes
-    sed -i 's/numpyDataType = np.uint8/&~    if numpyDataType == np.int64:~        numpyDataType = np.int32~/g' $MANUAL_ADJUST && \
-    tr '~' '\n' < $MANUAL_ADJUST > $MANUAL_ADJUST.new && \
-    rm $MANUAL_ADJUST && \
-    mv $MANUAL_ADJUST.new $MANUAL_ADJUST && \
     rm -rf /tmp/build
 
 ADD scripts-python/* /root/scripts/
