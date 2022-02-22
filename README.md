@@ -61,9 +61,13 @@ be downloaded [here](https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/LUCAS). Wh
 likely changes in the future. The respective files can be downloaded in a zipped format:
 
 ```bash
-wget --directory-prefix=lucas --content-disposition https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/LUCAS/LUCAS_harmonised/1_table/lucas_harmo_uf_2018.zip
+wget --directory-prefix=lucas --content-disposition https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/LUCAS/LUCAS_harmonised/1_table/lucas_harmo_uf_2018.zip && \
+  unzip lucas/lucas_harmo_uf_2018.zip -d lucas && \
+  rm lucas/lucas_harmo_uf_2018.zip
 
-wget --directory-prefix=lucas --content-disposition https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/LUCAS/LUCAS_harmonised/2_geometry/LUCAS_th_geom.zip 
+wget --directory-prefix=lucas --content-disposition https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/LUCAS/LUCAS_harmonised/2_geometry/LUCAS_th_geom.zip && \
+  unzip lucas/LUCAS_th_geom.zip -d lucas && \
+  rm lucas/LUCAS_th_geom.zip 
 ```
 
 ## Running the Workflow
