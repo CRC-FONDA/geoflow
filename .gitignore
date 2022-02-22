@@ -5,4 +5,4 @@ work/
 .nextflow.*
 test*/
 dag.dot*
-
+lucas/
