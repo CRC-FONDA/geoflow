@@ -53,6 +53,19 @@ no error, then the build and push should be relatively fast because it uses the 
 docker pull floriankaterndahl/geoflow:latest
 ```
 
+## "Land use and land cover survey" data
+
+Currently, the workflow relies on [the harmonized LUCAS survey data](https://doi.org/10.1038/s41597-020-00675-z). Which can
+be downloaded [here](https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/LUCAS). While in the development phase
+(i.e. right now), only points sampled in 2018 and the theoretical LUCAS-points are considered. This
+likely changes in the future. The respective files can be downloaded in a zipped format:
+
+```bash
+wget --directory-prefix=lucas --content-disposition https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/LUCAS/LUCAS_harmonised/1_table/lucas_harmo_uf_2018.zip
+
+wget --directory-prefix=lucas --content-disposition https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/LUCAS/LUCAS_harmonised/2_geometry/LUCAS_th_geom.zip 
+```
+
 ## Running the Workflow
 
 - Currently, the workflow expects two additional arguments: (1) the data source and (2) a directory
