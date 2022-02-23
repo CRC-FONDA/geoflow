@@ -4,7 +4,8 @@ name: Update DAG-Viz
 
 on:
   push:
-    branches: [ main, develop ]
+    paths:
+      - 'img/dag.dot'
 
 jobs:
   build:
