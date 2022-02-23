@@ -40,3 +40,5 @@ urllib3>=1.25.8
 
 # my own stuff
 # bitstring>=3.1.9
+pandas
+geopandas
