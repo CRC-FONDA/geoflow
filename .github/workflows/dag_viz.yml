@@ -16,8 +16,7 @@ jobs:
       - name: generate svg
         run: |
           sudo apt-get install -y graphviz
-          cd img
-          dot -Tsvg -odag.svg dag.dot
+          dot -Tsvg -o img/dag.svg img/dag.dot
           git config --global user.name ${{ secrets.NAME }}
           git config --global user.email ${{ secrets.EMAIL }}
           git add img/dag.svg
