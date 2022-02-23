@@ -11,8 +11,8 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument("--survey", required=True, type=str, nargs=1, help="Path to file containing LUCAS observations")
 parser.add_argument("--geom", required=True, type=str, nargs=1, help="Path to file containing LUCAS point geometries")
-parser.add_argument("--query", required=False, type=str, nargs=1, help="")
-parser.add_argument("-epsg", required=False, type=int, default=3035, nargs=1, help="EPSG code for the projection fo FORCE generated files")
+parser.add_argument("--query", required=False, type=str, nargs='?', default="", help="")
+parser.add_argument("--epsg", required=False, type=int, default=3035, nargs=1, help="EPSG code for the projection fo FORCE generated files")
 parser.add_argument("-of", "--output-file", required=True, dest="of", type=str, nargs=1, help="Path to output file.")
 
 args: Dict[str, str] = {key: (value[0] if isinstance(value, List) else value) for key, value in vars(parser.parse_args()).items()}
