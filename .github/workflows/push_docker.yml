@@ -3,7 +3,11 @@
 name: CI to Docker Hub
 on:
   push:
-    branches: [ main ]
+    paths:
+      - 'Dockerfile'
+      - '.dockerignore'
+      - 'scripts-python/*'
+      - 'external/custom-requirements.txt'
 jobs:
 
   build:
