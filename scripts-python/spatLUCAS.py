@@ -5,7 +5,6 @@ import geopandas as gpd
 import argparse
 from typing import Dict, List
 
-# TODO implement Query
 parser = argparse.ArgumentParser(
 	description="Join theoretical LUCAS points together with LUCAS survey data and query observations."
 )
@@ -23,13 +22,17 @@ def main():
 
 	geo_dataset = gpd.read_file(args.get("geom"))
 	geo_dataset.to_crs(epsg=args.get("epsg"), inplace=True)
+	geo_dataset.drop_duplicates("POINT_ID", inplace=True)
 
 	try:
 		attributes.query(args.get("query"), inplace=True)
 	except ValueError:
 		pass
 	finally:
-		geo_dataset.query(f"POINT_ID in {list(attributes.point_id)}")
+		geo_dataset.query(f"POINT_ID in {list(attributes.point_id)}", inplace=True)
+		validation_subset = attributes.get(["point_id", "lc1"])
+		geo_dataset = geo_dataset.join(validation_subset, on=["POINT_ID", "point_id"])
+		geo_dataset.drop(columnns=["ID", "POINT_ID", "YEAR"], inplace=True)
 
 	geo_dataset.to_file(args.get("of"), layer="lucas")
 
