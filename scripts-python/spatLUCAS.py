@@ -31,8 +31,8 @@ def main():
 	finally:
 		geo_dataset.query(f"POINT_ID in {list(attributes.point_id)}", inplace=True)
 		validation_subset = attributes.get(["point_id", "lc1"])
-		geo_dataset = geo_dataset.join(validation_subset, on=["POINT_ID", "point_id"])
-		geo_dataset.drop(columnns=["ID", "POINT_ID", "YEAR"], inplace=True)
+		geo_dataset = geo_dataset.merge(validation_subset, left_on="POINT_ID", right_on="point_id", how="left", validate="1:1")
+		geo_dataset.drop(columns=["ID", "POINT_ID", "point_id", "YEAR"], inplace=True)
 
 	geo_dataset.to_file(args.get("of"), layer="lucas")
 
