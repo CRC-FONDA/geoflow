@@ -5,3 +5,5 @@ work/
 .nextflow.*
 test*/
 lucas/
+remove_dangling_dontainers.sh
+*gpkg
