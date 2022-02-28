@@ -13,21 +13,3 @@ process extract_features {
 	"""
 }
 
-process combine_samples {
-	input:
-	path(samples)
-
-	output:
-	tuple path("validation.gpkg"), path("features.gpkg")
-
-	script:
-	"""
-	for i in ${samples.join(' ')}; do
-		ogr2ogr -f "gpkg" -append -nln samples samples.gpkg \$i;
-	done
-	
-	ogr2ogr -select 'lc1' validation.gpkg samples.gpkg -nln 'validation'
-	ogr2ogr -sql "ALTER TABLE features DROP COLUMN PIXEL_X, PIXEL_Y" features.gpkg samples.gpkg
-	"""
-}
-
