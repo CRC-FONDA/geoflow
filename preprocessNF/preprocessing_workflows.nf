@@ -15,7 +15,7 @@ process spat_lucas {
 
         script:
         """
-        spatLUCAS.py --survey ${survey} --geom ${geometries} --query ${query} --epsg ${epsg} -of queried_lucas.gpkg
+        spatLUCAS.py --survey ${survey} --geom ${geometries} --query "${query}" --epsg ${epsg} -of queried_lucas.gpkg
         """
 }
 
