@@ -13,3 +13,43 @@ process extract_features {
 	"""
 }
 
+process create_classification_dataset {
+	input:
+
+	output:
+
+	script:
+	"""
+	"""
+}
+
+process merge_classification_datasets {
+	input:
+
+	output:
+
+	script:
+	"""
+	"""
+}
+
+process train_rf_classifier {
+	input:
+
+	output:
+
+	script:
+	"""
+	"""
+}
+
+process predict_classifier {
+	input:
+
+	output:
+
+	script:
+	"""
+	"""
+}
+
