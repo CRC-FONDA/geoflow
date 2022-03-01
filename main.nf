@@ -92,9 +92,9 @@ workflow {
 
     // TODO: remove subset
     Channel
-        .fromFilePairs(params.input_dirP)
-        .take(15)
+        .fromFilePairs(params.input_cube)
         .filter( { single_tileP(it) } )
+	.take(15)
         .map( { spread_input(it) } )
         .set( { ch_dataP } )
 
