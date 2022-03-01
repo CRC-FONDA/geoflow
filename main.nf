@@ -1,8 +1,9 @@
 nextflow.enable.dsl = 2
 
-include { mask_BOA; build_vrt_stack; explode_base_files } from './preprocessNF/preprocessing_workflows.nf'
+include { mask_BOA; build_vrt_stack; explode_base_files; spat_lucas } from './preprocessNF/preprocessing_workflows.nf'
 include { spectral_index_pr } from './preprocessNF/indices.nf'
 include { calc_stms_pr as stms_ls; calc_stms_pr as stms_sen } from './stmsNF/stms.nf'
+include { extract_features } from './hl/feature_extraction.nf'
 
 def single_tileP = input -> {
 	Boolean tile_x = (input[1][0] =~ /(?<=X00)${params.tx}(?=_Y)/)
@@ -58,6 +59,14 @@ def get_short_sensor = input -> {
 }
 
 workflow {
+    Channel
+	.fromPath([params.lucas_survey, params.lucas_geom], type: 'file')
+	.concat(Channel.of(params.lucas_query, params.lucas_epsg))
+	.collect()
+	.set( { lucas } )
+
+    spat_lucas(lucas)
+
     Channel
 	.of(params.spectral_indices_mapping)
 	.set( { spectral_indices } )
@@ -124,6 +133,12 @@ workflow {
     /*
     *   conceptually, new chunk as per proposed flow chart
     */
+
+    // Rest siehe Notizen!
+    Channel
+	.of(params.stm_timeframes.flatten())
+	.set( { stm_timeframes } )
+
     // TODO indicate (via filename??) what the grouping variable is/was -> this also needs to be communicated via NF channels
     build_vrt_stack
     .out
@@ -146,10 +161,18 @@ workflow {
 		.combine(stm_combination_landsat)
     )
 
-    stms_sen(
-	ch_group_stacked_raster
-		.sentinel
-		.combine(stm_combination_sentinel)
+//    stms_sen(
+//	ch_group_stacked_raster
+//		.sentinel
+//		.combine(stm_combination_sentinel)
+//    )
+
+    extract_features(
+	stms_ls
+	    .out
+	    .combine( spat_lucas.out )
     )
+
+    // TODO Extraction of Features after stacking rasters again
 }
 
