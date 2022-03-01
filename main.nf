@@ -1,7 +1,8 @@
 nextflow.enable.dsl = 2
 
-include { mask_BOA; build_vrt_stack; explode_base_files; spat_lucas } from './preprocessNF/preprocessing_workflows.nf'
-include { spectral_index_pr } from './preprocessNF/indices.nf'
+include { build_vrt_stack; explode_base_files; spat_lucas } from './preprocessNF/preprocessing_workflows.nf'
+include { mask_layer_stack } from './preprocessNF/mask.nf'
+include { calculate_spectral_indices } from './preprocessNF/indices.nf'
 include { calc_stms_pr as stms_ls; calc_stms_pr as stms_sen } from './stmsNF/stms.nf'
 include { extract_features } from './hl/feature_extraction.nf'
 
@@ -97,14 +98,14 @@ workflow {
         .map( { spread_input(it) } )
         .set( { ch_dataP } )
 
-    mask_BOA(ch_dataP)
+    mask_layer_stack(ch_dataP)
 
-    mask_BOA
+    mask_layer_stack
         .out
         .tap( { ch_base_files } )
         .set( { ch_for_indices } )
 
-    spectral_index_pr(
+    calculate_spectral_indices(
 	ch_for_indices
 		.combine(
 			spectral_indices
@@ -119,7 +120,7 @@ workflow {
     // but this doesn't work here. Fabian might come up with a solution. Until then, this issue is postponed.
     Channel
         .empty()
-	.mix(spectral_index_pr.out, explode_base_files.out)
+	.mix(calculate_spectral_indices.out, explode_base_files.out)
       //  .mix(calc_indices.out, explode_base_files.out)
 	// regardless of sensor type, the group size is (as long as all indices can be calculated for all platforms) always N-indices + 1 because explode_base_files returns nested lists
 	// as soon as this is not the case anymore, the approach implemented by Fabian in his git pull request would be needed.
@@ -151,7 +152,6 @@ workflow {
     .branch ( {
 	sentinel: it[2] == 'S'
 	landsat: it[2] == 'L'
-	other: true
     	} )
     .set( { ch_group_stacked_raster } )
 

@@ -1,6 +1,6 @@
 nextflow.enable.dsl = 2
 
-process mask_pr {
+process mask_layer_stack {
     label 'debug'
 
     input:

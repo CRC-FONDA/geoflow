@@ -45,7 +45,7 @@ String platform_spectral_index(String platform_f, String code_snippet, Map <Stri
     return code_snippet
 }
 
-process spectral_index_pr {
+process calculate_spectral_indices {
 	input:
 	tuple val(TID), val(identifier), val(platform), path(reflectance), val(index_choice)
 

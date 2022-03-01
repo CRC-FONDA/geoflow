@@ -19,15 +19,6 @@ process spat_lucas {
         """
 }
 
-workflow mask_BOA {
-    take:
-        data
-    main:
-        mask_pr(data)
-    emit:
-        mask_pr.out
-}
-
 workflow explode_base_files {
 	take:
 		data
