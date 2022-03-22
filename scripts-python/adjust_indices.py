@@ -43,11 +43,17 @@ def write_raster(path: str, data: np.ndarray, of: str, band_description: str, gd
 	dst = None
 
 
-def scale_array(data: np.ndarray, old_no_data: Optional[float], new_no_data: int = -9999) -> np.ndarray:
-	scaled_array: np.ndarray = np.int_(np.trunc(data * 10_000))
+def scale_array(data: np.ndarray, no_scaling: bool, old_no_data: Optional[float],  new_no_data: int = -9999) -> np.ndarray:
+	if no_scaling:
+		scaled_array: np.ndarray = data
+	else:
+		scaled_array: np.ndarray = np.int_(np.trunc(data * 10_000))
 	if old_no_data:
-		scaled_old_na: int = int(old_no_data * 10_000)
-		scaled_array = np.where(scaled_array == scaled_old_na, new_no_data, scaled_array)
+		if no_scaling:
+			scaled_array = np.where(scaled_array == old_no_data, new_no_data, scaled_array)
+		else:
+			scaled_old_na: int = int(old_no_data * 10_000)
+			scaled_array = np.where(scaled_array == scaled_old_na, new_no_data, scaled_array)
 	return scaled_array
 
 
@@ -81,7 +87,7 @@ def main() -> None:
 	in_raster = read_raster(args.get("source_dst"))
 	in_array: np.ndarray = in_raster.GetRasterBand(1).ReadAsArray(0, 0, in_raster.RasterXSize, in_raster.RasterYSize)
 
-	out_array: np.ndarray = scale_array(in_array, in_raster.GetRasterBand(1).GetNoDataValue())
+	out_array: np.ndarray = scale_array(in_array, args.get("is_stm"), in_raster.GetRasterBand(1).GetNoDataValue())
 	out_description: str = generate_band_description(args.get("source_dst"), args.get("is_stm"))
 	write_raster(args.get("output_dst"), out_array, "GTiff", out_description, gdal.GDT_Int16, in_raster.GetGeoTransform(),
 				 in_raster.GetSpatialRef().ExportToWkt())
