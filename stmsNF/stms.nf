@@ -23,7 +23,7 @@ process calc_stms_pr {
         // additionally, gdal_translate does not set band names!
         // |adjust_indices.py -STM -src ${tile}_${sensor_abbreviation}_${band_name}_STMS-\$stm-temp.tif -of ${tile}_${sensor_abbreviation}_${band_name}_STMS-\$stm.tif;
 
-	// TODO even though the Raster is converted to Int, the No-Data value is still the old one?
+	// TODO even though the Raster is converted to Int, the No-Data value is still the old one -> need to check if its possible to reclassify with gdal?
 	"""
 	shopt -s extglob
 
