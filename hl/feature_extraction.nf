@@ -43,6 +43,8 @@ process train_rf_classifier {
 	"""
 }
 
+// TODO: This needs to take 2 arguments, basically. (1) Trained Classifier and (2) data cube to classify.
+//       The data cube needs to be constructed before any of the sampling/training is done, tapped into and brought up here again.
 process predict_classifier {
 	input:
 
