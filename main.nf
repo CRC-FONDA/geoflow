@@ -1,6 +1,8 @@
 nextflow.enable.dsl = 2
 
-include { build_vrt_stack; explode_base_files; spat_lucas } from './preprocessNF/preprocessing_workflows.nf'
+include { spat_lucas } from './preprocessNF/preprocessing_workflows.nf'
+include { explode_base_files } from './preprocessNF/explode.nf'
+include { build_vrt_stack } from './preprocessNF/stack.nf'
 include { mask_layer_stack } from './preprocessNF/mask.nf'
 include { calculate_spectral_indices } from './preprocessNF/indices.nf'
 include { calc_stms_pr as stms_ls; calc_stms_pr as stms_sen } from './stmsNF/stms.nf'

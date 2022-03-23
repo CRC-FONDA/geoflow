@@ -21,7 +21,7 @@ process stack {
     """
 }
 
-process build_vrt_stack_process {
+process build_vrt_stack {
 //    publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_STACK.vrt', overwrite: true
 
     input:

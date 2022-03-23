@@ -1,8 +1,5 @@
 nextflow.enable.dsl = 2
 
-include { explode_pr } from './explode.nf'
-include { build_vrt_stack_process } from './stack.nf'
-
 process spat_lucas {
 	publishDir "${params.lucas_subset_dir}", pattern: "queried_lucas.gpkg", mode: 'copy', overwrite: true, enabled: params.publish_lucas_subset
 
@@ -18,20 +15,3 @@ process spat_lucas {
         """
 }
 
-workflow explode_base_files {
-	take:
-		data
-	main:
-		explode_pr(data)
-	emit:
-		explode_pr.out
-}
-
-workflow build_vrt_stack {
-    take:
-        data
-    main:
-        build_vrt_stack_process(data)
-    emit:
-        build_vrt_stack_process.out
-}
