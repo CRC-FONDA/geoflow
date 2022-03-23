@@ -1,6 +1,5 @@
 nextflow.enable.dsl = 2
 
-include { mask_pr } from './mask.nf'
 include { explode_pr } from './explode.nf'
 include { build_vrt_stack_process } from './stack.nf'
 
