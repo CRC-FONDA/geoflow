@@ -92,12 +92,12 @@ p23 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
 p22 -> p23;
 
 p23 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
-p25 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
-p23 -> p25 [label="ch_for_indices"];
+p27 [label="explode_base_files"];
+p23 -> p27 [label="ch_base_files"];
 
 p23 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
-p27 [label="explode_base_files:explode_pr"];
-p23 -> p27 [label="data"];
+p25 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
+p23 -> p25 [label="ch_for_indices"];
 
 p5 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.of"];
 p24 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatMap"];
@@ -115,7 +115,7 @@ p26 [label="calculate_spectral_indices"];
 p29 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
 p26 -> p29;
 
-p27 [label="explode_base_files:explode_pr"];
+p27 [label="explode_base_files"];
 p29 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
 p27 -> p29;
 
@@ -132,20 +132,20 @@ p31 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="map"];
 p30 -> p31;
 
 p31 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="map"];
-p32 [label="build_vrt_stack:build_vrt_stack_process"];
-p31 -> p32 [label="data"];
+p32 [label="build_vrt_stack"];
+p31 -> p32 [label="ch_grouped_bands"];
 
-p32 [label="build_vrt_stack:build_vrt_stack_process"];
+p32 [label="build_vrt_stack"];
 p33 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
 p32 -> p33;
 
 p33 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
-p35 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="filter"];
-p33 -> p35;
-
-p33 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
 p34 [shape=point];
 p33 -> p34 [label="ch_stacked_raster"];
+
+p33 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
+p35 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="filter"];
+p33 -> p35;
 
 p35 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="filter"];
 p36 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="groupTuple"];
