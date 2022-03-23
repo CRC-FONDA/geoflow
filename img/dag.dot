@@ -12,44 +12,40 @@ p3 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collect"];
 p2 -> p3;
 
 p3 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collect"];
-p4 [label="spat_lucas"];
+p4 [shape=point];
 p3 -> p4 [label="lucas"];
 
-p4 [label="spat_lucas"];
-p5 [shape=point];
-p4 -> p5;
+p5 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.of"];
+p8 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
+p5 -> p8 [label="spectral_indices"];
 
 p6 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.of"];
-p9 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
-p6 -> p9 [label="spectral_indices"];
+p10 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
+p6 -> p10 [label="stm_choices"];
 
 p7 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.of"];
-p11 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
-p7 -> p11 [label="stm_choices"];
+p8 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
+p7 -> p8;
 
-p8 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.of"];
-p9 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
+p8 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
+p9 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatMap"];
 p8 -> p9;
 
-p9 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
-p10 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatMap"];
+p9 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatMap"];
+p10 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
 p9 -> p10;
 
-p10 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatMap"];
-p11 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
-p10 -> p11;
-
-p11 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
-p43 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
-p11 -> p43 [label="stm_combination_sentinel"];
+p10 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
+p11 [shape=point];
+p10 -> p11 [label="stm_combination_sentinel"];
 
 p12 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.of"];
 p13 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
 p12 -> p13;
 
-p6 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.of"];
+p5 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.of"];
 p13 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
-p6 -> p13 [label="spectral_indices"];
+p5 -> p13 [label="spectral_indices"];
 
 p13 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
 p14 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatMap"];
@@ -59,99 +55,99 @@ p14 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatMap"];
 p15 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
 p14 -> p15;
 
-p7 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.of"];
+p6 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.of"];
 p15 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
-p7 -> p15 [label="stm_choices"];
+p6 -> p15 [label="stm_choices"];
 
 p15 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
 p40 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
 p15 -> p40 [label="stm_combination_landsat"];
 
 p16 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.fromFilePairs"];
-p17 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="take"];
-p16 -> p17;
+p18 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
+p16 -> p18;
 
-p17 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="take"];
-p18 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="filter"];
+p17 [shape=point,label="",fixedsize=true,width=0.1];
+p18 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
 p17 -> p18;
 
-p18 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="filter"];
+p18 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
 p19 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="map"];
 p18 -> p19;
 
 p19 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="map"];
-p20 [label="mask_BOA:mask_pr"];
-p19 -> p20 [label="data"];
+p20 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="filter"];
+p19 -> p20;
 
-p20 [label="mask_BOA:mask_pr"];
-p21 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
+p20 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="filter"];
+p21 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="take"];
 p20 -> p21;
 
-p21 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
-p23 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
-p21 -> p23 [label="ch_for_indices"];
+p21 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="take"];
+p22 [label="mask_layer_stack"];
+p21 -> p22 [label="ch_dataP"];
 
-p21 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
-p25 [label="explode_base_files:explode_pr"];
-p21 -> p25 [label="data"];
-
-p6 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.of"];
-p22 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatMap"];
-p6 -> p22 [label="spectral_indices"];
-
-p22 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatMap"];
-p23 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
+p22 [label="mask_layer_stack"];
+p23 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
 p22 -> p23;
 
-p23 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
-p24 [label="spectral_index_pr"];
-p23 -> p24;
+p23 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
+p25 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
+p23 -> p25 [label="ch_for_indices"];
 
-p24 [label="spectral_index_pr"];
-p27 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
-p24 -> p27;
+p23 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
+p27 [label="explode_base_files:explode_pr"];
+p23 -> p27 [label="data"];
 
-p25 [label="explode_base_files:explode_pr"];
-p27 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
-p25 -> p27;
+p5 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.of"];
+p24 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatMap"];
+p5 -> p24 [label="spectral_indices"];
 
-p26 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.empty"];
-p27 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
-p26 -> p27;
+p24 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatMap"];
+p25 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
+p24 -> p25;
 
-p27 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
-p28 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="groupTuple"];
-p27 -> p28;
+p25 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
+p26 [label="calculate_spectral_indices"];
+p25 -> p26;
 
-p28 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="groupTuple"];
-p29 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="map"];
+p26 [label="calculate_spectral_indices"];
+p29 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
+p26 -> p29;
+
+p27 [label="explode_base_files:explode_pr"];
+p29 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
+p27 -> p29;
+
+p28 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.empty"];
+p29 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
 p28 -> p29;
 
-p29 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="map"];
-p30 [label="build_vrt_stack:build_vrt_stack_process"];
-p29 -> p30 [label="data"];
+p29 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
+p30 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="groupTuple"];
+p29 -> p30;
 
-p30 [label="build_vrt_stack:build_vrt_stack_process"];
+p30 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="groupTuple"];
 p31 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="map"];
 p30 -> p31;
 
 p31 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="map"];
-p32 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="map"];
-p31 -> p32;
+p32 [label="build_vrt_stack:build_vrt_stack_process"];
+p31 -> p32 [label="data"];
 
-p32 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="map"];
+p32 [label="build_vrt_stack:build_vrt_stack_process"];
 p33 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
 p32 -> p33;
+
+p33 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
+p35 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="filter"];
+p33 -> p35;
 
 p33 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
 p34 [shape=point];
 p33 -> p34 [label="ch_stacked_raster"];
 
-p33 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
-p35 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="map"];
-p33 -> p35;
-
-p35 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="map"];
+p35 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="filter"];
 p36 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="groupTuple"];
 p35 -> p36;
 
@@ -164,16 +160,12 @@ p38 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="branch"];
 p37 -> p38;
 
 p38 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="branch"];
-p39 [shape=point];
-p38 -> p39;
-
-p38 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="branch"];
 p40 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
 p38 -> p40;
 
 p38 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="branch"];
-p43 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
-p38 -> p43;
+p39 [shape=point];
+p38 -> p39;
 
 p40 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
 p41 [label="stms_ls"];
@@ -182,13 +174,5 @@ p40 -> p41;
 p41 [label="stms_ls"];
 p42 [shape=point];
 p41 -> p42;
-
-p43 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
-p44 [label="stms_sen"];
-p43 -> p44;
-
-p44 [label="stms_sen"];
-p45 [shape=point];
-p44 -> p45;
 
 }
