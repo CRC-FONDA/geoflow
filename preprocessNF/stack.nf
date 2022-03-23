@@ -1,10 +1,6 @@
 nextflow.enable.dsl = 2
 
 process stack {
-    label 'debug'
-
-    cpus params.n_cpus_indices
-
     publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_stacked.vrt', overwrite: true
 
     input:
@@ -26,17 +22,13 @@ process stack {
 }
 
 process build_vrt_stack_process {
-    label 'debug'
-
-    cpus params.n_cpus_indices
-
-    publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_STACK.vrt', overwrite: true
+//    publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_STACK.vrt', overwrite: true
 
     input:
-	tuple val(TID), val(identifier), val(platform), path(bands)
+    tuple val(TID), val(stm_uid), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai), path(bands)
 
     output:
-	tuple val(TID), val(identifier), val(platform), path(bands), path("${identifier}_STACK.vrt")
+    tuple val(TID), val(stm_uid), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai), path(bands), path("${identifier}_STACK.vrt")
 
     script:
     """

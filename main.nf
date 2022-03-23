@@ -18,14 +18,15 @@ include { extract_features } from './hl/feature_extraction.nf'
  */
 def prepare_channel = input -> {
 	String reflectance_path = input[1][0]
-	String quality_path = input[1][0]
+	String quality_path = input[1][1]
 	String tile = reflectance_path.split('/')[-2]
-        String date = scene.split('_')[0]
+	String stm_uid = input[-2] + '_' + input[-1]
 	String scene = input[0]
+        String date = scene.split('_')[0]
 	String sensor = scene.split('_')[-1]
 	String sensor_abbreviation = sensor[0]
 
-	return [tile, date, scene, sensor, sensor_abbreviation, reflectance_path, quality_path]
+	return [tile, stm_uid, date, scene, sensor, sensor_abbreviation, reflectance_path, quality_path]
 }
 
 workflow {
@@ -33,53 +34,55 @@ workflow {
 	.fromPath([params.lucas_survey, params.lucas_geom], type: 'file')
 	.concat(Channel.of(params.lucas_query, params.lucas_epsg))
 	.collect()
-	.set( { lucas } )
+	.set({ lucas })
 
-    spat_lucas(lucas)
+//    spat_lucas(lucas)
 
     Channel
 	.of(params.spectral_indices_mapping)
-	.set( { spectral_indices } )
+	.set({ spectral_indices })
 
     Channel
 	.of(params.calculate_stms)
-	.set( { stm_choices } )
+	.set({ stm_choices })
 
     Channel
 	.of(params.stm_band_mapping_sentinel)
 	.mix( spectral_indices )
 	.flatMap()
 	.combine( stm_choices )
-	.set( { stm_combination_sentinel } )
+	.set({ stm_combination_sentinel })
 
     Channel
 	.of(params.stm_band_mapping_landsat)
 	.mix( spectral_indices )
 	.flatMap()
 	.combine( stm_choices )
-	.set( { stm_combination_landsat } )
+	.set({ stm_combination_landsat })
 
     // TODO: remove subset
     Channel
         .fromFilePairs(params.input_cube)
-	.map( { prepare_channel } )
-        .filter( { it[1] >= params.processing_timeframe["START"] && it[1] <= params.processing_timeframe["END"] } )
-	.take(15)
-        .set( { ch_dataP } )
+	.combine(params.stm_timeframes) // inserts start and end time as flat elements on the end
+	.map({ prepare_channel(it) })
+        .filter({ it[1] >= params.processing_timeframe["START"] && it[1] <= params.processing_timeframe["END"] })
+	.take(40)
+        .set({ ch_dataP })
+
 
     mask_layer_stack(ch_dataP)
 
     mask_layer_stack
         .out
-        .tap( { ch_base_files } )
-        .set( { ch_for_indices } )
+        .tap({ ch_base_files })
+        .set({ ch_for_indices })
 
     calculate_spectral_indices(
-	ch_for_indices
-		.combine(
-			spectral_indices
-			.flatMap()
-		)
+        ch_for_indices
+                .combine(
+                        spectral_indices
+                        .flatMap()
+                )
     )
 
     explode_base_files(ch_base_files)
@@ -89,40 +92,31 @@ workflow {
     // but this doesn't work here. Fabian might come up with a solution. Until then, this issue is postponed.
     Channel
         .empty()
-	.mix(calculate_spectral_indices.out, explode_base_files.out)
-      //  .mix(calc_indices.out, explode_base_files.out)
-	// regardless of sensor type, the group size is (as long as all indices can be calculated for all platforms) always N-indices + 1 because explode_base_files returns nested lists
-	// as soon as this is not the case anymore, the approach implemented by Fabian in his git pull request would be needed.
-        .groupTuple(by: [0, 1], size: 8)
-        // [Tile ID, Scene ID, Sensor type, [BOA, exploded bands and indices]]
-        .map( { [it[0], it[1], it[2][0], [it[3][0], it[4].flatten()].flatten()] } )
-        .set( { ch_grouped_bands } )
+        .mix(calculate_spectral_indices.out, explode_base_files.out)
+        // regardless of sensor type, the group size is (as long as all indices can be calculated for all platforms) always N-indices + 1 because explode_base_files returns nested lists
+        // as soon as this is not the case anymore, the approach implemented by Fabian in his git pull request would be needed.
+        .groupTuple(by: [0, 1, 3], size: 8) // group by Tile, STM UID and Scene ID
+        // [tile, stm_uid, date, scene, sensor, sensor_abbreviation, reflectance_path, quality_path, [BOA single bands and spectral indices]]
+	.map({ [it[0], it[1], it[2][0], it[3], it[4][0], it[5][0], it[6][0], it[7][0], it[8].flatten()] })
+        .set({ ch_grouped_bands })
 
+    // Why on earth do I create this stack?
     build_vrt_stack(ch_grouped_bands)
 
-    /*
-    *   conceptually, new chunk as per proposed flow chart
-    */
-
-    // Rest siehe Notizen!
-    Channel
-	.of(params.stm_timeframes.flatten())
-	.set( { stm_timeframes } )
-
-    // TODO indicate (via filename??) what the grouping variable is/was -> this also needs to be communicated via NF channels
+    /* conceptually, new chunk as per proposed flow chart */
+    // TODO the current sequence of processes/steps results in many files being needlessly processed, no? If so, this should be changed
     build_vrt_stack
-    .out
-    .map( { get_year_month_etc(it) } )
-    .map( { get_short_sensor(it) } )
-    .tap( { ch_stacked_raster } ) // likely needed later on because stms discard sensor/scene specific stack
-    .map( { it[0..<-1] } ) // drop vrt stack for next step (calculating stms); I couldn't figure out if it's possible to pass an array to a NF process marked as path -> I don't think so TODO
-    .groupTuple(by: [0, 2, 5]) // group by TID, Landsat/Sentinel and month
-    .map( { [it[0], it[1], it[2], it[3], it[4], it[5], it[6], it[7].flatten()] } )
-    .branch ( {
-	sentinel: it[2] == 'S'
-	landsat: it[2] == 'L'
-    	} )
-    .set( { ch_group_stacked_raster } )
+	.out
+	.tap({ ch_stacked_raster }) // likely needed later on because stms discard sensor/scene specific stack
+	.filter({ it[2] >= it[1].split('_')[0] && it[2] <= it[1].split('_')[1] }) // filters observations where capture date falls within STM timeframe
+	.groupTuple(by: 1) // group by STM UID 
+	// [tile, stm_uid, date, scene, sensor, sensor_abbreviation, reflectance_path, quality_path, [BOA single bands and spectral indices], vrt stack]
+	.map({ [it[0][0], it[1], it[2][0], it[3][0], it[4][0], it[5][0], it[6][0], it[7][0], it[8][0], it[9][0]] }) //re-flatten channel entries which are put into seperate arrays due to grouping
+	.branch ({
+		sentinel: it[5] == 'S'
+		landsat: it[5] == 'L'
+	})
+	.set({ ch_group_stacked_raster })
 
     stms_ls(
 	ch_group_stacked_raster
@@ -130,18 +124,6 @@ workflow {
 		.combine(stm_combination_landsat)
     )
 
-//    stms_sen(
-//	ch_group_stacked_raster
-//		.sentinel
-//		.combine(stm_combination_sentinel)
-//    )
-
-    create_classification_dataset(stms_ls.out)
-
-    merge_classification_datasets(create_classification.out.collect())
-
-    train_rf_classifier(merge_classification_datasets.out)
-
-    predict_classifier(train_rf_classifier.out)
+    //stms_ls.out.view()
 }
 

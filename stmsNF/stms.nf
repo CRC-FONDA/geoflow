@@ -10,13 +10,11 @@ def generate_stm_stack = user_selection -> {
 }
 
 process calc_stms_pr {
-	label 'debug'
-
 	input:
-	tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path(base_files), val(band_choice), val(stm_function)
+	tuple val(TID), val(stm_uid), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai), path(base_files), path(vrt), val(band_choice), val(stm_function)
 
 	output:
-	tuple val(TID), val(identifier), val(sensor_abbr), val(sensor), val(year), val(month), val(quarter), path("${TID}_${sensor_abbr}_${band_choice*.key[0]}_STMS.tif")
+	tuple val(TID), val(stm_uid), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai), path(base_files), path(vrt), path("${TID}_${sensor_abbr}_${band_choice*.key[0]}_STMS.tif")
 
 	script:
 	// contrary to my custom script, gdal_translate rrounds values when converting from float to int. At least, as far as I could tell
@@ -33,6 +31,7 @@ process calc_stms_pr {
 	gdalbuildvrt -q -separate -input_file_list ${band_choice*.key[0]}_files.txt ${band_choice*.key[0]}.vrt
 	qgis_process run enmapbox:AggregateRasterLayerBands -- raster=${band_choice*.key[0]}.vrt ${generate_stm_stack(stm_function)} outputRaster=${TID}_${sensor_abbr}_${band_choice*.key[0]}_STMS-temp.tif
 	gdal_translate -ot Int16 -of GTiff -strict -co COMPRESS=LZW -co PREDICTOR=2 ${TID}_${sensor_abbr}_${band_choice*.key[0]}_STMS-temp.tif ${TID}_${sensor_abbr}_${band_choice*.key[0]}_STMS.tif
+	mv vrt/* .
 	"""
 }
 

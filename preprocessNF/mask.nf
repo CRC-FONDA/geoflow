@@ -1,13 +1,11 @@
 nextflow.enable.dsl = 2
 
 process mask_layer_stack {
-    label 'debug'
-
     input:
-    tuple val(TID), val(identifier), val(platform), path(reflectance), path(qai)
+    tuple val(TID), val(stm_uid), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(identifier), val(platform), path(reflectance)
+    tuple val(TID), val(stm_uid), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai)
 
     script:
     """
