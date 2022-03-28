@@ -5,6 +5,7 @@ import re
 import argparse
 from pathlib import Path
 from typing import Dict, Optional, List, AnyStr
+from python_modules import io
 
 parser = argparse.ArgumentParser(
     description="This script generates as many single band virtual raster files as there are \
@@ -13,6 +14,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument("multi_band", nargs=1, type=str,
                     help="File Path to Multi-band reflectance raster (i.e. FORCE Level2-ARD)")
 
+args: Dict[str, str] = {key: (value[0] if isinstance(value, List) else value) for key, value in vars(parser.parse_args()).items()}
 
 def get_tid(path: AnyStr) -> Optional[str]:
     return re.search(r"(?<=/)X[0-9]{4}_Y[0-9]{4}(?=/)", path).group()
@@ -20,17 +22,6 @@ def get_tid(path: AnyStr) -> Optional[str]:
 
 def get_identifier(path: AnyStr) -> str:
     return path.split('/')[-1].split('.')[0]
-
-
-def read_raster(path: str) -> gdal.Dataset:
-    """
-    Wrapper function around gdal.Open.
-    @param path: Path to file, which should be opened
-    @return: gdal.Dataset object
-    """
-    if raster := gdal.Open(path, gdal.GA_ReadOnly):
-        return raster
-    raise OSError(f"Failed to open dataset {path}")
 
 
 def create_single_band_vrt(multi_raster: gdal.Dataset, multi_raster_path: str) -> None:
@@ -60,13 +51,13 @@ def create_single_band_vrt(multi_raster: gdal.Dataset, multi_raster_path: str) -
 
 
 def main():
-    args: Dict[str, List[str]] = vars(parser.parse_args())
 
-    src_raster: Optional[gdal.Dataset] = read_raster(args.get("multi_band")[0])
+    src_raster: Optional[gdal.Dataset] = io.read_raster(args.get("multi_band"))
 
-    create_single_band_vrt(src_raster, args.get("multi_band")[0])
+    create_single_band_vrt(src_raster, args.get("multi_band"))
 
     src_raster = None
 
 
-main()
+if __name__ == "__main__":
+    main()
