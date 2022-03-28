@@ -67,7 +67,8 @@ wget --directory-prefix=lucas --content-disposition https://jeodpp.jrc.ec.europa
 
 wget --directory-prefix=lucas --content-disposition https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/LUCAS/LUCAS_harmonised/2_geometry/LUCAS_th_geom.zip && \
   unzip lucas/LUCAS_th_geom.zip -d lucas && \
-  rm lucas/LUCAS_th_geom.zip 
+  ogr2ogr -f "GPKG" lucas/lucas_geom.gpkg lucas/LUCAS_th_geom.shp && \
+  rm lucas/LUCAS_th_geom*
 ```
 
 ## Running the Workflow
