@@ -14,34 +14,36 @@ parser = argparse.ArgumentParser(
 				"consist of relative paths. Due to this requirement, either this script or the user needs to do move files around/organise the input files "
 				"and folders accordingly (which one of the both is not decided yet)."
 )
-parser.add_argument("--input_dir", nargs=1, type=Path, required=True,
-					help="Path to input directory, where files to cube are located. This script detects Geo-TIFFS and VRT files.")
+parser.add_argument("--input_files", nargs='+', type=str, required=True,
+					help="Input files.")
 parser.add_argument("--out_name", nargs=1, type=str, required=True,
 					help="Name of output VRT-cube")
 
 args: Dict[str, Any] = {key: (value[0] if isinstance(value, List) else value) for key, value in vars(parser.parse_args()).items()}
-final_cube_inputs: List[Path] = list()
+final_cube_inputs: List[str] = list()
 
-files: List[Path] = args.get("input_dir").glob("*.[tif][vrt]")
+#files: List[Path] = args.get("input_dir").glob("*.[tif][vrt]")
 
 # drop BOA.tif files as they are not needed in further stacking
-files = list(filter(lambda x: "BOA.tif" not in x.name, files))
+#files = list(filter(lambda x: "BOA.tif" not in x.name, files))
 
 # BOA vrt files don't need to be re-processed
-filtered_files: List[Path] = list(filter(lambda x: "BOA" not in x.name, files))
+filtered_files: List[str] = list(filter(lambda x: "BOA" not in x, args.get("input_files")))
 
 # while BOA files don't need to be processed again, they're needed in the final cube
-final_cube_inputs.extend(list(set(files) - set(filtered_files)))
+final_cube_inputs.extend(list(set(args.get("input_files")) - set(filtered_files)))
 
 # iterate over all rasters, if a raster file only contains 1 band, simply append said file to "final_cube_input".
 # Otherwise, create multiple single band vrt files and extend "final_cube_input" with them.
 for raster_file in filtered_files:
-	raster: gdal.Dataset = io.read_raster(str(raster_file))
+	raster: gdal.Dataset = io.read_raster(raster_file)
 	if raster.RasterCount == 1:
 		final_cube_inputs.append(raster_file)
 	else:
 		final_cube_inputs.extend(io.explode_multi_raster_to_vrt(raster, raster_file))
 
 	io.close_gdal(raster)
+
+final_cube_inputs.sort() # TODO does this sufficiently address the need for cross-tile aligned layers?
 
 io.create_big_cube(final_cube_inputs, args.get("out_name"))
