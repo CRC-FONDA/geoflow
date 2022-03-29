@@ -38,8 +38,8 @@ RUN git clone --recurse-submodules https://bitbucket.org/hu-geomatics/enmap-box.
     qgis_process plugins enable enmapboxplugin && \
     rm -rf /tmp/build
 
-ADD scripts-python/* /root/scripts/
-RUN chmod +x /root/scripts/*
+ADD scripts-python /root/scripts
+RUN chmod +x /root/scripts/*.py
 ENV PATH "$PATH:/root/scripts"
 
 CMD ["qgis_process"]
