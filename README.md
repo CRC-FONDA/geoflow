@@ -78,8 +78,8 @@ where the calculated indices should be stored (in addition to the working direct
 Nextflow).
 - It's possible to configure which flags produced by FORCE should be used for a bit mask creation. For
 more information, see [here](https://force-eo.readthedocs.io/en/latest/howto/qai.html#quality-bits-in-force)
-- The short script `run_nf.sh` can be used to quickly run the workflow as well as fetch the latest Docker Image
-or pull changes from GitHub. The available flags are: **-d** for pulling the latest image from Dockerhub; **-g**
+- The short script `run_nf.sh` can be used to quickly run the workflow, pull the latest Docker Image
+and/or pull changes from GitHub. The available flags are: **-d** for pulling the latest image from Dockerhub; **-g**
 for pulling the latest changes from GitHub; **-n** to run the workflow and **-v** to run the workflow with the additional
 `-with-dag` flag.
 
