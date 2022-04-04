@@ -11,10 +11,10 @@ def generate_stm_stack = user_selection -> {
 
 process calc_stms_pr {
 	input:
-	tuple val(TID), val(stm_uid), val(date), val(identifier), val(sensor), /* val(sensor_abbr), path(reflectance), path(qai),*/ path(base_files), /*path(vrt), */val(band_choice), val(stm_function)
+	tuple val(TID), val(stm_uid), val(date), val(identifier), val(sensor), /* val(sensor_abbr),*/ path(reflectance), /* path(qai),*/ path(base_files), /*path(vrt), */val(band_choice), val(stm_function)
 
 	output:
-	tuple val(TID), val(stm_uid), val(date), val(identifier), val(sensor), /*val(sensor_abbr), path(reflectance), path(qai), path(base_files), path(vrt), */
+	tuple val(TID), val(stm_uid), val(date), val(identifier), val(sensor), /* val(sensor_abbr), */ path(reflectance), /* path(qai), path(base_files), path(vrt), */
             path("${TID}_${sensor}_${date}_${stm_uid}_${band_choice*.key[0]}_STMS.tif")
 
 	script:
