@@ -38,7 +38,7 @@ def generate_band_description_list(path: List[str]) -> List[str]:
 
     return return_list
 
-
+# TODO remove hard coded Indices ?!
 def guarantee_band_order(file: str) -> int:
     sentinel_order: Dict[str, int] = {
         "BOA-01": 0,
