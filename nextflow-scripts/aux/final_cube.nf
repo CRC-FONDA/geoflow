@@ -5,8 +5,8 @@ process stack {
     tuple val(TID), /*val(stm_uid_array), val(date_array), val(scene_array), val(sensor_array),*/ path(reflectance), path(bands)
 
     output:
-    // TODO newly created vrt files also need to get carried over!
-    tuple val(TID), /*val(stm_uid_array), val(date_array), val(scene_array), val(sensor_array),*/ path(reflectance), path(bands), path("${TID}_full_stack.vrt")
+    tuple val(TID), /*val(stm_uid_array), val(date_array), val(scene_array), val(sensor_array),*/ path(reflectance), path(bands), path("*_slVRT.vrt"),
+        path("${TID}_full_stack.vrt")
 
     script:
     """
