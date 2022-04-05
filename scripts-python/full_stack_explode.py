@@ -41,3 +41,4 @@ for raster_file in filtered_files:
 final_cube_inputs.sort() # TODO do I need to sort the stack? Method discussion needed from my side!
 
 io.create_big_cube(final_cube_inputs, args.get("out_name"))
+
