@@ -56,7 +56,7 @@ process calculate_spectral_indices {
 	// adjust_indices.py -src ${identifier}_${index_choice*.key[0]}-temp.tif -of ${identifier}_${index_choice*.key[0]}.tif
 	"""
 	qgis_process run enmapbox:RasterMath -- \
-		code=\"outputRaster=${platform_spectral_index(sensor, Indices[index_choice*.key[0]], SEN2_bands, LND_bands)};outputRaster.setBandName('${index_choice*.key[0]}', 1);outputRaster.setNoDataValue(-3.402823e+38)\" \
+		code=\"outputRaster=${platform_spectral_index(sensor, Indices[index_choice*.key[0]], SEN2_bands, LND_bands)};outputRaster.setBandName('${index_choice*.key[0]}', 1);outputRaster.setNoDataValue(R1.noDataValue())\" \
 		floatInput=True \
 		R1=$reflectance outputRaster=${identifier}_${index_choice*.key[0]}.tif
 	"""
