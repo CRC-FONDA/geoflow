@@ -53,12 +53,12 @@ process calculate_spectral_indices {
 	tuple val(TID), val(stm_uid), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai), path("${identifier}_${index_choice*.key[0]}.tif")
 
 	script:
+	// adjust_indices.py -src ${identifier}_${index_choice*.key[0]}-temp.tif -of ${identifier}_${index_choice*.key[0]}.tif
 	"""
 	qgis_process run enmapbox:RasterMath -- \
-		code=\"${platform_spectral_index(sensor, Indices[index_choice*.key[0]], SEN2_bands, LND_bands)}\" \
-		R1=$reflectance outputRaster=${identifier}_${index_choice*.key[0]}-temp.tif
-
-	adjust_indices.py -src ${identifier}_${index_choice*.key[0]}-temp.tif -of ${identifier}_${index_choice*.key[0]}.tif
+		code=\"outputRaster=${platform_spectral_index(sensor, Indices[index_choice*.key[0]], SEN2_bands, LND_bands)};outputRaster.setBandName('${index_choice*.key[0]}', 1);outputRaster.setNoDataValue(R1.noDataValue())\" \
+		floatInput=True \
+		R1=$reflectance outputRaster=${identifier}_${index_choice*.key[0]}.tif
 	"""
 }
 
