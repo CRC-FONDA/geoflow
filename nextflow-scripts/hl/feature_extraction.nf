@@ -26,7 +26,7 @@ process create_classification_dataset {
     qgis_process run enmapbox:CreateClassificationDatasetFromCategorizedVectorLayerAndFeatureRaster -- \
     categorizedVector=${cat_vec} \
     featureRaster=${full_stack} \
-    categoryField='lc1' \
+    categoryField='LC3_ID' \
     outputClassificationDataset=\$PWD/${TID}_training.pkl
     """
 }
