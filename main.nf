@@ -4,7 +4,7 @@ include { spat_lucas } from './nextflow-scripts/preprocess/preprocessing_workflo
 include { explode_base_files } from './nextflow-scripts/preprocess/explode.nf'
 include { build_vrt_stack } from './nextflow-scripts/preprocess/stack.nf'
 include { mask_layer_stack } from './nextflow-scripts/preprocess/mask.nf'
-include { raster_dtype_i2f } from './nextflow-scripts/aux/convertdtype.nf'
+include { set_raster_scale } from './nextflow-scripts/aux/scale_raster.nf'
 include { calculate_spectral_indices } from './nextflow-scripts/preprocess/indices.nf'
 include { calc_stms_pr as stms_ls; calc_stms_pr as stms_sen } from './nextflow-scripts/hl/stms.nf'
 include { extract_features; create_classification_dataset; merge_classification_datasets; train_rf_classifier; predict_classifier } from './nextflow-scripts/hl/feature_extraction.nf'
@@ -76,12 +76,12 @@ workflow {
 
 	mask_layer_stack(ch_dataP)
 
-	raster_dtype_i2f(
+	set_raster_scale(
 		mask_layer_stack
 			.out
 	)
 
-	raster_dtype_i2f
+	set_raster_scale
 		.out
 		.tap({ ch_base_files })
 		.set({ ch_for_indices })
@@ -138,6 +138,7 @@ workflow {
 			.combine(stm_combination_landsat)
 	)
 
+	stms_ls.out.view()
 
 	/* As a first thought, I now need to group by Tile IDs and stack them to create my 'definitive' cube for ML Prediction
 	 * I need to keep ALL STMs (whose file names need to be adjusted to avoid clashes) as well as all **unique** reflectance/indices stacks (they should be identifiable by their date of capture.
@@ -161,7 +162,7 @@ workflow {
 		.tap({ classification_stack })
 		.set({ training_stack })
 
-	classification_stack.view()
+//	classification_stack.view()
 /*
 	create_classification_dataset(
 		training_stack
