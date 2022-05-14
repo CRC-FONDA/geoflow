@@ -7,7 +7,7 @@ include { mask_layer_stack } from './nextflow-scripts/preprocess/mask.nf'
 include { set_raster_scale } from './nextflow-scripts/aux/scale_raster.nf'
 include { calculate_spectral_indices } from './nextflow-scripts/preprocess/indices.nf'
 include { calc_stms_pr as stms_ls; calc_stms_pr as stms_sen } from './nextflow-scripts/hl/stms.nf'
-include { extract_features; create_classification_dataset; merge_classification_datasets; train_rf_classifier; predict_classifier } from './nextflow-scripts/hl/feature_extraction.nf'
+include { create_classification_dataset; merge_classification_datasets; train_rf_classifier; predict_classifier } from './nextflow-scripts/hl/feature_extraction.nf'
 include { stack } from './nextflow-scripts/aux/final_cube.nf'
 
 /* NOTE: This expects a cubed data provided or 'managed' by FORCE as input
@@ -67,12 +67,11 @@ workflow {
 	// TODO: remove subset
 	Channel
 		.fromFilePairs(params.input_cube)
+		.take(10)
 		.combine(params.stm_timeframes) // inserts start and end time as flat elements on the end
 		.map({ prepare_channel(it) })
 		.filter({ it[1] >= params.processing_timeframe["START"] && it[1] <= params.processing_timeframe["END"] })
-		.take(40)
 		.set({ ch_dataP })
-
 
 	mask_layer_stack(ch_dataP)
 
@@ -93,7 +92,7 @@ workflow {
 				.flatMap()
 			)
 	)
-
+	
 	explode_base_files(ch_base_files)
 
 	// The group size should be set, so that a "package"/"bundle" can be released as soon as everything needed is processed and not
@@ -138,8 +137,7 @@ workflow {
 			.combine(stm_combination_landsat)
 	)
 
-	stms_ls.out.view()
-
+	stms_ls_out.count().view()
 	/* As a first thought, I now need to group by Tile IDs and stack them to create my 'definitive' cube for ML Prediction
 	 * I need to keep ALL STMs (whose file names need to be adjusted to avoid clashes) as well as all **unique** reflectance/indices stacks (they should be identifiable by their date of capture.
 	 * it would likely be beneficial to include the STM UID in the filename of the respective STM as well. Not that I know how to use it yet, but I feel like I'm loosing some information if I don't.
@@ -150,11 +148,11 @@ workflow {
 			.out
 			// only mix with unique observations, because channel is mixed with the STM timeframes above, there are duplicates
 			// NOTE as long as Sentinel and Landsat are not merged together, the sensor needs to be filtered as well!
-			.mix(ch_stacked_raster.unique({ it[3] }).filter({ it[4][0] == 'L' })) 
+			//.mix(ch_stacked_raster.unique({ it[3] }).filter({ it[4][0] == 'L' })) 
 			.groupTuple(by: 0) // group by tile ID
 			// Channel now consists of: [tile, (stm_uid, date, scene, sensor,) reflectance, [BOA single bands, spectral indices, stms]]
 			// additionally, remove duplicate reflectance files
-			.map({ [it[0], /* it[1], it[2], it[3], it[4], */ it[5].unique({ a, b -> a.name <=> b.name }), it[6].flatten()] })
+			//.map({ [it[0], /* it[1], it[2], it[3], it[4], */ it[5].unique({ a, b -> a.name <=> b.name }), it[6].flatten()] })
 			)
 
 	stack
@@ -162,8 +160,6 @@ workflow {
 		.tap({ classification_stack })
 		.set({ training_stack })
 
-//	classification_stack.view()
-/*
 	create_classification_dataset(
 		training_stack
 			.combine(
@@ -177,20 +173,16 @@ workflow {
 			.collect()
 	)
 
-	merge_classification_datasets.out.view()
-
 	train_rf_classifier(
-		//merge_classification_datasets
-		create_classification_dataset
+		merge_classification_datasets
 			.out
 	)
 
 	predict_classifier(
 		train_rf_classifier
 			.out
-			.combine(classification_stack
-			)
+			.combine(classification_stack)
 	)
-*/
+
 }
 
