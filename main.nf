@@ -24,13 +24,18 @@ def prepare_channel = input -> {
 	String reflectance_path = input[1][0]
 	String quality_path = input[1][1]
 	String tile = reflectance_path.split('/')[-2]
-	String stm_uid = input[-2] + '_' + input[-1]
 	String scene = input[0]
 	String date = scene.split('_')[0]
 	String sensor = scene.split('_')[-1]
 	String sensor_abbreviation = sensor[0]
 
-	return [tile, stm_uid, date, scene, sensor, sensor_abbreviation, reflectance_path, quality_path]
+	return [tile, date, scene, sensor, sensor_abbreviation, reflectance_path, quality_path]
+}
+
+def insert_stm_frame = input -> {
+	String stm_frame = input[-2] + '_' + input[-1]
+
+	return [input[0], stm_frame, input[1], input[2], input[3], input[4], input[5], input[6], input[7]]
 }
 
 workflow {
@@ -68,7 +73,6 @@ workflow {
 	Channel
 		.fromFilePairs(params.input_cube)
 		.take(10)
-		.combine(params.stm_timeframes) // inserts start and end time as flat elements on the end
 		.map({ prepare_channel(it) })
 		.filter({ it[1] >= params.processing_timeframe["START"] && it[1] <= params.processing_timeframe["END"] })
 		.set({ ch_dataP })
@@ -101,28 +105,22 @@ workflow {
 	Channel
 		.empty()
 		.mix(calculate_spectral_indices.out, explode_base_files.out)
+		.combine(params.stm_timeframes) // inserts start and end time as flat elements on the end
+		// -> tile, date, scene, sensor, sensor_abbr, BOA, QAI, IDX/SL-VRT, {STM_start, STM_end}
+		.map({ insert_stm_frame(it) })
 		// regardless of sensor type, the group size is (as long as all indices can be calculated for all platforms) always N-indices + 1 because explode_base_files returns nested lists
 		// as soon as this is not the case anymore, the approach implemented by Fabian in his git pull request would be needed.
 		.groupTuple(by: [0, 1, 3], size: params.spectral_indices_mapping.size() + 1) // group by Tile, STM UID and Scene ID
-		// [tile, stm_uid, date, scene, sensor, sensor_abbreviation, reflectance_path, quality_path, [BOA single bands and spectral indices]]
-		//.map({ [it[0], it[1], it[2][0], it[3], it[4][0], it[5][0], it[6][0], it[7][0], it[8].flatten()] })
 		// [tile, stm_uid, date, scene, sensor, reflectance, [BOA single bands and spectral indices]]
 		.map({ [it[0], it[1], it[2][0], it[3], it[4][0], it[6][0], it[8].flatten()] })
 		.set({ ch_grouped_bands })
-
-	// Why on earth do I create this stack?
-	//build_vrt_stack(ch_grouped_bands)
+	
 
 	/* conceptually, new chunk as per proposed flow chart */
-	// TODO the current sequence of processes/steps results in many files being needlessly processed, no? If so, this should be changed -> I don't think so!
-	//build_vrt_stack
-		//.out
 	ch_grouped_bands
 		.tap({ ch_stacked_raster }) // likely needed later on because stms discard sensor/scene specific stack
 		.filter({ it[2] >= it[1].split('_')[0] && it[2] <= it[1].split('_')[1] }) // filters observations where capture date falls within STM timeframe
 		.groupTuple(by: [0, 1]) // group by Tile ID and STM UID 
-		// [tile, stm_uid, date, scene, sensor, sensor_abbreviation, reflectance_path, quality_path, [BOA single bands and spectral indices], vrt stack]
-		//.map({ [it[0], it[1], it[2][0], it[3][0], it[4][0], it[5][0], /*it[6][0], it[7][0],*/ it[8][0]/*, it[9][0]*/] }) //re-flatten channel entries which are put into seperate arrays due to grouping
 		// [tile, stm_uid, date, scene, sensor, reflectance, [BOA single bands and spectral indices]]
 		.map({ [it[0], it[1], it[2][0], it[3][0], it[4][0], it[5][0], it[6][0]] }) // TODO Am I correct in assuming it[5] and it[6] are all identical? I sure hope so!
 		.branch ({
@@ -137,7 +135,6 @@ workflow {
 			.combine(stm_combination_landsat)
 	)
 
-	stms_ls_out.count().view()
 	/* As a first thought, I now need to group by Tile IDs and stack them to create my 'definitive' cube for ML Prediction
 	 * I need to keep ALL STMs (whose file names need to be adjusted to avoid clashes) as well as all **unique** reflectance/indices stacks (they should be identifiable by their date of capture.
 	 * it would likely be beneficial to include the STM UID in the filename of the respective STM as well. Not that I know how to use it yet, but I feel like I'm loosing some information if I don't.

@@ -2,9 +2,9 @@ nextflow.enable.dsl = 2
 
 process set_raster_scale {
 	input:
-	tuple val(TID), val(stm_uid), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai)
+	tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai)
 	output:
-	tuple val(TID), val(stm_uid), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai)
+	tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai)
 
 	script:
 	// this assumes, that every band is scaled by the same factor; FORCE does not set an offset to my knowledge
