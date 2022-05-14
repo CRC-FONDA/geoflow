@@ -1,21 +1,8 @@
 nextflow.enable.dsl = 2
 
-process extract_features {
-	input:
-	tuple val(TID), val(SID), val(sensor_abbr), val(sensor), val(years), val(month), val(quarter), path(stm), path(vector)
-
-	output:
-	path("sample_${TID}-${stm.toString().split('_')[-2]}.gpkg")
-
-	script:
-	"""
-	qgis_process run enmapbox:SampleRasterLayerValues -- raster=${stm} vector=${vector} outputPointsData=sample_${TID}-${stm.toString().split('_')[-2]}.gpkg
-	"""
-}
-
 process create_classification_dataset {
     input:
-    tuple val(TID), path(reflectance), path(bands), path(slVRTs), path(full_stack), path(cat_vec)
+    tuple val(TID)/*, path(reflectance)*/, path(bands), path(slVRTs), path(full_stack), path(cat_vec)
 
     output:
     tuple val(TID), path("${TID}_training.pkl")
@@ -27,6 +14,8 @@ process create_classification_dataset {
     categorizedVector=${cat_vec} \
     featureRaster=${full_stack} \
     categoryField='LC3_ID' \
+	coverage=0 \
+	majorityVoting=0 \
     outputClassificationDataset=\$PWD/${TID}_training.pkl
     """
 }
