@@ -31,11 +31,13 @@ def explode_multi_raster_to_vrt(multi_raster: gdal.Dataset, file_path: str) -> L
         :return: List of files which are later combined into a final stack
 	"""
 	n_bands: int = multi_raster.RasterCount
-	base_name: str = remove_filetype(file_path)
+	base_name: str = remove_filetype(file_path).split('_')[2:] # TODO not so nice
+	base_name = '_'.join(base_name)
 	return_list: List[str] = list()
 
 	for layer in range(1, n_bands + 1):
 		layer_description: str = base_name + "_" + multi_raster.GetRasterBand(layer).GetDescription().replace(" ", "-")
+#		layer_description: str = multi_raster.GetRasterBand(layer).GetDescription().replace(" ", "-")    
 		vrt_out_name: str = layer_description + "_slVRT.vrt"
 		return_list.append(vrt_out_name)
 
@@ -62,11 +64,12 @@ def generate_layer_names_list(in_files: List[str]) -> List[str]:
         # TODO I don't like how I treat single layer files!
 	return_list: List[str] = list()
 	for single_layer_vrt in in_files:
-		temp_layer: gdal.Dataset = read_raster(single_layer_vrt)
-		if temp_layer.RasterCount == 1:
-			single_layer_vrt_description: str = remove_filetype(single_layer_vrt)
-		else:
-			single_layer_vrt_description: str = temp_layer.GetRasterBand(1).GetDescription()
+		temp_layer: gdal.Dataset = read_raster(single_layer_vrt) 
+		single_layer_vrt_description: str = temp_layer.GetRasterBand(1).GetDescription()
+#		if temp_layer.RasterCount == 1:
+#			single_layer_vrt_description: str = remove_filetype(single_layer_vrt)
+#		else:
+#			single_layer_vrt_description: str = temp_layer.GetRasterBand(1).GetDescription()
 		return_list.append(single_layer_vrt_description)
 
 	return return_list
