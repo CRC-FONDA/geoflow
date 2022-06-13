@@ -6,7 +6,7 @@ FROM qgis/qgis:${QGIS_VERSION}
 LABEL version="latest"
 LABEL description="EnMAP-Box in Docker"
 
-ARG ENMAP_VERSION='v3.9'
+ARG ENMAP_VERSION='v3.10'
 #ARG ENMAP_BRANCH='master'
 ARG XRD='/var/tmp/runtime-root'
 
@@ -17,6 +17,8 @@ ENV XDG_RUNTIME_DIR=$XRD
 WORKDIR /tmp/build
 
 COPY external/custom-requirements.txt .
+
+RUN apt install -y bc
 
 RUN mkdir -m=0700 $XRD && \
     mkdir -p ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins && \
@@ -30,7 +32,7 @@ RUN mkdir -m=0700 $XRD && \
 
 RUN git clone --recurse-submodules https://bitbucket.org/hu-geomatics/enmap-box.git && \
     cd enmap-box && \
-    # until 3.10 gets released, I can't do a version checkout beacuse I want/need further STMs, which are already implemented
+	git branch master && \
     # git checkout $ENMAP_VERSION && \
     python3 scripts/setup_repository.py && \
     python3 scripts/create_plugin.py && \
@@ -38,7 +40,7 @@ RUN git clone --recurse-submodules https://bitbucket.org/hu-geomatics/enmap-box.
     qgis_process plugins enable enmapboxplugin && \
     rm -rf /tmp/build
 
-ADD scripts-python /root/scripts
+ADD python-scripts /root/scripts
 RUN chmod +x /root/scripts/*.py
 ENV PATH "$PATH:/root/scripts"
 
