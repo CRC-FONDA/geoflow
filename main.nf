@@ -66,14 +66,14 @@ workflow {
 		.of(params.stm_band_mapping_landsat)
 		.mix( spectral_indices )
 		.flatMap()
-		.combine( stm_choices )
 		.set({ stm_combination_landsat })
 
 	// TODO: remove subset
 	Channel
 		.fromFilePairs(params.input_cube)
-		.take(10)
 		.map({ prepare_channel(it) })
+		.filter({ it[4] == 'L' }) // only keep Landsat observations
+		//.take(10)
 		.filter({ it[1] >= params.processing_timeframe["START"] && it[1] <= params.processing_timeframe["END"] })
 		.set({ ch_dataP })
 
@@ -108,32 +108,28 @@ workflow {
 		.combine(params.stm_timeframes) // inserts start and end time as flat elements on the end
 		// -> tile, date, scene, sensor, sensor_abbr, BOA, QAI, IDX/SL-VRT, {STM_start, STM_end}
 		.map({ insert_stm_frame(it) })
-		// regardless of sensor type, the group size is (as long as all indices can be calculated for all platforms) always N-indices + 1 because explode_base_files returns nested lists
-		// as soon as this is not the case anymore, the approach implemented by Fabian in his git pull request would be needed.
-		.groupTuple(by: [0, 1, 3], size: params.spectral_indices_mapping.size() + 1) // group by Tile, STM UID and Scene ID
-		// [tile, stm_uid, date, scene, sensor, reflectance, [BOA single bands and spectral indices]]
-		.map({ [it[0], it[1], it[2][0], it[3], it[4][0], it[6][0], it[8].flatten()] })
+		.filter({ it[2] >= it[1].split('_')[0] && it[2] <= it[1].split('_')[1] }) // filters observations where capture date falls within STM timeframe TODO should be fine, check nonetheless!!
+		.groupTuple(by: [0,1]) // group by tile and STM period
+		// [tile, stm period, unique BOA, [indices and flat BOAs]]
+		.map({ [it[0], it[1], it[6].unique({ a, b -> a.name <=> b.name }), it[8].flatten()] })
 		.set({ ch_grouped_bands })
-	
 
 	/* conceptually, new chunk as per proposed flow chart */
 	ch_grouped_bands
 		.tap({ ch_stacked_raster }) // likely needed later on because stms discard sensor/scene specific stack
-		.filter({ it[2] >= it[1].split('_')[0] && it[2] <= it[1].split('_')[1] }) // filters observations where capture date falls within STM timeframe
-		.groupTuple(by: [0, 1]) // group by Tile ID and STM UID 
-		// [tile, stm_uid, date, scene, sensor, reflectance, [BOA single bands and spectral indices]]
-		.map({ [it[0], it[1], it[2][0], it[3][0], it[4][0], it[5][0], it[6][0]] }) // TODO Am I correct in assuming it[5] and it[6] are all identical? I sure hope so!
-		.branch ({
-			sentinel: it[4][0] == 'S'
-			landsat: it[4][0] == 'L'
-		})
+//		.branch ({
+//			sentinel: it[4][0] == 'S'
+//			landsat: it[4][0] == 'L'
+//		})
 		.set({ ch_group_stacked_raster })
 
-	stms_ls(
-		ch_group_stacked_raster
-			.landsat
-			.combine(stm_combination_landsat)
-	)
+	blubb = ch_group_stacked_raster.combine(stm_combination_landsat).combine(stm_choices)
+
+	stms_ls(blubb)
+//		ch_group_stacked_raster
+//			.landsat
+//			.combine(stm_combination_landsat)
+//	)
 
 	/* As a first thought, I now need to group by Tile IDs and stack them to create my 'definitive' cube for ML Prediction
 	 * I need to keep ALL STMs (whose file names need to be adjusted to avoid clashes) as well as all **unique** reflectance/indices stacks (they should be identifiable by their date of capture.
@@ -141,16 +137,9 @@ workflow {
 	 */
 
 	stack(
-		stms_ls
-			.out
-			// only mix with unique observations, because channel is mixed with the STM timeframes above, there are duplicates
-			// NOTE as long as Sentinel and Landsat are not merged together, the sensor needs to be filtered as well!
-			//.mix(ch_stacked_raster.unique({ it[3] }).filter({ it[4][0] == 'L' })) 
-			.groupTuple(by: 0) // group by tile ID
-			// Channel now consists of: [tile, (stm_uid, date, scene, sensor,) reflectance, [BOA single bands, spectral indices, stms]]
-			// additionally, remove duplicate reflectance files
-			//.map({ [it[0], /* it[1], it[2], it[3], it[4], */ it[5].unique({ a, b -> a.name <=> b.name }), it[6].flatten()] })
-			)
+		stms_ls.out.groupTuple(by: 0) // group by tile ID
+	)
+
 
 	stack
 		.out
@@ -176,9 +165,8 @@ workflow {
 	)
 
 	predict_classifier(
-		train_rf_classifier
-			.out
-			.combine(classification_stack)
+		classification_stack
+			.combine(train_rf_classifier.out)
 	)
 
 }
