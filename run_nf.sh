@@ -16,11 +16,11 @@ if [ "$#" -gt 0 ]; then
 			git pull
 			;;
 		n)
-			nextflow run -resume main.nf --input_cube='/data/Dagobah/dc/deu/ard/X0061_Y0048/*{BOA,QAI}.tif' --output_dir_indices=/data/Dagobah/fonda/shk/test_out
+			nextflow run -resume main.nf
 			;;
 		v)
 			rm -f img/dag.dot && \
-			nextflow run -resume main.nf --input_cube='/data/Dagobah/dc/deu/ard/X0061_Y0048/*{BOA,QAI}.tif' --output_dir_indices=/data/Dagobah/fonda/shk/test_out -with-dag img/dag.dot
+			nextflow run -resume main.nf -with-dag img/dag.dot
 			;;
 		*)
 			echo "Invalid argument provided"
