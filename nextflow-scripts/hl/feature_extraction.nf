@@ -2,10 +2,10 @@ nextflow.enable.dsl = 2
 
 process create_classification_dataset {
     input:
-    tuple val(TID)/*, path(reflectance)*/, path(bands), path(slVRTs), path(full_stack), path(cat_vec)
+    tuple val(TID), path(bands), path(slVRTs), path(full_stack), path(cat_vec)
 
     output:
-    tuple val(TID), path("${TID}_training.pkl")
+    path("${TID}_training.pkl")
 
     script:
 	// qgis_process moves output to /tmp/processing when given a relative file path or just the file name
@@ -22,10 +22,10 @@ process create_classification_dataset {
 
 process merge_classification_datasets {
     input:
-    tuple val(TID), path(training_datasets)
+    path(training_datasets)
 
     output:
-    tuple val(TID), path("merged_training_dataset.pkl")
+    path("merged_training_dataset.pkl")
 
     script:
 	// qgis_process moves output to /tmp/processing when given a relative file path or just the file name
@@ -39,10 +39,10 @@ process merge_classification_datasets {
 
 process train_rf_classifier {
     input:
-    tuple val(TID), path(merged_training_dataset)
+	path(merged_training_dataset)
 
     output:
-    tuple val(TID), path("estimator.pkl")
+    path("estimator.pkl")
 
     script:
 	// qgis_process moves output to /tmp/processing when given a relative file path or just the file name
@@ -54,12 +54,11 @@ process train_rf_classifier {
     """
 }
 
-// TODO: This needs to take 2 arguments, basically. (1) Trained Classifier and (2) data cube to classify.
-//       The data cube needs to be constructed before any of the sampling/training is done, tapped into and brought up here again.
-// TODO publish results
 process predict_classifier {
-    input:
-    tuple val(TID), path(prediction_stack), path(estimator)
+	publishDir "${params.final_outDir}", mode: 'copy', pattern: "${TID}_prediction.tif", overwrite: true 
+
+	input:
+    tuple val(TID), path(bands), path(slVRTs), path(prediction_stack), path(estimator)
 
     output:
     path("${TID}_prediction.tif")
@@ -70,6 +69,8 @@ process predict_classifier {
     raster=${prediction_stack} \
     classifier=${estimator} \
     outputClassification=${TID}_prediction.tif
+
+	gdal_edit.py -a_nodata 0 ${TID}_prediction.tif
     """
 }
 
