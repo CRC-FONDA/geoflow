@@ -9,6 +9,7 @@ include { calculate_spectral_indices } from './nextflow-scripts/preprocess/indic
 include { calc_stms_pr as stms_ls; calc_stms_pr as stms_sen } from './nextflow-scripts/hl/stms.nf'
 include { create_classification_dataset; merge_classification_datasets; train_rf_classifier; predict_classifier } from './nextflow-scripts/hl/feature_extraction.nf'
 include { stack } from './nextflow-scripts/aux/final_cube.nf'
+include { build_class_vrt } from './nextflow-scripts/aux/build_outvrt.nf'
 
 /* NOTE: This expects a cubed data provided or 'managed' by FORCE as input
  * - Flatten (partially) nested return from `Channel.fromFilePairs`
@@ -167,6 +168,12 @@ workflow {
 	predict_classifier(
 		classification_stack
 			.combine(train_rf_classifier.out)
+	)
+
+	build_class_vrt(
+		predict_classifier
+			.out
+			.collect()
 	)
 
 }
