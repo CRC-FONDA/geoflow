@@ -18,7 +18,7 @@ include { build_class_vrt } from './nextflow-scripts/aux/build_outvrt.nf'
  *   - observation date
  *   - sensor name (long)
  *   - single letter sensor abbreviation
- *   - scene ID (i.e. file name of the input file, minus the prodcut 'id'
+ *   - scene ID (i.e. file name of the input file, minus the product 'id'
  *     (such as 'BOA') and file type
  */
 def prepare_channel = input -> {
