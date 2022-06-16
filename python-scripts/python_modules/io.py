@@ -3,6 +3,7 @@ import re
 from typing import List
 from osgeo import gdal
 
+
 def remove_filetype(file_name: str) -> str:
 	pattern: re.Pattern = re.compile(r"\..*$")
 
@@ -24,20 +25,21 @@ def read_raster(path: str) -> gdal.Dataset:
 def explode_multi_raster_to_vrt(multi_raster: gdal.Dataset, file_path: str) -> List[str]:
 	"""
 	Explode multi-layer raster files into multiple virtual datasets (VRTs) which only consist of a single layer.
-	Each separate output file is named after 'base_name' and has its respective layer description appended to create a unique name.
+	Each separate output file is named after 'base_name' and has its respective layer description appended
+	to create a unique name.
 	Additionally, the description is also set in the single-layer VRT.
 	:param multi_raster: opened gdal.Dataset of multi-layer raster
 	:param file_path: file path to 'multi_raster'
-        :return: List of files which are later combined into a final stack
+	:return: List of files which are later combined into a final stack
 	"""
 	n_bands: int = multi_raster.RasterCount
-	base_name: str = remove_filetype(file_path).split('_')[2:] # TODO not so nice
-	base_name = '_'.join(base_name)
+	splitted_base_name: List[str] = remove_filetype(file_path).split('_')[2:]
+	base_name: str = '_'.join(splitted_base_name)
 	return_list: List[str] = list()
 
 	for layer in range(1, n_bands + 1):
 		layer_description: str = base_name + "_" + multi_raster.GetRasterBand(layer).GetDescription().replace(" ", "-")
-#		layer_description: str = multi_raster.GetRasterBand(layer).GetDescription().replace(" ", "-")    
+		# layer_description: str = multi_raster.GetRasterBand(layer).GetDescription().replace(" ", "-")
 		vrt_out_name: str = layer_description + "_slVRT.vrt"
 		return_list.append(vrt_out_name)
 
@@ -61,7 +63,7 @@ def generate_layer_names_list(in_files: List[str]) -> List[str]:
 	:param in_files: List of Input paths as string objects
 	:return: List of layer descriptions
 	"""
-        # TODO I don't like how I treat single layer files!
+	# TODO I don't like how I treat single layer files!
 	return_list: List[str] = list()
 	for single_layer_vrt in in_files:
 		temp_layer: gdal.Dataset = read_raster(single_layer_vrt) 
@@ -73,6 +75,7 @@ def generate_layer_names_list(in_files: List[str]) -> List[str]:
 		return_list.append(single_layer_vrt_description)
 
 	return return_list
+
 
 def create_big_cube(in_files: List[str], out_name: str) -> None:
 	"""
