@@ -39,6 +39,10 @@ def insert_stm_frame = input -> {
 	return [input[0], stm_frame, input[1], input[2], input[3], input[4], input[5], input[6], input[7]]
 }
 
+def is_landsat = input -> {
+    return input[4] == 'L'
+}
+
 workflow {
 	Channel
 		.fromPath([params.lucas_survey, params.lucas_geom], type: 'file')
@@ -69,12 +73,10 @@ workflow {
 		.flatMap()
 		.set({ stm_combination_landsat })
 
-	// TODO: remove subset
 	Channel
 		.fromFilePairs(params.input_cube)
 		.map({ prepare_channel(it) })
-		.filter({ it[4] == 'L' }) // only keep Landsat observations
-		//.take(10)
+		.filter({ is_landsat(it) })
 		.filter({ it[1] >= params.processing_timeframe["START"] && it[1] <= params.processing_timeframe["END"] })
 		.set({ ch_dataP })
 
@@ -110,7 +112,7 @@ workflow {
 		// -> tile, date, scene, sensor, sensor_abbr, BOA, QAI, IDX/SL-VRT, {STM_start, STM_end}
 		.map({ insert_stm_frame(it) })
 		.filter({ it[2] >= it[1].split('_')[0] && it[2] <= it[1].split('_')[1] }) // filters observations where capture date falls within STM timeframe TODO should be fine, check nonetheless!!
-		.groupTuple(by: [0,1]) // group by tile and STM period
+		.groupTuple(by: [0, 1]) // group by tile and STM period
 		// [tile, stm period, unique BOA, [indices and flat BOAs]]
 		.map({ [it[0], it[1], it[6].unique({ a, b -> a.name <=> b.name }), it[8].flatten()] })
 		.set({ ch_grouped_bands })
@@ -118,29 +120,17 @@ workflow {
 	/* conceptually, new chunk as per proposed flow chart */
 	ch_grouped_bands
 		.tap({ ch_stacked_raster }) // likely needed later on because stms discard sensor/scene specific stack
-//		.branch ({
-//			sentinel: it[4][0] == 'S'
-//			landsat: it[4][0] == 'L'
-//		})
 		.set({ ch_group_stacked_raster })
 
-	blubb = ch_group_stacked_raster.combine(stm_combination_landsat).combine(stm_choices)
-
-	stms_ls(blubb)
-//		ch_group_stacked_raster
-//			.landsat
-//			.combine(stm_combination_landsat)
-//	)
-
-	/* As a first thought, I now need to group by Tile IDs and stack them to create my 'definitive' cube for ML Prediction
-	 * I need to keep ALL STMs (whose file names need to be adjusted to avoid clashes) as well as all **unique** reflectance/indices stacks (they should be identifiable by their date of capture.
-	 * it would likely be beneficial to include the STM UID in the filename of the respective STM as well. Not that I know how to use it yet, but I feel like I'm loosing some information if I don't.
-	 */
+	stms_ls(
+	    ch_group_stacked_raster
+	        .combine(stm_combination_landsat)
+	        .combine(stm_choices)
+	)
 
 	stack(
 		stms_ls.out.groupTuple(by: 0) // group by tile ID
 	)
-
 
 	stack
 		.out
@@ -149,9 +139,7 @@ workflow {
 
 	create_classification_dataset(
 		training_stack
-			.combine(
-				spat_lucas.out
-			)
+			.combine(spat_lucas.out)
 	)
 
 	merge_classification_datasets(
