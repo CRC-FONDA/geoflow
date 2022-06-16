@@ -4,9 +4,10 @@ name: CI to Docker Hub
 on:
   push:
     paths:
+      - '.github/workflows/push_docker.yml'
       - 'Dockerfile'
       - '.dockerignore'
-      - 'scripts-python/*'
+      - 'python-script/*'
       - 'external/custom-requirements.txt'
 jobs:
 
