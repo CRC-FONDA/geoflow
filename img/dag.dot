@@ -144,12 +144,12 @@ p34 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
 p33 -> p34 [label="ch_grouped_bands"];
 
 p34 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
-p36 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
-p34 -> p36 [label="ch_group_stacked_raster"];
-
-p34 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
 p35 [shape=point];
 p34 -> p35 [label="ch_stacked_raster"];
+
+p34 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
+p36 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
+p34 -> p36 [label="ch_group_stacked_raster"];
 
 p36 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
 p37 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
@@ -161,7 +161,7 @@ p6 -> p37 [label="stm_choices"];
 
 p37 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
 p38 [label="stms_ls"];
-p37 -> p38 [label="blubb"];
+p37 -> p38;
 
 p38 [label="stms_ls"];
 p39 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="groupTuple"];
@@ -214,5 +214,9 @@ p48 -> p49;
 p49 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collect"];
 p50 [label="build_class_vrt"];
 p49 -> p50;
+
+p50 [label="build_class_vrt"];
+p51 [shape=point];
+p50 -> p51;
 
 }
