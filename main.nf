@@ -115,12 +115,9 @@ workflow {
 		.groupTuple(by: [0, 1]) // group by tile and STM period
 		// [tile, stm period, unique BOA, [indices and flat BOAs]]
 		.map({ [it[0], it[1], it[6].unique({ a, b -> a.name <=> b.name }), it[8].flatten()] })
-		.set({ ch_grouped_bands })
+		.set({ ch_group_stacked_raster })
 
 	/* conceptually, new chunk as per proposed flow chart */
-	ch_grouped_bands
-		.tap({ ch_stacked_raster }) // likely needed later on because stms discard sensor/scene specific stack
-		.set({ ch_group_stacked_raster })
 
 	stms_ls(
 	    ch_group_stacked_raster
