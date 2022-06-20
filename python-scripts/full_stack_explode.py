@@ -2,7 +2,7 @@
 from osgeo import gdal
 import argparse
 from typing import Dict, List, Any
-from python_modules import io
+from python_modules import cio as io
 
 parser = argparse.ArgumentParser(
 	description="While similar/almost identical to 'explode.py' in functionality, this is script is used for the creation on the 'final' data cube and will\n"

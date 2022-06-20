@@ -5,7 +5,7 @@ import re
 import argparse
 from pathlib import Path
 from typing import Dict, Optional, List, AnyStr
-from python_modules import io
+from python_modules import cio as io
 
 parser = argparse.ArgumentParser(
     description="This script generates as many single band virtual raster files as there are \
