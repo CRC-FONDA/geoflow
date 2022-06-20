@@ -112,7 +112,7 @@ workflow {
 		// -> tile, date, scene, sensor, sensor_abbr, BOA, QAI, IDX/SL-VRT, {STM_start, STM_end}
 		.map({ insert_stm_frame(it) })
 		.filter({ it[2] >= it[1].split('_')[0] && it[2] <= it[1].split('_')[1] }) // filters observations where capture date falls within STM timeframe TODO should be fine, check nonetheless!!
-		.groupTuple(by: [0, 1]) // group by tile and STM period
+		.groupTuple(by: [0, 1], size: params.spectral_indices_mapping.size() + 1, remainder: false) // group by tile and STM period
 		// [tile, stm period, unique BOA, [indices and flat BOAs]]
 		.map({ [it[0], it[1], it[6].unique({ a, b -> a.name <=> b.name }), it[8].flatten()] })
 		.set({ ch_group_stacked_raster })
