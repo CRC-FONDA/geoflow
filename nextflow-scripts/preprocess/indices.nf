@@ -45,6 +45,16 @@ String platform_spectral_index(String platform_f, String code_snippet, Map <Stri
     return code_snippet
 }
 
+String cli_band_maps(String platform_short) {
+	if (platform_short =~ /L/) {
+		code_snippet = "B=1 G=2 R=3 N=4 S1=5 S2=6"
+	} else if (platform_short =~ /S/) {
+		code_snippet = "B=1 G=2 R=3 RE1=4 RE2=5 RE3=6 RE4=7 N=8 S1=9 S2=10"
+	}
+	return code_snippet
+}
+
+
 process calculate_spectral_indices {
 	input:
 	tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai), val(index_choice)
@@ -58,6 +68,14 @@ process calculate_spectral_indices {
 		code=\"outputRaster=${platform_spectral_index(sensor, Indices[index_choice*.key[0]], SEN2_bands, LND_bands)};outputRaster.setBandName('${index_choice*.key[0]}', 1);outputRaster.setNoDataValue(R1.noDataValue())\" \
 		floatInput=False \
 		R1=$reflectance outputRaster=${identifier}_${index_choice*.key[0]}.tif
+
+	#qgis_process run enmapbox:CreateSpectralIndices -- \
+		raster=$reflectance \
+		indices=${index_choice*.key[0]} \
+		${cli_band_maps(sensor_abbr)} \
+		outputVrt=${identifier}_${index_choice*.key[0]}.vrt
+
+	#GDAL_VRT_ENABLE_PYTHON=YES gdal_translate ${identifier}_${index_choice*.key[0]}.vrt ${identifier}_${index_choice*.key[0]}.tif
 	"""
 }
 
