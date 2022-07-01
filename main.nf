@@ -78,7 +78,6 @@ workflow {
 		.map({ prepare_channel(it) })
 		.filter({ is_landsat(it) })
 		.filter({ it[1] >= params.processing_timeframe["START"] && it[1] <= params.processing_timeframe["END"] })
-		.tap({ predetermined_group })
 		.set({ ch_dataP })
 
 	mask_layer_stack(ch_dataP)
@@ -103,31 +102,17 @@ workflow {
 	
 	explode_base_files(ch_base_files)
 
-	predetermined_group
-	    .combine(params.stm_timeframes)
-	    .map({ insert_stm_frame(it) })
-	    .filter({ it[2] >= it[1].split('_')[0] && it[2] <= it[1].split('_')[1] })
-	    .groupTuple(by: [0, 1])
-	    .map({ [it[0], it[1], it[2].size() * params.spectral_indices_mapping.size() + 1] })
-	    .set { predetermined_group_sizes }
-
 	Channel
 		.empty()
 		.mix(calculate_spectral_indices.out, explode_base_files.out)
 		.combine(params.stm_timeframes) // inserts start and end time as flat elements on the end
 		// -> tile, date, scene, sensor, sensor_abbr, BOA, QAI, IDX/SL-VRT, {STM_start, STM_end}
 		.map({ insert_stm_frame(it) })
-		.filter({ it[2] >= it[1].split('_')[0] && it[2] <= it[1].split('_')[1] }) // filter observations where capture date falls within STM timeframe TODO should be fine, check nonetheless!!
-		.combine(predetermined_group_sizes, by: [0, 1])
-		.map({ tid, stmp, date, scene, sensor, sens_abbr, BOA, QAI, idx_or_refl, count ->
-		    [groupKey([tid, stmp], count), date, scene, sensor, sens_abbr, BOA, QAI, idx_or_refl]
-		})
-		.groupTuple(by: 0, remainder: false) // group by tile and STM period -> TODO: Can I predict how many entries the channel will have at this stage?
+		.filter({ it[2] >= it[1].split('_')[0] && it[2] <= it[1].split('_')[1] }) // filter observations where capture date falls within STM timeframe
+		.groupTuple(by: [0, 1]) // group by tile and STM period
 		// [tile, stm period, unique BOA, [indices and flat BOAs]]
-		.map({ [it[0][0], it[0][1], it[5].unique({ a, b -> a.name <=> b.name }), it[7].flatten()] })
+		.map({ [it[0], it[1], it[6].unique({ a, b -> a.name <=> b.name }), it[8].flatten()] })
 		.set({ ch_group_stacked_raster })
-
-	//ch_group_stacked_raster.subscribe{onNext: println "$it"}
 
 	/* conceptually, new chunk as per proposed flow chart */
 
