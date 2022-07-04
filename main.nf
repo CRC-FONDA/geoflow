@@ -4,7 +4,7 @@ include { spat_lucas } from './nextflow-scripts/preprocess/preprocessing_workflo
 include { explode_base_files } from './nextflow-scripts/preprocess/explode.nf'
 include { build_vrt_stack } from './nextflow-scripts/preprocess/stack.nf'
 include { mask_layer_stack } from './nextflow-scripts/preprocess/mask.nf'
-include { set_raster_scale } from './nextflow-scripts/aux/scale_raster.nf'
+include { scale_base_files } from './nextflow-scripts/aux/scale_raster.nf'
 include { calculate_spectral_indices } from './nextflow-scripts/preprocess/indices.nf'
 include { calc_stms_pr as stms_ls; calc_stms_pr as stms_sen } from './nextflow-scripts/hl/stms.nf'
 include { create_classification_dataset; merge_classification_datasets; train_rf_classifier; predict_classifier } from './nextflow-scripts/hl/classification_processes.nf'
@@ -82,12 +82,7 @@ workflow {
 
 	mask_layer_stack(ch_dataP)
 
-	set_raster_scale(
-		mask_layer_stack
-			.out
-	)
-
-	set_raster_scale
+	mask_layer_stack
 		.out
 		.tap({ ch_base_files })
 		.set({ ch_for_indices })
@@ -99,8 +94,10 @@ workflow {
 				.flatMap()
 			)
 	)
+
+	scale_base_files(ch_base_files)
 	
-	explode_base_files(ch_base_files)
+	explode_base_files(scale_base_files.out)
 
 	Channel
 		.empty()
