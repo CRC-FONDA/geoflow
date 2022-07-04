@@ -83,7 +83,7 @@ and/or pull changes from GitHub. The available flags are: **-d** for pulling the
 for pulling the latest changes from GitHub; **-n** to run the workflow and **-v** to run the workflow with the additional
 `-with-dag` flag.
 
-:warning::warning: When using cached results (i. e. the `-n` flag), unexpected results have been observed where files where processed more then once and thus violate assumptions cconcerning meta data. :warning::warning:
+:warning::warning: When using cached results (i. e. the `-n` flag), unexpected results have been observed where files were processed more then once and thus violate assumptions cconcerning meta data. :warning::warning:
 
 ```bash
 ./run_nf.sh -dgn
