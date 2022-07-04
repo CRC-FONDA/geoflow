@@ -64,18 +64,19 @@ process calculate_spectral_indices {
 
 	script:
 	"""
-	qgis_process run enmapbox:RasterMath -- \
+	#qgis_process run enmapbox:RasterMath -- \
 		code=\"outputRaster=${platform_spectral_index(sensor, Indices[index_choice*.key[0]], SEN2_bands, LND_bands)};outputRaster.setBandName('${index_choice*.key[0]}', 1);outputRaster.setNoDataValue(R1.noDataValue())\" \
 		floatInput=False \
 		R1=$reflectance outputRaster=${identifier}_${index_choice*.key[0]}.tif
 
-	#qgis_process run enmapbox:CreateSpectralIndices -- \
+	qgis_process run enmapbox:CreateSpectralIndices -- \
 		raster=$reflectance \
+		scale=10000 \
 		indices=${index_choice*.key[0]} \
 		${cli_band_maps(sensor_abbr)} \
 		outputVrt=${identifier}_${index_choice*.key[0]}.vrt
 
-	#GDAL_VRT_ENABLE_PYTHON=YES gdal_translate ${identifier}_${index_choice*.key[0]}.vrt ${identifier}_${index_choice*.key[0]}.tif
+	GDAL_VRT_ENABLE_PYTHON=YES gdal_translate ${identifier}_${index_choice*.key[0]}.vrt ${identifier}_${index_choice*.key[0]}.tif
 	"""
 }
 
