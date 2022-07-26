@@ -1,6 +1,6 @@
 # TODO give this file a more fitting name
 import re
-from typing import List
+from typing import List, Dict, Tuple
 from osgeo import gdal
 
 
@@ -10,13 +10,14 @@ def remove_filetype(file_name: str) -> str:
 	return pattern.sub("", file_name)
 
 
-def read_raster(path: str) -> gdal.Dataset:
+def read_raster(path: str, mode=gdal.GA_ReadOnly) -> gdal.Dataset:
 	"""
 	Wrapper function around gdal.Open
 	:param path: Path to file, which should be opened
+	:param mode: GDAL Open mode
 	:return: gdal.Dataset object
 	"""
-	if raster := gdal.Open(path, gdal.GA_ReadOnly):
+	if raster := gdal.Open(path, mode):
 		return raster
 	else:
 		raise FileNotFoundError(f"{path} not found")
@@ -100,3 +101,18 @@ def create_big_cube(in_files: List[str], out_name: str) -> None:
 
 def close_gdal(gdal_dataset: gdal.Dataset) -> None:
 	gdal_dataset = None
+
+
+def dict_from_string_list(base: List[str]) -> Dict[int, str]:
+	"""
+	Given a list of key value pairs as strings, return a dictionary.
+	@param base: list of key value pairs in the form of ["key1=val1", "key2=val2", ...]
+	@return: {key1: val1, key2: val2, ...}
+	"""
+	list_of_kv: List[Tuple[int, str]] = list()
+
+	for value_pair in base:
+		k, v = value_pair.split("=")
+		list_of_kv.append((int(k), v))
+
+	return dict(list_of_kv)
