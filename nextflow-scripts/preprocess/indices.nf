@@ -69,11 +69,10 @@ process calculate_spectral_indices {
 		floatInput=False \
 		R1=$reflectance outputRaster=${identifier}_${index_choice*.key[0]}.tif
 
-	scale_factor=\$(gdalinfo -mdd force ${reflectance} | grep 'Scale=' | awk 'BEGIN{FS="="} {if (NR==1) print \$2}')
-
+	# EMB does (data * GDAL_scale) / EMB_scale
 	qgis_process run enmapbox:CreateSpectralIndices -- \
 		raster=$reflectance \
-		scale=\$scale_factor \
+		scale=1 \
 		indices=${index_choice*.key[0]} \
 		${cli_band_maps(sensor_abbr)} \
 		outputVrt=${identifier}_${index_choice*.key[0]}.vrt
