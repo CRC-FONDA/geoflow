@@ -4,7 +4,7 @@ include { spat_lucas } from './nextflow-scripts/preprocess/preprocessing_workflo
 include { explode_base_files } from './nextflow-scripts/preprocess/explode.nf'
 include { build_vrt_stack } from './nextflow-scripts/preprocess/stack.nf'
 include { mask_layer_stack } from './nextflow-scripts/preprocess/mask.nf'
-include { scale_base_files } from './nextflow-scripts/aux/scale_raster.nf'
+include { scale_files } from './nextflow-scripts/aux/scale_raster.nf'
 include { calculate_spectral_indices } from './nextflow-scripts/preprocess/indices.nf'
 include { calc_stms_pr as stms_ls; calc_stms_pr as stms_sen } from './nextflow-scripts/hl/stms.nf'
 include { create_classification_dataset; merge_classification_datasets; train_rf_classifier; predict_classifier } from './nextflow-scripts/hl/classification_processes.nf'
@@ -82,23 +82,28 @@ workflow {
 
 	mask_layer_stack(ch_dataP)
 
-	mask_layer_stack
+	scale_files(
+		mask_layer_stack
 		.out
-		.tap({ ch_base_files })
-		.set({ ch_for_indices })
+	)
+
+	scale_files
+	    .out
+	    .tap({ ch_indices })
+	    .set({ ch_base_files })
 
 	calculate_spectral_indices(
-		ch_for_indices
+		ch_indices
 			.combine(
-				spectral_indices
-				.flatMap()
-			)
+				spectral_indices.flatMap()
+			)	
 	)
 
 	scale_base_files(ch_base_files)
 	
 	explode_base_files(scale_base_files.out)
 
+    // line 116 probably does not guarantee that files from BOA processing are kept. Thus the confusion?
 	Channel
 		.empty()
 		.mix(calculate_spectral_indices.out, explode_base_files.out)
