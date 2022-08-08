@@ -100,8 +100,6 @@ The current workflow execution structure is depicted [here](img/dag.svg).
 
 It's likely, that the docker image can be further optimised. A couple of ideas include:
 
-- Create a "docker user" to not run the image as `root`, although I don't really see the point in doing
-so for our use case
 - optimize image size (~ 2,5 Gb on Dockerhub)
   - don't use the qgis base image, but compile QGIS ourselves. There's a guide on how to do this in
   the [QGIS GitHub repo](https://github.com/qgis/QGIS/blob/master/INSTALL.md)
