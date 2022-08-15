@@ -79,15 +79,28 @@ Nextflow).
 - It's possible to configure which flags produced by FORCE should be used for a bit mask creation. For
 more information, see [here](https://force-eo.readthedocs.io/en/latest/howto/qai.html#quality-bits-in-force)
 - The short script `run_nf.sh` can be used to quickly run the workflow, pull the latest Docker Image
-and/or pull changes from GitHub. The available flags are: **-d** for pulling the latest image from Dockerhub; **-g**
-for pulling the latest changes from GitHub; **-n** to run the workflow and **-v** to run the workflow with the additional
-`-with-dag` flag.
+and/or pull changes from GitHub.
 
-:warning::warning: When using cached results (i. e. the `-n` flag), unexpected results have been observed where files were processed more then once and thus violate assumptions cconcerning meta data. :warning::warning:
+:warning::warning: When using cached results (i. e. the `-r` flag), unexpected results have been observed where files were processed more then once and thus violate assumptions concerning meta data. :warning::warning:
 
 ```bash
-./run_nf.sh -dgn
-./run_nf.sh -v
+./run_nf.sh -p
+
+run_nf.sh is a short auxillary script which can be used to perform various tasks related to Geoflow,
+such as pulling the latest docker image from dockerhub or setting various CLI flags for the Nextflow
+execution.
+
+The following flags are currently accepted:
+        -p: print this help
+        -d: pull the latest docker image containing all dependencies Geoflow needs from Dockerhub
+        -g: pull the latest changes from the Geoflow GitHub repository for the currently checked out branch
+        -r: add the resume flag to the Nextflow execution call
+        -v: add the DAG visualization flag to the Nextflow execution call
+        -h: add the HTML report flag to the Nextflow execution call
+        -c: clear all prior flags (does not use cached results)
+        -e: execute the Workflow with the aforementioned flags
+
+Flags can be specified one-by-one or together, i.e. ./run_nf.sh -d -g -r -e is identical to ./run_nf.sh -dgre
 ```
 
 ## DAG visualisation
