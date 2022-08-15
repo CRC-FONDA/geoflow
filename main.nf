@@ -7,8 +7,8 @@ include { mask_layer_stack } from './nextflow-scripts/preprocess/mask.nf'
 include { scale_files } from './nextflow-scripts/aux/scale_raster.nf'
 include { calculate_spectral_indices } from './nextflow-scripts/preprocess/indices.nf'
 include { calc_stms_pr as stms_ls; calc_stms_pr as stms_sen } from './nextflow-scripts/hl/stms.nf'
-include { create_classification_dataset; merge_classification_datasets; train_rf_classifier; predict_classifier } from './nextflow-scripts/hl/classification_processes.nf'
-include { stack } from './nextflow-scripts/aux/final_cube.nf'
+include { stack_generation } from './nextflow-subworkflows/stack_generation.nf'
+include { ml_modeling } from './nextflow-subworkflows/modeling.nf'
 include { build_class_vrt } from './nextflow-scripts/aux/build_outvrt.nf'
 
 /* NOTE: This expects a cubed data provided or 'managed' by FORCE as input
@@ -99,11 +99,8 @@ workflow {
 			)	
 	)
 
-	scale_base_files(ch_base_files)
-	
-	explode_base_files(scale_base_files.out)
+	explode_base_files(ch_base_files)
 
-    // line 116 probably does not guarantee that files from BOA processing are kept. Thus the confusion?
 	Channel
 		.empty()
 		.mix(calculate_spectral_indices.out, explode_base_files.out)
@@ -124,44 +121,17 @@ workflow {
 	        .combine(stm_choices)
 	)
 
-	stack(
-		stms_ls
-		    .out
-		    // group by tile; assumes that no empty STM periods exist (i.e. a period for which there is no observation)
-		    .groupTuple(by: 0,
-		                size: params.stm_timeframes.size() * (params.stm_band_mapping_landsat.size() + params.spectral_indices_mapping.size()),
-		                remainder: false
-		                )
-	)
+	stack_generation(stms_ls, params.stm_timeframes, params.stm_band_mapping_landsat, params.spectral_indices_mapping)
 
-	stack
+	stack_generation
 		.out
 		.tap({ classification_stack })
 		.set({ training_stack })
 
-	create_classification_dataset(
-		training_stack
-			.combine(spat_lucas.out)
-	)
-
-	merge_classification_datasets(
-		create_classification_dataset
-			.out
-			.collect()
-	)
-
-	train_rf_classifier(
-		merge_classification_datasets
-			.out
-	)
-
-	predict_classifier(
-		classification_stack
-			.combine(train_rf_classifier.out)
-	)
+	ml_modeling(training_stack, classification_stack, spat_lucas.out)
 
 	build_class_vrt(
-		predict_classifier
+		ml_modeling
 			.out
 			.collect()
 	)
