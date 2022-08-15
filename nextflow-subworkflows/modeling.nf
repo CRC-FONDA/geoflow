@@ -2,7 +2,7 @@ nextflow.enable.dsl = 2
 
 include { create_classification_dataset; merge_classification_datasets; train_rf_classifier; predict_classifier } from '../nextflow-scripts/hl/classification_processes.nf'
 
-workflow ml_modelling {
+workflow ml_modeling {
 	take: training_data, classification_data, prepared_lucas
 	main:
 		create_classification_dataset(
