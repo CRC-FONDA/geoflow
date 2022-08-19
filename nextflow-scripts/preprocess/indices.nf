@@ -64,11 +64,6 @@ process calculate_spectral_indices {
 
 	script:
 	"""
-	#qgis_process run enmapbox:RasterMath -- \
-		code=\"outputRaster=${platform_spectral_index(sensor, Indices[index_choice*.key[0]], SEN2_bands, LND_bands)};outputRaster.setBandName('${index_choice*.key[0]}', 1);outputRaster.setNoDataValue(R1.noDataValue())\" \
-		floatInput=False \
-		R1=$reflectance outputRaster=${identifier}_${index_choice*.key[0]}.tif
-
 	# EMB does (data * GDAL_scale) / EMB_scale
 	qgis_process run enmapbox:CreateSpectralIndices -- \
 		raster=$reflectance \
