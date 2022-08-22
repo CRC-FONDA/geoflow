@@ -58,7 +58,7 @@ if [ "$#" -gt 0 ]; then
 			;;
 		e)
 			# actually execute the workflow
-			nextflow run main.nf "${NEXTFLOW_ARGS}"
+			nextflow run main.nf ${NEXTFLOW_ARGS}
 			;;
 		*)
 			print_help
