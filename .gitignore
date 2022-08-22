@@ -8,3 +8,4 @@ lucas/
 remove_dangling_dontainers.sh
 *gpkg
 experiment/
+report.html*
