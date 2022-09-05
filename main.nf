@@ -75,6 +75,7 @@ workflow {
 
 	Channel
 		.fromFilePairs(params.input_cube)
+		.map({ it.unique() }) // is this sufficient to filter the list?
 		.map({ prepare_channel(it) })
 		.filter({ is_landsat(it) })
 		.filter({ it[1] >= params.processing_timeframe["START"] && it[1] <= params.processing_timeframe["END"] })
@@ -89,11 +90,10 @@ workflow {
 
 	scale_files
 	    .out
-	    .tap({ ch_indices })
 	    .set({ ch_base_files })
 
 	calculate_spectral_indices(
-		ch_indices
+		ch_base_files
 			.combine(
 				spectral_indices.flatMap()
 			)	
@@ -121,14 +121,13 @@ workflow {
 	        .combine(stm_choices)
 	)
 
-	stack_generation(stms_ls, params.stm_timeframes, params.stm_band_mapping_landsat, params.spectral_indices_mapping)
+	stack_generation(stms_ls)
 
 	stack_generation
 		.out
-		.tap({ classification_stack })
-		.set({ training_stack })
+		.set({ feature_stack })
 
-	ml_modeling(training_stack, classification_stack, spat_lucas.out)
+	ml_modeling(feature_stack, feature_stack, spat_lucas)
 
 	build_class_vrt(
 		ml_modeling
