@@ -1,14 +1,10 @@
 # Parts of this Dockerfile were taken from EnMap's Docker configuration file
-ARG QGIS_VERSION=latest
+ARG QGIS_VERSION='latest'
 
 FROM qgis/qgis:${QGIS_VERSION}
 
 LABEL version="latest"
 LABEL description="EnMAP-Box in Docker"
-
-ARG ENMAP_VERSION='v3.10'
-#ARG ENMAP_BRANCH='master'
-#ARG XRD='/var/tmp/runtime-root'
 
 ENV DEBIANFRONTEND=noninteractive
 ENV QT_QPA_PLATFORM=offscreen
@@ -49,12 +45,11 @@ RUN mkdir -p ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins && \
 RUN mkdir -p ~/.local/share/QGIS/QGIS3/profiles/default/processing/scripts && \
 	mkdir -p  ~/.local/share/QGIS/QGIS3/profiles/default/processing/models
 
-RUN git clone --recurse-submodules https://bitbucket.org/hu-geomatics/enmap-box.git && \
+RUN git clone --recurse-submodules https://github.com/EnMAP-Box/enmap-box.git && \
     cd enmap-box && \
-	git branch master && \
-    # git checkout $ENMAP_VERSION && \
+	git config --local include.path ../.gitconfig && \
     python3 scripts/setup_repository.py && \
-    python3 scripts/create_plugin.py && \
+	python3 scripts/create_plugin.py && \
     cp -r deploy/enmapboxplugin ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins && \
     qgis_process plugins enable enmapboxplugin && \
     chown -R docker:docker ~/.local && \
