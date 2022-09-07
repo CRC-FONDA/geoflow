@@ -3,6 +3,7 @@
 name: Update DAG-Viz
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'img/dag.dot'
