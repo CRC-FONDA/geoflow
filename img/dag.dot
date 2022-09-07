@@ -16,8 +16,8 @@ p4 [label="spat_lucas"];
 p3 -> p4 [label="lucas"];
 
 p4 [label="spat_lucas"];
-p40 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
-p4 -> p40;
+p39 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
+p4 -> p39;
 
 p5 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.of"];
 p8 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
@@ -64,32 +64,28 @@ p16 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="map"];
 p15 -> p16;
 
 p16 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="map"];
-p17 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="filter"];
+p17 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="map"];
 p16 -> p17;
 
-p17 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="filter"];
+p17 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="map"];
 p18 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="filter"];
 p17 -> p18;
 
 p18 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="filter"];
-p19 [label="mask_layer_stack"];
-p18 -> p19 [label="ch_dataP"];
+p19 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="filter"];
+p18 -> p19;
 
-p19 [label="mask_layer_stack"];
-p20 [label="set_raster_scale"];
-p19 -> p20;
+p19 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="filter"];
+p20 [label="mask_layer_stack"];
+p19 -> p20 [label="ch_dataP"];
 
-p20 [label="set_raster_scale"];
-p21 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
+p20 [label="mask_layer_stack"];
+p21 [label="scale_files"];
 p20 -> p21;
 
-p21 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
+p21 [label="scale_files"];
 p23 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
-p21 -> p23 [label="ch_for_indices"];
-
-p21 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
-p25 [label="explode_base_files"];
-p21 -> p25 [label="ch_base_files"];
+p21 -> p23;
 
 p5 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.of"];
 p22 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatMap"];
@@ -106,6 +102,10 @@ p23 -> p24;
 p24 [label="calculate_spectral_indices"];
 p27 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
 p24 -> p27;
+
+p21 [label="scale_files"];
+p25 [label="explode_base_files"];
+p21 -> p25;
 
 p25 [label="explode_base_files"];
 p27 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="mix"];
@@ -160,55 +160,51 @@ p37 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="groupTuple"];
 p36 -> p37;
 
 p37 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="groupTuple"];
-p38 [label="stack"];
+p38 [label="stack_generation:stack"];
 p37 -> p38;
 
-p38 [label="stack"];
-p39 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
-p38 -> p39;
+p38 [label="stack_generation:stack"];
+p39 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
+p38 -> p39 [label="classification_data"];
 
-p39 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
-p40 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
-p39 -> p40 [label="training_stack"];
+p39 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
+p40 [label="ml_modeling:create_classification_dataset"];
+p39 -> p40;
 
-p39 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="tap"];
-p45 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
-p39 -> p45 [label="classification_stack"];
-
-p40 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
-p41 [label="create_classification_dataset"];
+p40 [label="ml_modeling:create_classification_dataset"];
+p41 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collect"];
 p40 -> p41;
 
-p41 [label="create_classification_dataset"];
-p42 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collect"];
+p41 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collect"];
+p42 [label="ml_modeling:merge_classification_datasets"];
 p41 -> p42;
 
-p42 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collect"];
-p43 [label="merge_classification_datasets"];
+p42 [label="ml_modeling:merge_classification_datasets"];
+p43 [label="ml_modeling:train_rf_classifier"];
 p42 -> p43;
 
-p43 [label="merge_classification_datasets"];
-p44 [label="train_rf_classifier"];
+p43 [label="ml_modeling:train_rf_classifier"];
+p44 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
 p43 -> p44;
 
-p44 [label="train_rf_classifier"];
-p45 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
+p38 [label="stack_generation:stack"];
+p44 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
+p38 -> p44 [label="classification_data"];
+
+p44 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
+p45 [label="ml_modeling:predict_classifier"];
 p44 -> p45;
 
-p45 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="combine"];
-p46 [label="predict_classifier"];
+p45 [label="ml_modeling:predict_classifier"];
+p46 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collect"];
 p45 -> p46;
 
-p46 [label="predict_classifier"];
-p47 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collect"];
+p46 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collect"];
+p47 [label="build_class_vrt"];
 p46 -> p47;
 
-p47 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collect"];
-p48 [label="build_class_vrt"];
+p47 [label="build_class_vrt"];
+p48 [shape=point];
 p47 -> p48;
-
-p48 [label="build_class_vrt"];
-p49 [shape=point];
-p48 -> p49;
 
 }
