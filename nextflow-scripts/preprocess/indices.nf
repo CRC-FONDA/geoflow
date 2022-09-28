@@ -68,7 +68,7 @@ process calculate_spectral_indices {
 		}
 		"""
 		gdal_translate -b ${TC_band} ${identifier}_${index_choice*.key[0]}_total.tif ${identifier}_${index_choice*.key[0]}.tif
-		gdal_edit.py .mo DESCRIPTION=${index_choice*.key[0]} ${identifier}_${index_choice*.key[0]}.tif
+		gdal_edit.py -mo DESCRIPTION=${index_choice*.key[0]} ${identifier}_${index_choice*.key[0]}.tif output=${identifier}_${index_choice*.key[0]}.tif
 		"""
 	}
 }
