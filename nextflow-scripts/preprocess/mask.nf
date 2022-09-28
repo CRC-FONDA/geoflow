@@ -5,12 +5,11 @@ process mask_layer_stack {
     tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai)
+    tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path("${identifier}_BOA_masked.tif"), path(qai)
 
     script:
     """
     QAI2bit_mask.py -qf ${qai} -of mask_raster.tif -qb ${params.quality_cat}
-    mv ${reflectance} BOA.tif
-    qgis_process run enmapbox:ApplyMaskLayerToRasterLayer -- raster=BOA.tif mask=mask_raster.tif outputRaster=${reflectance}
+    qgis_process run enmapbox:ApplyMaskLayerToRasterLayer -- raster=${reflectance} mask=mask_raster.tif outputRaster=${identifier}_BOA_masked.tif
     """
 }
