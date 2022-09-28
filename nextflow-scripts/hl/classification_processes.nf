@@ -56,7 +56,7 @@ process train_rf_classifier {
 
 process predict_classifier {
 
-	label: 'lmem'
+	label 'lmem'
 
 	publishDir "${params.final_outDir}", mode: 'copy', pattern: "${TID}_prediction.tif", overwrite: true
 
