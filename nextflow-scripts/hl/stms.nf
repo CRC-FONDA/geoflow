@@ -19,7 +19,6 @@ process calc_stms_pr {
 	gdalbuildvrt -q -separate -input_file_list ${band_choice*.key[0]}_files.txt ${band_choice*.key[0]}.vrt
 	qgis_process run enmapbox:AggregateRasterLayerBands -- raster=${band_choice*.key[0]}.vrt function=${stm_function*.value.join(",")} \
 		outputRaster=${TID}_${stm_uid}_${band_choice*.key[0]}_STMS.tif
-	mv vrt/* .
 	"""
 }
 
