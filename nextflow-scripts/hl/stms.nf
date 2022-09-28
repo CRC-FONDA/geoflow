@@ -1,6 +1,8 @@
 nextflow.enable.dsl = 2
 
 process calc_stms_pr {
+	label 'lmem'
+
 	input:
 	tuple val(TID), val(stm_uid), path(reflectance), path(base_files), val(band_choice), val(stm_function)
 
