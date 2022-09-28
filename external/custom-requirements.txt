@@ -45,3 +45,6 @@ urllib3>=1.25.8
 # bitstring>=3.1.9
 pandas
 geopandas
+
+# required to build the EnMAP-Box
+gitpython
