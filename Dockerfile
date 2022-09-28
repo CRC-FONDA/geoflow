@@ -4,7 +4,7 @@ ARG QGIS_VERSION='latest'
 FROM qgis/qgis:${QGIS_VERSION}
 
 LABEL version="latest"
-LABEL description="EnMAP-Box in Docker"
+LABEL description="Dependencies of Geoflow, dockerized"
 
 ENV DEBIANFRONTEND=noninteractive
 ENV QT_QPA_PLATFORM=offscreen
@@ -50,10 +50,12 @@ RUN git clone --recurse-submodules https://github.com/EnMAP-Box/enmap-box.git &&
 	git config --local include.path ../.gitconfig && \
     python3 scripts/setup_repository.py && \
 	python3 scripts/create_plugin.py && \
-    cp -r deploy/enmapboxplugin ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins && \
-    qgis_process plugins enable enmapboxplugin && \
+	cp -r deploy/enmapboxplugin ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins && \
     chown -R docker:docker ~/.local && \
 	chown -R docker:docker /usr/share/qgis
+
+RUN qgis_process plugins enable grassprovider &&\
+	qgis_process plugins enable enmapboxplugin
 
 USER docker
 
