@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: katerndahl
+  name: ceph-pod-geoflow
+spec:
+  containers:
+  - name: ceph
+    image: ubuntu
+    command:
+      - /bin/bash
+      - "-c"
+      - "sleep infinity"
+    volumeMounts:
+      - mountPath: /data
+        name: data
+      - mountPath: /workdir
+        name: workdir
+  volumes:
+  - name: data
+    persistentVolumeClaim:
+      claimName: fonda-datasets
+  - name: workdir
+    persistentVolumeClaim:
+      claimName: ceph-fs-volume
