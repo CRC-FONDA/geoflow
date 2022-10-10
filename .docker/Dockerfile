@@ -10,7 +10,7 @@ ENV DEBIANFRONTEND=noninteractive
 ENV QT_QPA_PLATFORM=offscreen
 #ENV XDG_RUNTIME_DIR=$XRD
 
-ADD python-scripts /usr/scripts
+ADD ../python-scripts /usr/scripts
 RUN chmod +x /usr/scripts/*.py
 
 RUN apt install -y bc
@@ -31,7 +31,7 @@ ENV HOME /home/docker
 ENV PATH "$PATH:/usr/scripts:/home/docker/.local/bin"
 ENV PYTHONPATH "${PYTHONPATH}:/usr/scripts:/home/docker/.local/bin"
 
-COPY external/custom-requirements.txt .
+COPY ../external/custom-requirements.txt .
 
 RUN mkdir -p ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins && \
     # h5py is build against serial interface of HDF5-1.10.4. For parallel processing or newer versions see \
