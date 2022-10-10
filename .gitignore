@@ -10,3 +10,4 @@ remove_dangling_dontainers.sh
 experiment/
 report.html*
 input/
+.mypy_cache/
