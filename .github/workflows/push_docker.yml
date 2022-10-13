@@ -5,7 +5,7 @@ on:
   push:
     paths:
       - '.github/workflows/push_docker.yml'
-      - 'Dockerfile'
+      - '.docker/Dockerfile'
       - '.dockerignore'
       - 'python-script/*'
       - 'external/custom-requirements.txt'
