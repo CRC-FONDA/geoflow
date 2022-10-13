@@ -10,10 +10,10 @@ ENV DEBIANFRONTEND=noninteractive
 ENV QT_QPA_PLATFORM=offscreen
 #ENV XDG_RUNTIME_DIR=$XRD
 
-ADD ../python-scripts /usr/scripts
+ADD python-scripts /usr/scripts
 RUN chmod +x /usr/scripts/*.py
 
-RUN apt install -y bc
+RUN apt install -y bc wget
 
 # courtesy of https://github.com/davidfrantz/base_image/blob/fab4748fe6d017788b7e5aa109266791838afb37/Dockerfile
 RUN groupadd docker && \
@@ -31,7 +31,7 @@ ENV HOME /home/docker
 ENV PATH "$PATH:/usr/scripts:/home/docker/.local/bin"
 ENV PYTHONPATH "${PYTHONPATH}:/usr/scripts:/home/docker/.local/bin"
 
-COPY ../external/custom-requirements.txt .
+COPY external/custom-requirements.txt .
 
 RUN mkdir -p ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins && \
     # h5py is build against serial interface of HDF5-1.10.4. For parallel processing or newer versions see \
@@ -48,6 +48,7 @@ RUN mkdir -p ~/.local/share/QGIS/QGIS3/profiles/default/processing/scripts && \
 RUN git clone --recurse-submodules https://github.com/EnMAP-Box/enmap-box.git && \
     cd enmap-box && \
 	git config --local include.path ../.gitconfig && \
+    git branch release_3.10 && \
     python3 scripts/setup_repository.py && \
 	python3 scripts/create_plugin.py && \
 	cp -r deploy/enmapboxplugin ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins && \
