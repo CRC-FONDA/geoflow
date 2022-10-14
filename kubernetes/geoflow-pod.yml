@@ -3,7 +3,7 @@ kind: Pod
 metadata:
   name: geoflow-pod
   labels:
-    'purpose': 'debug'
+    'purpose': 'setup'
 spec:
   containers:
   - name: geoflow
@@ -13,11 +13,19 @@ spec:
       - "-c"
       - "sleep infinity"
     volumeMounts:
-      - mountPath: /data
-        name: data
-    securityContext:
-      runAsUser: 0
+      - mountPath: /input
+        name: input
+      - mountPath: /workdir
+        name: workdir
+      - mountPath: /output
+        name: output
   volumes:
-  - name: data
-    persistentVolumeClaim:
-      claimName: ceph-volume-geoflow
+    - name: input
+      persistentVolumeClaim:
+        claimName: ceph-input
+    - name: workdir
+      persistentVolumeClaim:
+        claimName: ceph-workdir
+    - name: output
+      persistentVolumeClaim:
+        claimName: ceph-output

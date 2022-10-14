@@ -12,14 +12,19 @@ spec:
       - "-c"
       - "sleep infinity"
     volumeMounts:
-      - mountPath: /data
-        name: data
+      - mountPath: /input
+        name: input
       - mountPath: /workdir
         name: workdir
+      - mountPath: /output
+        name: output
   volumes:
-  - name: data
-    persistentVolumeClaim:
-      claimName: ceph-volume-geoflow
-  - name: workdir
-    persistentVolumeClaim:
-      claimName: workdir-volume
+    - name: input
+      persistentVolumeClaim:
+        claimName: ceph-input
+    - name: workdir
+      persistentVolumeClaim:
+        claimName: ceph-workdir
+    - name: output
+      persistentVolumeClaim:
+        claimName: ceph-output
