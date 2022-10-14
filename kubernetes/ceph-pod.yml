@@ -14,12 +14,7 @@ spec:
     volumeMounts:
       - mountPath: /data
         name: geoflow-input
-      - mountPath: /workdir
-        name: workdir
   volumes:
   - name: data
-    persistentVolumeClaim:
-      claimName: geoflow-input
-  - name: workdir
     persistentVolumeClaim:
       claimName: ceph-volume-geoflow
