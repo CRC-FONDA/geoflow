@@ -13,7 +13,7 @@ spec:
       - "sleep infinity"
     volumeMounts:
       - mountPath: /data
-        name: geoflow-input
+        name: data
   volumes:
   - name: data
     persistentVolumeClaim:
