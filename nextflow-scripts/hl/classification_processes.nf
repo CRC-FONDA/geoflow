@@ -1,6 +1,8 @@
 nextflow.enable.dsl = 2
 
 process create_classification_dataset {
+	label 'small_memory'
+
     input:
     tuple val(TID), path(bands), path(slVRTs), path(full_stack), path(cat_vec)
 
@@ -21,6 +23,8 @@ process create_classification_dataset {
 }
 
 process merge_classification_datasets {
+	label 'small_memory'
+
     input:
     path(training_datasets)
 
@@ -38,6 +42,8 @@ process merge_classification_datasets {
 }
 
 process train_rf_classifier {
+	label 'small_memory'
+
     input:
 	path(merged_training_dataset)
 
@@ -55,8 +61,7 @@ process train_rf_classifier {
 }
 
 process predict_classifier {
-
-	label 'lmem'
+	label 'medium_memory'
 
 	publishDir "${params.final_outDir}", mode: 'copy', pattern: "${TID}_prediction.tif", overwrite: true
 

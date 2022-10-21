@@ -23,6 +23,8 @@ String GRASS_Sensors(String platform_short) {
 }
 
 process calculate_spectral_indices {
+	label 'small_memory'
+
 	input:
 	tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai), val(index_choice)
 

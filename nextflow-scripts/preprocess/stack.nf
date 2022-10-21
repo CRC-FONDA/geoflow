@@ -1,6 +1,7 @@
 nextflow.enable.dsl = 2
 
 process build_vrt_stack {
+	label 'small_memory'
 //    publishDir "${params.output_dir_indices}/${TID}", mode: 'copy', pattern: '*_STACK.vrt', overwrite: true
 
     input:

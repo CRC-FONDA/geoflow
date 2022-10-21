@@ -1,6 +1,8 @@
 nextflow.enable.dsl = 2
 
 process mask_layer_stack {
+	label 'small_memory'
+
     input:
     tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai)
 

@@ -1,6 +1,8 @@
 nextflow.enable.dsl = 2
 
 process stack {
+	label 'small_memory'
+
     input:
     tuple val(TID), path(bands)
 
