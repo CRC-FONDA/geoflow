@@ -13,7 +13,6 @@ process scale_files {
 	"""
 	scale_factor=\$(printf '%.4f' \$(gdalinfo -mdd force ${reflectance} | grep 'Scale=' | awk 'BEGIN{FS="="} {if (NR==1) print "scale=4;1/"\$2}' | bc))
 	original_nodata=\$(gdalinfo ${reflectance} | grep 'NoData' | awk -v sf="\$scale_factor" 'BEGIN{FS="="} {if (NR==1) print \$2}')
-	#scaled_nodata=\$(printf '%.4f' \$(gdalinfo ${reflectance} | grep 'NoData' | awk -v sf="\$scale_factor" 'BEGIN{FS="="} {if (NR==1) print "scale=4;"\$2" * "sf}' | bc))
 	band_names=\$(gdalinfo ${reflectance} | grep 'Description' | awk 'BEGIN{FS=" = "} {print NR"="\$2}')
 
 	gdal_calc.py \
