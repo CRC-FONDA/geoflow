@@ -5,6 +5,7 @@ include { explode_base_files } from './nextflow-scripts/preprocess/explode.nf'
 include { build_vrt_stack } from './nextflow-scripts/preprocess/stack.nf'
 include { mask_layer_stack } from './nextflow-scripts/preprocess/mask.nf'
 include { scale_files } from './nextflow-scripts/aux/scale_raster.nf'
+include { mask_and_scale } from './nextflow-scripts/preprocess/mask_and_scale.nf'
 include { calculate_spectral_indices } from './nextflow-scripts/preprocess/indices.nf'
 include { calc_stms_pr as stms_ls } from './nextflow-scripts/hl/stms.nf'
 include { stack_generation } from './nextflow-subworkflows/stack_generation.nf'
@@ -81,14 +82,16 @@ workflow {
 		.filter({ it[1] >= params.processing_timeframe["START"] && it[1] <= params.processing_timeframe["END"] })
 		.set({ ch_dataP })
 
-	mask_layer_stack(ch_dataP)
+	//mask_layer_stack(ch_dataP)
 
-	scale_files(
-		mask_layer_stack
-		.out
-	)
+	//scale_files(
+	//	mask_layer_stack
+	//	.out
+	//)
 
-	scale_files
+	mask_and_scale(ch_dataP)
+
+	mask_and_scale
 	    .out
 	    .set({ ch_base_files })
 
