@@ -12,3 +12,8 @@ report.html*
 datacube/
 .mypy_cache/
 datacube/
+datacube_backup
+output/classification
+output/queried_lucas.gpkg
+output/meta/trace.csv
+output/meta/report.html
