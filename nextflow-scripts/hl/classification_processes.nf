@@ -22,40 +22,27 @@ process create_classification_dataset {
     """
 }
 
-process merge_classification_datasets {
-	label 'small_memory'
+process merge_and_fit {
+    label 'small_memory'
 
     input:
     path(training_datasets)
 
     output:
-    path("merged_training_dataset.pkl")
-
-    script:
-	// qgis_process moves output to /tmp/processing when given a relative file path or just the file name
-    String merged_arguments = ""
-    training_datasets.each({ val -> merged_arguments += "datasets=$val "})
-    
-    """
-    qgis_process run enmapbox:MergeClassificationDatasets -- ${merged_arguments} outputClassificationDataset=\$PWD/merged_training_dataset.pkl
-    """
-}
-
-process train_rf_classifier {
-	label 'small_memory'
-
-    input:
-	path(merged_training_dataset)
-
-    output:
     path("estimator.pkl")
 
     script:
-	// qgis_process moves output to /tmp/processing when given a relative file path or just the file name
+    // qgis_process moves output to /tmp/processing when given a relative file path or just the file name
+    String merged_arguments = ""
+    training_datasets.each({ val -> merged_arguments += "datasets=$val "})
     """
+    # Merging
+    qgis_process run enmapbox:MergeClassificationDatasets -- ${merged_arguments} outputClassificationDataset=\$PWD/merged_training_dataset.pkl
+
+    # Fitting
     qgis_process run enmapbox:FitRandomforestclassifier -- \
     classifier='from sklearn.ensemble import RandomForestClassifier;classifier = RandomForestClassifier(n_estimators=100, oob_score=True)' \
-    dataset=${merged_training_dataset} \
+    dataset=merged_training_dataset.pkl \
     outputClassifier=\$PWD/estimator.pkl
     """
 }
