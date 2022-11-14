@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'img/dag.dot'
+      - 'output/meta/dag.dot'
 
 jobs:
   build:
