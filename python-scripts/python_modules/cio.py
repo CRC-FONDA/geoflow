@@ -2,6 +2,8 @@
 import re
 from typing import List, Dict, Tuple
 from osgeo import gdal
+import numpy as np
+import numpy.typing as npt
 
 
 def remove_filetype(file_name: str) -> str:
@@ -18,6 +20,19 @@ def read_raster(path: str, mode=gdal.GA_ReadOnly) -> gdal.Dataset:
 	:return: gdal.Dataset object
 	"""
 	if raster := gdal.Open(path, mode):
+		return raster
+	else:
+		raise FileNotFoundError(f"{path} not found")
+
+
+def read_raster_shared(path: str, mode=gdal.GA_ReadOnly) -> gdal.Dataset:
+	"""
+	Wrapper around gdal.OpenShared
+	:param path: Path to file, which should be opened
+	:param mode: GDAL Open mode
+	:return: gdal.Dataset object
+	"""
+	if raster := gdal.OpenShared(path, mode):
 		return raster
 	else:
 		raise FileNotFoundError(f"{path} not found")
@@ -116,3 +131,45 @@ def dict_from_string_list(base: List[str]) -> Dict[int, str]:
 		list_of_kv.append((int(k), v))
 
 	return dict(list_of_kv)
+
+
+def string_to_gdal_type(string_data_type: str) -> gdal.gdalconst:
+	if string_data_type == "Byte":
+		return gdal.GDT_Byte
+	elif string_data_type == "Int8":
+		return gdal.GDT_Byte
+	elif string_data_type == "Int16":
+		return gdal.GDT_Int16
+	elif string_data_type == "UInt16":
+		return gdal.GDT_UInt16
+	elif string_data_type == "UInt32":
+		return gdal.GDT_UInt32
+	elif string_data_type == "Int32":
+		return gdal.GDT_Int32
+	elif string_data_type == "Float32":
+		return gdal.GDT_Float32
+	elif string_data_type == "Float64":
+		return gdal.GDT_Float64
+	elif string_data_type == "CFloat64":
+		return gdal.GDT_CFloat64
+
+
+def string_to_numpy_type(string_data_type: str) -> npt.DTypeLike:
+	if string_data_type == "Byte":
+		return np.byte
+	elif string_data_type == "Int8":
+		return np.int8
+	elif string_data_type == "Int16":
+		return np.int16
+	elif string_data_type == "UInt16":
+		return np.uint16
+	elif string_data_type == "UInt32":
+		return np.uint32
+	elif string_data_type == "Int32":
+		return np.int32
+	elif string_data_type == "Float32":
+		return np.float32
+	elif string_data_type == "Float64":
+		return np.float64
+	elif string_data_type == "CFloat64":
+		return np.complex64
