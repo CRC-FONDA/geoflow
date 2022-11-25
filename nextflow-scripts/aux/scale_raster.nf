@@ -4,9 +4,10 @@ process scale_files {
 	label 'small_memory'
 
 	input:
-	tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai)
+	tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai), path(masked_reflectance)
 
 	output:
+	// TODO here, an input gets overwritten!
 	tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path("${identifier}_BOA.tif"), path(qai)
 
 	script:
@@ -15,16 +16,14 @@ process scale_files {
 	original_nodata=\$(gdalinfo ${reflectance} | grep 'NoData' | awk -v sf="\$scale_factor" 'BEGIN{FS="="} {if (NR==1) print \$2}')
 	band_names=\$(gdalinfo ${reflectance} | grep 'Description' | awk 'BEGIN{FS=" = "} {print NR"="\$2}')
 
-	gdal_calc.py \
-		-A ${reflectance} \
-		--outfile=${identifier}_BOA.tif \
-		--overwrite \
-		--allBands=A \
-		--type=Float32 \
-		--calc="A*\$scale_factor" \
-		--NoDataValue="\$original_nodata" \
-		--creation-option="COMPRESS=LZW" \
-		--creation-option="PREDICTOR=3"
+	geoflow_calc.py \
+	    --input-file ${masked_reflectance} \
+	    --output-file ${identifier}_BOA.tif \
+	    --eType Float32 \
+	    --scale-factor \$scale_factor \
+	    --offset 0 \
+	    --mask-band global \
+	    --no-data \$original_nodata
 
 	set_description.py --input_file ${identifier}_BOA.tif --names \$band_names
 	"""

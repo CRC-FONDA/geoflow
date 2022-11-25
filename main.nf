@@ -82,16 +82,14 @@ workflow {
 		.filter({ it[1] >= params.processing_timeframe["START"] && it[1] <= params.processing_timeframe["END"] })
 		.set({ ch_dataP })
 
-	//mask_layer_stack(ch_dataP)
+	mask_layer_stack(ch_dataP)
 
-	//scale_files(
-	//	mask_layer_stack
-	//	.out
-	//)
+	scale_files(
+		mask_layer_stack
+		.out
+	)
 
-	mask_and_scale(ch_dataP)
-
-	mask_and_scale
+	scale_files
 	    .out
 	    .set({ ch_base_files })
 
