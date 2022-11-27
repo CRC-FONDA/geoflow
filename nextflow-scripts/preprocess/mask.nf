@@ -12,6 +12,6 @@ process mask_layer_stack {
     script:
     """
     QAI2bit_mask.py -qf ${qai} -of mask_raster.tif -qb ${params.quality_cat}
-    qgis_process run enmapbox:ApplyMaskLayerToRasterLayer -- raster=${reflectance} mask=mask_raster.tif outputRaster=masked_reflectance.vrt
+    vrt_add_mask.py --input-file ${reflectance} --mask mask_raster.tif --output-file masked_reflectance.vrt
     """
 }
