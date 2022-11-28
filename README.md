@@ -1,4 +1,4 @@
-# New B5 Workflow
+# Geoflow - *New* B5 Workflow
 
 As per our proposal submitted to LPS22, the goals set are:
 (1) to map annual land cover between 2000 and 2020 across Germany using integrated Landsat and Sentinel-2 times series
@@ -43,20 +43,25 @@ image locally to allow for faster testing-cycles. To do so, run the following co
 directory:
 
 ```bash
-docker build -f .docker/Dockerfile -t <some-docker-account>/geoflow:latest .
+docker build -f .docker/Dockerfile -t <some-docker-account>/geoflow:<version-tag> .
 ```
 
 For the time being, the most up-to-date version of this container can be pulled from DockerHub via
 
 ```bash
-docker pull floriankaterndahl/geoflow:latest
+docker pull floriankaterndahl/geoflow
 ```
 
-However, this may change in the future when others take up this work.
+Since the image gets cached on the Kubernetes cluster, it is advised to use *actual* version tags instead of relying
+on the 'latest' tag! Keep in mind updating the version specification in all configuration files.
 
 The Python dependencies for the EnMap-Box as well as the custom Python scripts are specified
 inside `external/custom-requirements.txt`. To this day, there exists no *official* EnMap-Box Docker image and the
 dependency list is kept in sync with the EnMap-Box dependencies
+
+:exclamation: Within Nextflow processes, you can assume to be inside a docker container given that you instructed
+Nextflow to use Docker as an execution environment. You are not responsible for starting/stopping containers and
+mounting files into a running docker container. Nextflow takes care of all of this for you! :exclamation:
 
 ### Dockerhub and GitHub Actions
 
@@ -65,7 +70,9 @@ the `.dockerignore`, 3) Python scripts folder or above-mentioned requirement def
 repo. In order for this to work, certain secrets must be set in the GitHub-repo's section for managing secrets. As of
 the time of writing, they are connected to my personal DockerHub-Account.
 
-## "Land use and land cover survey" Data
+At the end of this document are more information regarding what needs to be set up in GitHub.
+
+## "Land use and land cover survey" (LUCAS) Data
 
 In its current implementation, the workflow relies
 on [the harmonized LUCAS survey data](https://doi.org/10.1038/s41597-020-00675-z). Which can be
@@ -93,6 +100,8 @@ your **local** machine and update your `PATH` environment variable to point to t
 check out their [documentation](https://www.nextflow.io/docs/latest/index.html)
 or [training material](https://training.seqera.io/).
 
+TODO: Does the following paragraph, especially the last sentence, hold true?
+
 In more recent development, I tried to consolidate some processes, which were previously separated, into one. For
 example, the `mask` and `scale` processes are now combined into one. While these two processes are distinct
 content-wise, it may be beneficial to keep them together since the steps are tightly coupled, and it could allow for
@@ -112,6 +121,8 @@ once and thus violate assumptions concerning metadata or errors in various pytho
 
 To in invoke the workflow locally, run the following command form inside the cloned repository.
 
+TODO: add download and *pre-processing* of LUCAS as well.
+
 ```bash
 nextflow run -c nextflow.config -profile local main.nf
 ```
@@ -120,6 +131,17 @@ nextflow run -c nextflow.config -profile local main.nf
 
 :warning: Even if you intend to run this workflow (or an adapted version) on a kubernetes cluster, you need to have
 Nextflow installed locally. It is assumed, that you are in the root directory of this repo.
+
+#### Connecting To A Cluster 
+
+In order to interact with a Kubernetes cluster, you need to install `kubectl` on your machine and possibly some way to
+instantiate a VPN connection as well. If you are not able to install all prerequisites, e.g. because you're not
+granted the appropriate *rights* on your machine, you can use the script `kubernetes-management.sh`. This script starts
+a docker container with `kubectl` and `openvpn` installed and sets up a VPN connection.
+
+For ease of use, this is best run inside a `tmux` or `screen`-session.
+
+Keep in mind, that all paths inside the script are placeholders and need to be adopted to your specific setup.
 
 #### Setup ServiceAccounts, Storage Claims, etc.
 
@@ -141,26 +163,31 @@ kubectl create -f kubernetes/nextflow-role-binding.yml
 ```
 
 This workflow relies on an already existing FORCE datacube. To ingest to data, run the following command from the
-machine which holds the datacube. First, create a subset of the datacube (if needed) on your local machine and then
+machine on which the datacube is saved. First, create a subset of the datacube (if needed) on your local machine and then
 upload a tarball to the Kubernetes cluster. The parent directory needs to exist on the cluster.
 
 Alternatively, follow the instructions defined in
 the [FORCE2NXF-Rangeland](https://github.com/CRC-FONDA/FORCE2NXF-Rangeland) workflow to build the datacube on the
 Kubernetes cluster.
 
+The following command is expected to be run locally on your machine which holds the datacube and needs to be adjusted
+to your path/folder structure.
+
 ```bash
 find /data/Dagobah/dc/deu/ard -type f \( -name "2020*_LEVEL2_LND*BOA.tif" -o  -name "2020*_LEVEL2_LND*QAI.tif" \) \
   -exec bash -c 'DIRNAME=$( dirname "$1");
   mkdir --parent /data/Dagobah/fonda/shk/geoflow/datacube/$( basename $DIRNAME );
   ln --symbolic "$1" /data/Dagobah/fonda/shk/geoflow/datacube/$( basename $DIRNAME )/$( basename "$1" )' bash {} \;
+```
 
+```bash
 kubectl exec ceph-pod-geoflow -- bash -c "mkdir /input/datacube"
 
 tar hcf - /data/Dagobah/fonda/shk/geoflow/datacube/ | kubectl exec -i ceph-pod-geoflow -- tar xf - -C /input/
 ```
 
-Other prerequisites are the availability of the LUCAS-datasets. To create them on the cluster, run the following
-commands.
+Other prerequisites are the LUCAS-datasets which need to be available for Nextflow as workflow inputs.
+To create them on the cluster, run the following commands.
 
 ```bash
 kubectl exec geoflow-pod -- bash -c \
@@ -180,6 +207,7 @@ kubectl exec geoflow-pod -- bash -c \
 The `ceph-pod-geoflow` does not have git installed. Thus, prior to cloning the repo, you have to install it.
 
 TODO: This doesn't seem correct!
+TODO: Not needed for execution, when following this README
 
 ```bash
 kubectl exec ceph-pod-geoflow -- bash -c "apt update && apt install -y git"
@@ -193,13 +221,11 @@ adjust the options in the `nextflow. config` and select the suitable profile (i.
 from a machine outside the Kubernetes cluster.
 
 ```bash
-nextflow kuberun -c nextflow.config -profile kubernetes -v ceph-volume-geoflow:/data/ /data/geoflow-repo/main.nf # <- why doesn't this work?!
-
 nextflow kuberun -c nextflow.config -profile kubernetes \
   -v ceph-input:/input \
   -v ceph-workdir:/workdir \
   -v ceph-output:/output \
-  -r develop
+  -r develop \
   https://github.com/CRC-FONDA/geoflow.git
 ```
 
@@ -211,6 +237,14 @@ Nextflow-pod.
 some nodes to be labeled with `geoflow=true`. This label can be either changed and updated
 in `configurations/k8s.config`, alternatively the `nodeSelector`-property can be omitted to use all available nodes in a
 cluster. To label certain nodes within a Kubernetes cluster, use `kubectl label`.
+
+### Downloading the Results
+
+After a successful workflow execution, the results can be downloaded from the Kubernetes cluster via
+
+```bash
+kubectl cp <your-namespace>/ceph-pod-geoflow:/output /where/you/want/to/save/the/folder/locally/
+```
 
 ## DAG Visualization
 
@@ -235,5 +269,9 @@ two are used for updating the docker image while the latter three are used for u
 - optimize image size (~ 2,5 Gb on Dockerhub)
     - don't use the qgis base image, but compile QGIS ourselves. There's a guide on how to do this in
       the [QGIS GitHub repo](https://github.com/qgis/QGIS/blob/master/INSTALL.md)
-    - use Alpine Linux as our Distro?
-        - I fiddled around with that idea and there was at least one important dependency that was not readily available
+    - use another, smaller Linux distribution (e.g. AlpineLinux)?
+- Generate the datacube as part of the workflow. This reduces dependencies (i.e. the local environment doesn't
+  need to have FORCE installed and have sufficient disk space to hold the entire datacube) and mitigates data
+  duplication. The [FORCE Rangeland Workflow](https://github.com/CRC-FONDA/FORCE2NXF-Rangeland) serves as a 
+  blueprint/guideline on how to such integration could be managed.
+
