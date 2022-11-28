@@ -7,7 +7,7 @@ process mask_layer_stack {
     tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai)
 
     output:
-    tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai), path("masked_reflectance.vrt")
+    tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai), path("masked_reflectance.vrt"), path("mask_raster.tif")
 
     script:
     """

@@ -4,7 +4,7 @@ process scale_files {
 	label 'small_memory'
 
 	input:
-	tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai), path(masked_reflectance)
+	tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai), path(masked_reflectance), path(mask_raster)
 
 	output:
 	// TODO here, an input gets overwritten!
