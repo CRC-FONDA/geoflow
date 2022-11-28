@@ -23,21 +23,21 @@ include { build_class_vrt } from './nextflow-scripts/aux/build_outvrt.nf'
  *     (such as 'BOA') and file type
  */
 def prepare_channel = input -> {
-	String reflectance_path = input[1][0]
-	String quality_path = input[1][1]
-	String tile = reflectance_path.split('/')[-2]
-	String scene = input[0]
-	String date = scene.split('_')[0]
-	String sensor = scene.split('_')[-1]
-	String sensor_abbreviation = sensor[0]
+    String reflectance_path = input[1][0]
+    String quality_path = input[1][1]
+    String tile = reflectance_path.split('/')[-2]
+    String scene = input[0]
+    String date = scene.split('_')[0]
+    String sensor = scene.split('_')[-1]
+    String sensor_abbreviation = sensor[0]
 
-	return [tile, date, scene, sensor, sensor_abbreviation, reflectance_path, quality_path]
+    return [tile, date, scene, sensor, sensor_abbreviation, reflectance_path, quality_path]
 }
 
 def insert_stm_frame = input -> {
-	String stm_frame = input[-2] + '_' + input[-1]
+    String stm_frame = input[-2] + '_' + input[-1]
 
-	return [input[0], stm_frame, input[1], input[2], input[3], input[4], input[5], input[6], input[7]]
+    return [input[0], stm_frame, input[1], input[2], input[3], input[4], input[5], input[6], input[7]]
 }
 
 def is_landsat = input -> {
@@ -45,95 +45,95 @@ def is_landsat = input -> {
 }
 
 workflow {
-	Channel
-		.fromPath([params.lucas_survey, params.lucas_geom], type: 'file')
-		.concat(Channel.of(params.lucas_query, params.lucas_epsg))
-		.collect()
-		.set({ lucas })
+    Channel
+        .fromPath([params.lucas_survey, params.lucas_geom], type: 'file')
+        .concat(Channel.of(params.lucas_query, params.lucas_epsg))
+        .collect()
+        .set({ lucas })
 
-	spat_lucas(lucas)
+    spat_lucas(lucas)
 
-	Channel
-		.of(params.spectral_indices_mapping)
-		.set({ spectral_indices })
+    Channel
+        .of(params.spectral_indices_mapping)
+        .set({ spectral_indices })
 
-	Channel
-		.of(params.calculate_stms)
-		.set({ stm_choices })
+    Channel
+        .of(params.calculate_stms)
+        .set({ stm_choices })
 
-	Channel
-		.of(params.stm_band_mapping_sentinel)
-		.mix( spectral_indices )
-		.flatMap()
-		.combine( stm_choices )
-		.set({ stm_combination_sentinel })
+    Channel
+        .of(params.stm_band_mapping_sentinel)
+        .mix( spectral_indices )
+        .flatMap()
+        .combine( stm_choices )
+        .set({ stm_combination_sentinel })
 
-	Channel
-		.of(params.stm_band_mapping_landsat)
-		.mix( spectral_indices )
-		.flatMap()
-		.set({ stm_combination_landsat })
+    Channel
+        .of(params.stm_band_mapping_landsat)
+        .mix( spectral_indices )
+        .flatMap()
+        .set({ stm_combination_landsat })
 
-	Channel
-		.fromFilePairs(params.input_cube)
-		.map({ it.unique() }) // is this sufficient to filter the list?
-		.map({ prepare_channel(it) })
-		.filter({ is_landsat(it) })
-		.filter({ it[1] >= params.processing_timeframe["START"] && it[1] <= params.processing_timeframe["END"] })
-		.set({ ch_dataP })
+    Channel
+        .fromFilePairs(params.input_cube)
+        .map({ it.unique() }) // is this sufficient to filter the list?
+        .map({ prepare_channel(it) })
+        .filter({ is_landsat(it) })
+        .filter({ it[1] >= params.processing_timeframe["START"] && it[1] <= params.processing_timeframe["END"] })
+        .set({ ch_dataP })
 
-	mask(ch_dataP)
+    mask(ch_dataP)
 
-	scale_files(
-		mask.out
-	)
+    scale_files(
+        mask.out
+    )
 
-	scale_files
-	    .out
-	    .set({ ch_base_files })
+    scale_files
+        .out
+        .set({ ch_base_files })
 
-	calculate_spectral_indices(
-		ch_base_files
-			.combine(
-				spectral_indices.flatMap()
-			)	
-	)
+    calculate_spectral_indices(
+        ch_base_files
+            .combine(
+                spectral_indices.flatMap()
+            )
+    )
 
-	explode_base_files(ch_base_files)
+    explode_base_files(ch_base_files)
 
-	Channel
-		.empty()
-		.mix(calculate_spectral_indices.out, explode_base_files.out)
-		.combine(params.stm_timeframes) // inserts start and end time as flat elements on the end
-		// -> tile, date, scene, sensor, sensor_abbr, BOA, QAI, IDX/SL-VRT, {STM_start, STM_end}
-		.map({ insert_stm_frame(it) })
-		.filter({ it[2] >= it[1].split('_')[0] && it[2] <= it[1].split('_')[1] }) // filter observations where capture date falls within STM timeframe
-		.groupTuple(by: [0, 1]) // group by tile and STM period
-		// [tile, stm period, unique BOA, [indices and flat BOAs]]
-		.map({ [it[0], it[1], it[6].unique({ a, b -> a.name <=> b.name }), it[8].flatten()] })
-		.set({ ch_group_stacked_raster })
+    Channel
+        .empty()
+        .mix(calculate_spectral_indices.out, explode_base_files.out)
+        .combine(params.stm_timeframes) // inserts start and end time as flat elements on the end
+        // -> tile, date, scene, sensor, sensor_abbr, BOA, QAI, IDX/SL-VRT, {STM_start, STM_end}
+        .map({ insert_stm_frame(it) })
+        .filter({ it[2] >= it[1].split('_')[0] && it[2] <= it[1].split('_')[1] }) // filter observations where capture date falls within STM timeframe
+        .groupTuple(by: [0, 1]) // group by tile and STM period
+        // [tile, stm period, unique BOA, [indices and flat BOAs]]
+        .map({ [it[0], it[1], it[6].unique({ a, b -> a.name <=> b.name }), it[8].flatten()] })
+        .set({ ch_group_stacked_raster })
 
-	/* conceptually, new chunk as per proposed flow chart */
+    /* conceptually, new chunk as per proposed flow chart */
 
-	stms_ls(
-	    ch_group_stacked_raster
-	        .combine(stm_combination_landsat)
-	        .combine(stm_choices)
-	)
+    stms_ls(
+        ch_group_stacked_raster
+            .combine(stm_combination_landsat)
+            .combine(stm_choices)
+    )
 
-	stack_generation(stms_ls)
+    stack_generation(stms_ls)
 
-	stack_generation
-		.out
-		.set({ feature_stack })
+    stack_generation
+        .out
+        .set({ feature_stack })
 
-	ml_modeling(feature_stack, feature_stack, spat_lucas)
+    ml_modeling(feature_stack, feature_stack, spat_lucas)
 
-	build_class_vrt(
-		ml_modeling
-			.out
-			.collect()
-	)
+    build_class_vrt(
+        ml_modeling
+            .out
+            .collect()
+    )
 
 }
 
