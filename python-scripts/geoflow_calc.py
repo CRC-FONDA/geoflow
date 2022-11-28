@@ -69,8 +69,9 @@ for layer_index in range(1, input_raster_n_layer + 1):
     input_raster_layer: gdal.Band = input_raster.GetRasterBand(layer_index)
     input_raster_array: np.ndarray = input_raster_layer.ReadAsArray()
     # 1) Multiply by mask
+    mask_band: np.ndarray = global_mask_band if isinstance(global_mask_band, np.ndarray) else input_raster_layer.GetMaskBand().ReadAsArray()
     output_raster_array: np.ndarray = np.multiply(input_raster_array,
-                                                  global_mask_band or input_raster_layer.GetMaskBand().ReadAsArray(),
+                                                  mask_band,
                                                   dtype=cio.string_to_numpy_type(args.get("e_type"))
                                                   )
     # 2) Set zeros to np.nan
