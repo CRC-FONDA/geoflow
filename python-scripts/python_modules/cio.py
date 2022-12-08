@@ -84,10 +84,6 @@ def generate_layer_names_list(in_files: List[str]) -> List[str]:
 	for single_layer_vrt in in_files:
 		temp_layer: gdal.Dataset = read_raster(single_layer_vrt) 
 		single_layer_vrt_description: str = temp_layer.GetRasterBand(1).GetDescription()
-#		if temp_layer.RasterCount == 1:
-#			single_layer_vrt_description: str = remove_filetype(single_layer_vrt)
-#		else:
-#			single_layer_vrt_description: str = temp_layer.GetRasterBand(1).GetDescription()
 		return_list.append(single_layer_vrt_description)
 
 	return return_list
@@ -112,10 +108,6 @@ def create_big_cube(in_files: List[str], out_name: str) -> None:
 			big_vrt_layer.SetColorInterpretation(gdal.GCI_GrayIndex)
 			big_vrt_layer = None
 		big_vrt = None
-
-
-def close_gdal(gdal_dataset: gdal.Dataset) -> None:
-	gdal_dataset = None
 
 
 def dict_from_string_list(base: List[str]) -> Dict[int, str]:

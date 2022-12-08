@@ -31,10 +31,9 @@ for layer in range(1, unmasked_raster.RasterCount + 1):
     slayer.SetMetadataItem("HideNoDataValue", "1")
     slayer.DeleteNoDataValue() # See RFC 58
 
-output_raster = None # Why do I need to set this to None (i.e. close it) here instead of passing it to another function like the following two lines?
-# More importantly, why does this only come up, when setting a metadata item in the loop above?
-cio.close_gdal(unmasked_raster)
-cio.close_gdal(mask_raster)
+output_raster = None
+unmasked_raster = None
+mask_raster = None
 
 # output_raster.CreateMaskBand(gdal.GMF_ALPHA) adds the MaskBand as well, but seemingly doesn't allow any editing of it (or I didn't find it).
 # This however feels very hacky and there should be a better/more straightforward solution!

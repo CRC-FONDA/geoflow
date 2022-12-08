@@ -94,5 +94,5 @@ for layer_index in range(1, input_raster_n_layer + 1):
     # 6) write Array
     output_raster_band.WriteArray(output_raster_array)
 
-cio.close_gdal(input_raster)
-cio.close_gdal(output_raster)
+input_raster = None
+output_raster = None
