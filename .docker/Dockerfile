@@ -48,7 +48,7 @@ RUN mkdir -p ~/.local/share/QGIS/QGIS3/profiles/default/processing/scripts && \
 RUN git clone --recurse-submodules https://github.com/EnMAP-Box/enmap-box.git && \
     cd enmap-box && \
 	git config --local include.path ../.gitconfig && \
-    git branch release_3.10 && \
+    git checkout main && \
     python3 scripts/setup_repository.py && \
 	python3 scripts/create_plugin.py && \
 	cp -r deploy/enmapboxplugin ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins && \
