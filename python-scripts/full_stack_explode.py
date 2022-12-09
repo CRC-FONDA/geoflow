@@ -36,7 +36,7 @@ for raster_file in filtered_files:
 	else:
 		final_cube_inputs.extend(io.explode_multi_raster_to_vrt(raster, raster_file))
 
-	io.close_gdal(raster)
+	raster = None
 
 final_cube_inputs.sort() # TODO do I need to sort the stack? Method discussion needed from my side!
 
