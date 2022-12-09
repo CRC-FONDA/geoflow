@@ -12,6 +12,7 @@ process calc_stms_pr {
 	script:
 	"""
 	shopt -s extglob
+	export GDAL_VRT_ENABLE_PYTHON=YES
 
 	mkdir vrt
 	mv ${base_files.join(' ')} vrt

@@ -29,7 +29,7 @@ process calculate_spectral_indices {
 	tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai), val(index_choice)
 
 	output:
-	tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai), path("${identifier}_${index_choice*.key[0]}.tif")
+	tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai), path("${identifier}_${index_choice*.key[0]}.vrt")
 
 	script:
 	Boolean is_TC = index_choice*.key[0] ==~ /^TC[GBR]$/
@@ -37,14 +37,15 @@ process calculate_spectral_indices {
 	if (!is_TC) {
 		"""
 		# EMB does (data * GDAL_scale) / EMB_scale
+        # for the generated output vrt to be correct, the input needs to be given as an absolute path!
 		qgis_process run enmapbox:CreateSpectralIndices -- \
-			raster=$reflectance \
+			raster=\$PWD/$reflectance \
 			scale=1 \
 			indices=${index_choice*.key[0]} \
 			${cli_band_maps(sensor_abbr)} \
 			outputVrt=${identifier}_${index_choice*.key[0]}.vrt
 
-		GDAL_VRT_ENABLE_PYTHON=YES gdal_translate ${identifier}_${index_choice*.key[0]}.vrt ${identifier}_${index_choice*.key[0]}.tif
+		# GDAL_VRT_ENABLE_PYTHON=YES gdal_translate ${identifier}_${index_choice*.key[0]}.vrt ${identifier}_${index_choice*.key[0]}.tif
 		"""
 	} else if (is_TC) {
 		"""
