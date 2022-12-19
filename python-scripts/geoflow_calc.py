@@ -55,7 +55,7 @@ output_raster: gdal.Dataset = output_driver.Create(
     eType=cio.string_to_gdal_type(args.get("e_type")),
     options=[
         "COMPRESS=LZW",
-        "PREDICTOR=3" if "Float" in args.get("e_type") else ""
+        "PREDICTOR=3" if "Float" in args.get("e_type") else "PREDICTOR=2" if "Int" in args.get("e_type") else ""
     ]
 )
 output_raster.SetGeoTransform(input_raster.GetGeoTransform())
