@@ -3,9 +3,7 @@ nextflow.enable.dsl = 2
 include { spat_lucas } from './nextflow-scripts/preprocess/preprocessing_workflows.nf'
 include { explode_base_files } from './nextflow-scripts/preprocess/explode.nf'
 include { build_vrt_stack } from './nextflow-scripts/preprocess/stack.nf'
-include { mask_layer_stack as mask } from './nextflow-scripts/preprocess/mask.nf'
-include { scale_files } from './nextflow-scripts/aux/scale_raster.nf'
-//include { mask_and_scale } from './nextflow-scripts/preprocess/mask_and_scale.nf'
+include { mask_and_scale } from './nextflow-scripts/preprocess/mask_and_scale.nf'
 include { calculate_spectral_indices } from './nextflow-scripts/preprocess/indices.nf'
 include { calc_stms_pr as stms_ls } from './nextflow-scripts/hl/stms.nf'
 include { stack_generation } from './nextflow-subworkflows/stack_generation.nf'
@@ -37,7 +35,7 @@ def prepare_channel = input -> {
 def insert_stm_frame = input -> {
     String stm_frame = input[-2] + '_' + input[-1]
 
-    return [input[0], stm_frame, input[1], input[2], input[3], input[4], input[5], input[6], input[7]]
+    return [input[0], stm_frame, input[1], input[2], input[3], input[4], input[5], input[6]]
 }
 
 def is_landsat = input -> {
@@ -82,15 +80,11 @@ workflow {
         .filter({ it[1] >= params.processing_timeframe["START"] && it[1] <= params.processing_timeframe["END"] })
         .set({ ch_dataP })
 
-    mask(ch_dataP)
+    mask_and_scale(ch_dataP)
 
-    scale_files(
-        mask.out
-    )
-
-    scale_files
+    mask_and_scale
         .out
-        .set({ ch_base_files })
+        .set({ch_base_files})
 
     calculate_spectral_indices(
         ch_base_files
@@ -105,12 +99,12 @@ workflow {
         .empty()
         .mix(calculate_spectral_indices.out, explode_base_files.out)
         .combine(params.stm_timeframes) // inserts start and end time as flat elements on the end
-        // -> tile, date, scene, sensor, sensor_abbr, BOA, QAI, IDX/SL-VRT, {STM_start, STM_end}
+        // -> tile, date, scene, sensor, sensor_abbr, BOA, IDX/SL-VRT, {STM_start, STM_end}
         .map({ insert_stm_frame(it) })
         .filter({ it[2] >= it[1].split('_')[0] && it[2] <= it[1].split('_')[1] }) // filter observations where capture date falls within STM timeframe
         .groupTuple(by: [0, 1]) // group by tile and STM period
         // [tile, stm period, unique BOA, [indices and flat BOAs]]
-        .map({ [it[0], it[1], it[6].unique({ a, b -> a.name <=> b.name }), it[8].flatten()] })
+        .map({ [it[0], it[1], it[6].unique({ a, b -> a.name <=> b.name }), it[7].flatten()] })
         .set({ ch_group_stacked_raster })
 
     /* conceptually, new chunk as per proposed flow chart */
