@@ -59,9 +59,9 @@ The Python dependencies for the EnMap-Box as well as the custom Python scripts a
 inside `external/custom-requirements.txt`. To this day, there exists no *official* EnMap-Box Docker image and the
 dependency list is kept in sync with the EnMap-Box dependencies
 
-:exclamation: Within Nextflow processes, you can assume to be inside a docker container given that you instructed
+:exclamation::exclamation: Within Nextflow processes, you can assume to be inside a docker container given that you instructed
 Nextflow to use Docker as an execution environment. You are not responsible for starting/stopping containers and
-mounting files into a running docker container. Nextflow takes care of all of this for you! :exclamation:
+mounting files into a running docker container. Nextflow takes care of all of this for you!
 
 ### Dockerhub and GitHub Actions
 
@@ -114,8 +114,8 @@ two steps to be executed.
 It's possible to configure which flags produced by FORCE should be used for a bit mask creation. For more information,
 see [here](https://force-eo.readthedocs.io/en/latest/howto/qai.html#quality-bits-in-force).
 
-:warning::warning: When using cached results, unexpected results have been observed where files were processed more than
-once and thus violate assumptions concerning metadata or errors in various python scripts occurred. :warning::warning:
+:warning: When using cached results, unexpected results have been observed where files were processed more than
+once and thus violate assumptions concerning metadata or errors in various python scripts occurred.
 
 ### Local Execution
 
