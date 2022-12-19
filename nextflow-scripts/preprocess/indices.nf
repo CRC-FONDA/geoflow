@@ -26,10 +26,10 @@ process calculate_spectral_indices {
 	label 'small_memory'
 
 	input:
-	tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai), val(index_choice)
+	tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), val(index_choice)
 
 	output:
-	tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path(qai), path("${identifier}_${index_choice*.key[0]}.vrt")
+	tuple val(TID), val(date), val(identifier), val(sensor), val(sensor_abbr), path(reflectance), path("${identifier}_${index_choice*.key[0]}.tif")
 
 	script:
 	Boolean is_TC = index_choice*.key[0] ==~ /^TC[GBR]$/
@@ -45,7 +45,15 @@ process calculate_spectral_indices {
 			${cli_band_maps(sensor_abbr)} \
 			outputVrt=${identifier}_${index_choice*.key[0]}.vrt
 
-		# GDAL_VRT_ENABLE_PYTHON=YES gdal_translate ${identifier}_${index_choice*.key[0]}.vrt ${identifier}_${index_choice*.key[0]}.tif
+        GDAL_VRT_ENABLE_PYTHON=YES gdal_calc.py \
+            -A ${identifier}_${index_choice*.key[0]}.vrt \
+            --outfile ${identifier}_${index_choice*.key[0]}.tif \
+            --type Int16 \
+            --creation-option "COMPRESS=LZW" \
+            --creation-option "PREDICTOR=2" \
+            --allBands A \
+            --NoDataValue -9999 \
+            --calc "numpy.floor(A * 10_000)"
 		"""
 	} else if (is_TC) {
 		"""
