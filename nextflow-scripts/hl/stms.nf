@@ -19,7 +19,14 @@ process calc_stms_pr {
 	ls -1 vrt/* | grep '_${band_choice*.value[0]}' > ${band_choice*.key[0]}_files.txt
 	gdalbuildvrt -q -separate -input_file_list ${band_choice*.key[0]}_files.txt ${band_choice*.key[0]}.vrt
 	qgis_process run enmapbox:AggregateRasterLayerBands -- raster=${band_choice*.key[0]}.vrt function=${stm_function*.value.join(",")} \
-		outputRaster=${TID}_${stm_uid}_${band_choice*.key[0]}_STMS.tif
+		outputRaster=aggregated.tif
+
+    gdal_translate \
+        -ot Int16 \
+        -co "COMPRESS=LZW" \
+        -co "PREDICTOR=2" \
+        aggregated.tif \
+        ${TID}_${stm_uid}_${band_choice*.key[0]}_STMS.tif
 	"""
 }
 
