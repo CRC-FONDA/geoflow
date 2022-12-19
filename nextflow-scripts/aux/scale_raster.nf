@@ -19,8 +19,8 @@ process scale_files {
 	geoflow_calc.py \
 	    --input-file ${masked_reflectance} \
 	    --output-file ${identifier}_BOA.tif \
-	    --eType Float32 \
-	    --scale-factor \$scale_factor \
+	    --eType Int16 \
+	    --scale-factor 1 \
 	    --offset 0 \
 	    --mask-band global \
 	    --no-data \$original_nodata
