@@ -24,36 +24,39 @@ cd geoflow
 
 ## Docker
 
-Docker serves as the execution environment for each Nextflow processes: All dependencies, be it binary executables like
-the [EnMap-Box](https://github.com/EnMAP-Box/enmap-box) or custom scripts, are self-contained in a docker container and
-thus portable across different execution environments and systems. Three dockerfiles currently exist which serve
-different purposes:
+Docker serves as the execution environment for each Nextflow processes: All dependencies, be it binary executables,
+script-based programs like the [EnMap-Box](https://github.com/EnMAP-Box/enmap-box) or custom scripts, are 
+self-contained in a docker container and thus portable across different execution environments and systems. 
+Three dockerfiles currently exist which serve different purposes:
 
-1. `./docker/Dockerfile`: This is the current execution environment for the workflow. The docker image is also hosted on
-   DockerHub (needed for execution on clusters)
-2. `.docker/ubuntu_with_wget.dockerfile`: This docker image is used for setting up prerequisites of the workflow inside
-   a cluster. Depending on the future structure of the workflow (e.g. generating the datacube inside the cluster/as part
-   of Geoflow instead of uploading it) this may become obnsolete.
-3. `.docker/k8s_management.dockerfile`: This docker image has `kubectl` and `openvpn` installed to connect to a
-   Kubernetes cluster and mitigates the need to install either one of those on your local machine.
+| N° |           file path                   |                          Description                                   |
+|----|---------------------------------------|------------------------------------------------------------------------|
+| 1  | `./docker/Dockerfile`                 | This is the current execution environment for the workflow. The docker
+ image is also hosted on DockerHub (and currently needed for execution on clusters).
+ :exclamation: *The Docker Image used as the execution environment during workflow execution on a cluster using Nextflow
+ must be accessible from DockerHub.* |
+| 2  | `.docker/ubuntu_with_wget.dockerfile` | This docker image is used for setting up prerequisites of the workflow
+ inside a cluster. Depending on the future structure of the workflow (e.g. generating the datacube inside the 
+ cluster/as part of Geoflow instead of uploading it) this may become obnsolete. |
+| 3  |  `.docker/k8s_management.dockerfile`  | This docker image has `kubectl` and `openvpn` installed to connect to a
+ Kubernetes cluster and mitigates the need to install either one of those on your local machine. |
 
 The *main* docker image which contains all other software the workflow is dependent on build upon the QGIS docker image
 and adds the EnMap-Box as well as custom Python scripts. For local workflow development, I chose to build the docker
-image locally to allow for faster testing-cycles. To do so, run the following command from inside the root project
-directory:
+image locally to allow for faster testing-cycles. Running the following command from inside the root project
+directory build the docker image locally:
 
 ```bash
 docker build -f .docker/Dockerfile -t <some-docker-account>/geoflow:<version-tag> .
 ```
 
-For the time being, the most up-to-date version of this container can be pulled from DockerHub via
+To pull the most recent version of this container, please check [the DockerHub page](https://hub.docker.com/r/floriankaterndahl/geoflow).
+The usage of the latest tag is discouraged and should not be used anymore since it leads to confusions when
+executing on a Kubernetes cluster.
 
 ```bash
-docker pull floriankaterndahl/geoflow
+docker pull floriankaterndahl/geoflow:<version-tag>
 ```
-
-Since the image gets cached on the Kubernetes cluster, it is advised to use *actual* version tags instead of relying
-on the 'latest' tag! Keep in mind updating the version specification in all configuration files.
 
 The Python dependencies for the EnMap-Box as well as the custom Python scripts are specified
 inside `external/custom-requirements.txt`. To this day, there exists no *official* EnMap-Box Docker image and the
@@ -61,13 +64,14 @@ dependency list is kept in sync with the EnMap-Box dependencies
 
 :exclamation::exclamation: Within Nextflow processes, you can assume to be inside a docker container given that you instructed
 Nextflow to use Docker as an execution environment. You are not responsible for starting/stopping containers and
-mounting files into a running docker container. Nextflow takes care of all of this for you!
+mounting files into a running docker container or writing the results to the filesystem outside of docker.
+Nextflow takes care of all of this for you!
 
 ### Dockerhub and GitHub Actions
 
 A GitHub Actions workflow is triggered when changes to 1) the dockerfile, 2) the Action definition, 3)
-the `.dockerignore`, 3) Python scripts folder or above-mentioned requirement definition is committed and pushed to the
-repo. In order for this to work, certain secrets must be set in the GitHub-repo's section for managing secrets. As of
+the `.dockerignore`, 4) Python scripts folder are committed and pushed to the repo.
+In order for this to work, certain secrets must be set in the GitHub-repo's section for managing secrets. As of
 the time of writing, they are connected to my personal DockerHub-Account.
 
 At the end of this document are more information regarding what needs to be set up in GitHub.
@@ -77,8 +81,8 @@ At the end of this document are more information regarding what needs to be set 
 In its current implementation, the workflow relies
 on [the harmonized LUCAS survey data](https://doi.org/10.1038/s41597-020-00675-z). Which can be
 downloaded [here](https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/LUCAS). While in the development phase
-(i.e. right now), only points sampled in 2018 and the theoretical LUCAS-points are considered. This likely changes in
-the future. The respective files can be downloaded in a zipped format and processed as shown below:
+(i.e. right now), only points sampled in 2018 and the theoretical LUCAS-points are considered. This may change in
+the future. The files can be downloaded and processed as shown below from the root of the repo directory as follows:
 
 ```bash
 wget --directory-prefix=lucas --content-disposition https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/LUCAS/LUCAS_harmonised/1_table/lucas_harmo_uf_2018.zip && \
@@ -100,28 +104,21 @@ your **local** machine and update your `PATH` environment variable to point to t
 check out their [documentation](https://www.nextflow.io/docs/latest/index.html)
 or [training material](https://training.seqera.io/).
 
-TODO: Does the following paragraph, especially the last sentence, hold true?
-
-In more recent development, I tried to consolidate some processes, which were previously separated, into one. For
-example, the `mask` and `scale` processes are now combined into one. While these two processes are distinct
-content-wise, it may be beneficial to keep them together since the steps are tightly coupled, and it could allow for
-storage space savings when running the workflow on Kubernetes: Only the *final* output (i.e. the scaled raster images)
-would be written to the `PersistentVolumeClaims` (only relevant if you execute the workflow on Kubernetes!).
-
-The separate files are not deleted, yet. In the future, it may be desirable to let the user decide how they want these
-two steps to be executed.
+At the time of writing, the processes for masking and scaling the reflectance files are consolidated into a single
+Nextflow process definition (`mask_and_scale`). There exist separated versiones (`mask` and `scale`) which are
+currently unused but where not removed to allow for easier switching between both approaches in the developing
+phase.
 
 It's possible to configure which flags produced by FORCE should be used for a bit mask creation. For more information,
 see [here](https://force-eo.readthedocs.io/en/latest/howto/qai.html#quality-bits-in-force).
 
-:warning: When using cached results, unexpected results have been observed where files were processed more than
+:warning: When using cached results, unexpected results have been observed with files being processed more than
 once and thus violate assumptions concerning metadata or errors in various python scripts occurred.
 
 ### Local Execution
 
-To in invoke the workflow locally, run the following command form inside the cloned repository.
-
-TODO: add download and *pre-processing* of LUCAS as well.
+To in invoke the workflow locally, run the following command form inside the cloned repository. It is assumed
+that all data required (FORCE datacube, LUCAS data) is present.
 
 ```bash
 nextflow run -c nextflow.config -profile local main.nf
@@ -132,20 +129,19 @@ nextflow run -c nextflow.config -profile local main.nf
 :warning: Even if you intend to run this workflow (or an adapted version) on a kubernetes cluster, you need to have
 Nextflow installed locally. It is assumed, that you are in the root directory of this repo.
 
-#### Connecting To A Cluster 
+#### Connect to a Kubernetes cluster 
 
 In order to interact with a Kubernetes cluster, you need to install `kubectl` on your machine and possibly some way to
 instantiate a VPN connection as well. If you are not able to install all prerequisites, e.g. because you're not
-granted the appropriate *rights* on your machine, you can use the script `kubernetes-management.sh`. This script starts
-a docker container with `kubectl` and `openvpn` installed and sets up a VPN connection.
+granted the appropriate rights on your machine, you can use the script `kubernetes-management.sh`. This script starts
+a docker container with `kubectl` and `openvpn` installed and sets up a VPN connection. Keep in mind, that all paths
+inside the script are placeholders and need to be adopted to your specific setup!
 
 For ease of use, this is best run inside a `tmux` or `screen`-session.
 
-Keep in mind, that all paths inside the script are placeholders and need to be adopted to your specific setup.
-
 #### Setup ServiceAccounts, Storage Claims, etc.
 
-To run this workflow on a Kubernetes-Cluster, one or more "PersistentVolumeClaim"s, a *master* pod which mounts the
+To run this workflow on a Kubernetes cluster, one or more "PersistentVolumeClaim"s, a *master* pod which mounts the
 PVC (here: `ceph-pod.yml` or `geoflow-pod. yml`), as well as Nextflow roles on the cluster and a role binding need to be
 created. Make sure to adjust the namespaces and storage sizes according to your setup and needs.
 
@@ -163,24 +159,21 @@ kubectl create -f kubernetes/nextflow-role-binding.yml
 ```
 
 This workflow relies on an already existing FORCE datacube. To ingest to data, run the following command from the
-machine on which the datacube is saved. First, create a subset of the datacube (if needed) on your local machine and then
-upload a tarball to the Kubernetes cluster. The parent directory needs to exist on the cluster.
+machine on which the datacube is saved - you may need to run the last two commands inside the above mentioned docker
+container when `kubectl` and `openvpn` are not installed on your *main* machine.
+If needed, create a subset of the datacube on your local machine and then upload a tarball to the Kubernetes
+cluster. The parent directory needs to exist on the cluster.
 
 Alternatively, follow the instructions defined in
 the [FORCE2NXF-Rangeland](https://github.com/CRC-FONDA/FORCE2NXF-Rangeland) workflow to build the datacube on the
 Kubernetes cluster.
-
-The following command is expected to be run locally on your machine which holds the datacube and needs to be adjusted
-to your path/folder structure.
 
 ```bash
 find /data/Dagobah/dc/deu/ard -type f \( -name "2020*_LEVEL2_LND*BOA.tif" -o  -name "2020*_LEVEL2_LND*QAI.tif" \) \
   -exec bash -c 'DIRNAME=$( dirname "$1");
   mkdir --parent /data/Dagobah/fonda/shk/geoflow/datacube/$( basename $DIRNAME );
   ln --symbolic "$1" /data/Dagobah/fonda/shk/geoflow/datacube/$( basename $DIRNAME )/$( basename "$1" )' bash {} \;
-```
 
-```bash
 kubectl exec ceph-pod-geoflow -- bash -c "mkdir /input/datacube"
 
 tar hcf - /data/Dagobah/fonda/shk/geoflow/datacube/ | kubectl exec -i ceph-pod-geoflow -- tar xf - -C /input/
@@ -216,8 +209,8 @@ kubectl exec ceph-pod-geoflow -- git clone https://github.com/CRC-FONDA/geoflow.
 
 #### Running the workflow
 
-After either creating a datacube inside your cluster (i.e. in an PVC) or [copying one to it](./kubernetes/upload.sh),
-adjust the options in the `nextflow. config` and select the suitable profile (i.e. the K8s one) and start the workflow
+After either creating a datacube inside your cluster (i.e. in an PVC) or copying one to it,
+adjust the options in the `nextflow.config` and select the suitable profile (i.e. the K8s one) and start the workflow
 from a machine outside the Kubernetes cluster.
 
 ```bash
@@ -228,10 +221,6 @@ nextflow kuberun -c nextflow.config -profile kubernetes \
   -r develop \
   https://github.com/CRC-FONDA/geoflow.git
 ```
-
-:warning: I think with the current Kubernetes config (i.e. specifying volume and storage claims in the pod and `k8s`
-scope), it should be possible to start the workflow via `nextflow kuberun` as well as from inside a dedicated
-Nextflow-pod.
 
 :warning: By default, the Nextflow-Pods which are spawned when executing the workflow on a kubernetes-cluster require
 some nodes to be labeled with `geoflow=true`. This label can be either changed and updated
@@ -257,7 +246,7 @@ execution.
 
 Currently, there are two automated GitHub Actions set up. One is for automatically creating a new docker image and
 pushing it to Dockerhub and one for updating the workflow execution visualization. The former can usually be done
-quicker via the CLI from docker, but it seemed like a good idea to guarantee that all relevant changes to the codebase
+quicker via the CLI, but it seemed like a good idea to guarantee that all relevant changes to the codebase
 are reflected in the docker image.
 
 In order for these two automated workflows to run properly, some setup in the GitHub repository is required:
