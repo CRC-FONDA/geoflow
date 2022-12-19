@@ -253,6 +253,9 @@ In order for these two automated workflows to run properly, some setup in the Gi
 The *secrets* `DOCKER_HUB_ACCESS_TOKEN`, `DOCKER_HUB_USERNAME`, `EMAIL`, `NAME` and `PAT` all need to be set. The first
 two are used for updating the docker image while the latter three are used for updating the workflow visualization.
 
+:warning: HOWEVER, the automated push to DockerHub currently useses the tag 'latest' which, as outlined above,
+is discouraged. I did not find the time to come up with a solution for this.
+
 ## Further Notes And Ideas
 
 - optimize image size (~ 2,5 Gb on Dockerhub)
