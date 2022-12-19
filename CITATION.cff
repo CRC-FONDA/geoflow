@@ -1,0 +1,38 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Geoflow
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Florian
+    family-names: Katerndahl
+    email: florian@katerndahl.com
+    orcid: 'https://orcid.org/0000-0001-6137-061X'
+    affiliation: Humboldt-Universität zu Berlin
+  - given-names: Dirk
+    family-names: Pflugmacher
+    email: dirk.pflugmacher@geo.hu-berlin.de
+    affiliation: Humboldt-Universität zu Berlin
+    orcid: 'https://orcid.org/0000-0002-2226-4029'
+  - given-names: Fabian
+    family-names: Lehmann
+    email: fabian.lehmann@hu-berlin.de
+    affiliation: Humboldt-Universität zu Berlin
+    orcid: 'https://orcid.org/0000-0003-0520-0792'
+  - given-names: Andreas
+    family-names: Janz
+    email: andreas.janz@geo.hu-berlin.de
+    affiliation: Humboldt-Universität zu Berlin
+  - given-names: Ulf
+    family-names: Leser
+    email: leser@informatik.hu-berlin.de
+    affiliation: Humboldt-Universität zu Berlin
+  - given-names: Patrick
+    family-names: Hostert
+    email: patrick.hostert@geo.hu-berlin.de
+    affiliation: Humboldt-Universität zu Berlin
+    orcid: 'https://orcid.org/0000-0002-5730-5484'
