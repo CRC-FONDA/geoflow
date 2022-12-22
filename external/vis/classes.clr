@@ -1,0 +1,12 @@
+1 201 6 22 255 articificial land
+2 240 222 108 255 cropland seasonal
+3 255 229 40 255 cropland perennial
+4 51 160 44 255 forest broadleaved
+5 13 93 40 255 forest coniferous
+6 127 167 24 255 forest mixed
+7 255 127 0 255 shrubland
+8 179 222 105 255 grassland
+9 143 96 49 255 bare land
+10 31 120 180 255 water
+11 154 203 225 255 wetland
+12 42 214 255 255 snow/ice
