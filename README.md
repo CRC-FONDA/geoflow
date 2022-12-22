@@ -31,15 +31,9 @@ Three dockerfiles currently exist which serve different purposes:
 
 | N° |           file path                   |                          Description                                   |
 |----|---------------------------------------|------------------------------------------------------------------------|
-| 1  | `./docker/Dockerfile`                 | This is the current execution environment for the workflow. The docker
- image is also hosted on DockerHub (and currently needed for execution on clusters).
- :exclamation: *The Docker Image used as the execution environment during workflow execution on a cluster using Nextflow
- must be accessible from DockerHub.* |
-| 2  | `.docker/ubuntu_with_wget.dockerfile` | This docker image is used for setting up prerequisites of the workflow
- inside a cluster. Depending on the future structure of the workflow (e.g. generating the datacube inside the 
- cluster/as part of Geoflow instead of uploading it) this may become obnsolete. |
-| 3  |  `.docker/k8s_management.dockerfile`  | This docker image has `kubectl` and `openvpn` installed to connect to a
- Kubernetes cluster and mitigates the need to install either one of those on your local machine. |
+| 1  | `./docker/Dockerfile`                 | This is the current execution environment for the workflow. The docker image is also hosted on DockerHub (and currently needed for execution on clusters). :exclamation: *The Docker Image used as the execution environment during workflow execution on a cluster using Nextflow must be accessible from DockerHub.* |
+| 2  | `.docker/ubuntu_with_wget.dockerfile` | This docker image is used for setting up prerequisites of the workflow inside a cluster. Depending on the future structure of the workflow (e.g. generating the datacube inside the cluster/as part of Geoflow instead of uploading it) this may become obnsolete. |
+| 3  |  `.docker/k8s_management.dockerfile`  | This docker image has `kubectl` and `openvpn` installed to connect to a Kubernetes cluster and mitigates the need to install either one of those on your local machine. |
 
 The *main* docker image which contains all other software the workflow is dependent on build upon the QGIS docker image
 and adds the EnMap-Box as well as custom Python scripts. For local workflow development, I chose to build the docker
