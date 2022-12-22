@@ -4,15 +4,16 @@ else
   CONTAINER_NAME="k8s_management"
 fi
 
+# Line 10: Paths can be the same
 docker run --privileged -it -d \
   --name ${CONTAINER_NAME} \
   -v path/to/datacube/local:/path/to/datacube/inside/docker \
-  -v /path/to/cloned/repo/geoflow/:/murmel/ \
-  -v /path/to/kubernetes/setup/:/murmel/setup/ \
+  -v /local/path/to/geoflow/:/murmel/ \
+  -v /path/to/kubernetes/config/files/:/murmel/setup/ \
   -v /path/to/.kubernetes/:/murmel/.kubernetes/ \
   floriankaterndahl/k8s_management
 
-docker exec ${CONTAINER_NAME} openvpn --config setup/openvpn-config-file  --daemon
+docker exec ${CONTAINER_NAME} openvpn --config setup/openvpn-config-file.ovpn  --daemon
 
 docker exec --privileged -it ${CONTAINER_NAME} bash
 
